@@ -21,3 +21,10 @@ test("root instructions stay short and route to canonical docs", async () => {
     assert.match(content, /docs\/harness\/(?:index|workflows)/);
   }
 });
+
+test("package allowlist ships runtime code without compiled tests", async () => {
+  const packageJson = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf8")) as { files: string[]; bin: Record<string, string> };
+  assert.ok(packageJson.files.includes("dist/src"));
+  assert.equal(packageJson.files.includes("dist"), false);
+  assert.equal(packageJson.bin.harness, "dist/src/cli/bin.js");
+});

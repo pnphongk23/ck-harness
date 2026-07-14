@@ -3,12 +3,19 @@
   "version": "0.1.0",
   "description": "Deterministic, file-based repository harness contracts",
   "type": "module",
+  "bin": {
+    "harness": "dist/src/cli/bin.js"
+  },
   "engines": {
     "node": ">=20"
   },
   "files": [
-    "dist",
+    "dist/src",
+    "docs/harness/README.md",
+    "docs/harness/RULES.md",
+    "docs/harness/schema-v1.md",
     "docs/harness/templates",
+    "docs/harness/workflows",
     ".agents/skills"
   ],
   "scripts": {

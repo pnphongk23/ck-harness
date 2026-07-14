@@ -1,0 +1,236 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, relative } from "node:path";
+import { test } from "node:test";
+import { checkIndex, diagnoseHarness, renderExpectedIndex, scanHarness } from "../src/core/integrity.js";
+
+const featureBody = `# Feature
+
+## Introduction
+
+Purpose.
+
+## Business Understanding
+
+### Actors
+
+| Actor | Type | Goal | Responsibility |
+| --- | --- | --- | --- |
+| Contributor | Business role | Validate Harness | Read diagnostics |
+
+### User needs
+
+Reliable feedback.
+
+### Main flow
+
+1. **Actor:** The contributor requests validation. **System:** The system evaluates the Harness.
+
+### Alternative flows
+
+- Source step: 1. Condition: a path is invalid. Behavior: report it. Ends with: a failed result.
+
+### Exception flows
+
+- Source step: 1. Failure: a document is malformed. Handling: identify it. Prohibited: repair it. Failure postcondition: no change.
+
+### Postconditions
+
+A deterministic result is available.
+
+## Requirements
+
+- Validation is read-only.
+
+## Acceptance
+
+- [ ] Validation reports violations.
+
+## Relationships
+
+- None.
+`;
+
+test("integrity scanner returns deterministic, source-specific findings without writing", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const features = join(root, "docs", "harness", "features");
+
+  await writeFeature(features, "FEAT-001-valid.md", "FEAT-001");
+  await writeFeature(features, "FEAT-002-mismatch.md", "FEAT-003");
+  await writeFeature(features, "FEAT-004-link.md", "FEAT-004", 'features:\n    - "[[missing-feature|FEAT-999]]"');
+  await writeFeature(features, "FEAT-005-source.md", "FEAT-005", "source_paths:\n    - src/missing.ts");
+  await writeFeature(features, "FEAT-006-first.md", "FEAT-006");
+  await writeFeature(features, "FEAT-006-second.md", "FEAT-006");
+  await writeFile(join(features, "FEAT-007-approval.md"), featureDocument("FEAT-007").replace("status: draft", "status: approved"));
+  const phaseDir = join(root, "docs", "harness", "plans", "260714-1200-invalid");
+  await mkdir(phaseDir, { recursive: true });
+  await writeFile(join(phaseDir, "phase-01-invalid.md"), `---\nphase: 1\ntitle: Invalid\nstatus: blocked\npriority: P1\neffort: 1d\ndependencies: []\ndecision_dependencies: []\n---\n`);
+
+  const before = await snapshot(root);
+  const first = await scanHarness(root);
+  const second = await scanHarness(root);
+  const after = await snapshot(root);
+
+  assert.equal(first.outcome, "failure");
+  assert.deepEqual(first, second);
+  assert.deepEqual(after, before);
+  const ordered = [...first.findings].sort((left, right) => left.path.localeCompare(right.path) || left.checkId.localeCompare(right.checkId) || left.message.localeCompare(right.message));
+  assert.deepEqual(first.findings, ordered);
+  for (const checkId of ["artifact.filename", "artifact.id.duplicate", "relationships.wikilink", "relationships.source-path", "document.parse"]) {
+    assert.ok(first.findings.some((entry) => entry.checkId === checkId), `expected ${checkId}`);
+  }
+  assert.ok(first.findings.every((entry) => entry.path.startsWith("docs/harness/")));
+
+  const scoped = await scanHarness(root, { path: "docs/harness/features/FEAT-004-link.md" });
+  assert.deepEqual(scoped.findings.map((entry) => entry.checkId), ["relationships.wikilink"]);
+  const kindScoped = await scanHarness(root, { kind: "feature" });
+  assert.ok(kindScoped.findings.every((entry) => entry.path.startsWith("docs/harness/features/")));
+});
+
+test("integrity scanner rejects a missing Harness index without guessing a scope", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "harness-integrity-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  const result = await scanHarness(root);
+
+  assert.equal(result.outcome, "failure");
+  assert.deepEqual(result.findings.map((entry) => entry.checkId), ["repository.index.missing"]);
+  assert.equal(result.findings[0]?.remediation, "run `harness init` in the intended repository");
+});
+
+test("integrity scanner rejects missing and escaping path scopes", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const missing = await scanHarness(root, { path: "docs/harness/features/missing.md" });
+  const escaping = await scanHarness(root, { path: "../outside.md" });
+
+  assert.deepEqual(missing.findings.map((entry) => entry.checkId), ["scope.path.missing"]);
+  assert.deepEqual(escaping.findings.map((entry) => entry.checkId), ["scope.path.invalid"]);
+});
+
+test("index check compares deterministic expected bytes without writing", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const features = join(root, "docs", "harness", "features");
+  await writeFeature(features, "FEAT-001-valid.md", "FEAT-001");
+  await writeFile(join(root, "docs", "harness", "index.md"), await renderExpectedIndex(root));
+
+  const before = await snapshot(root);
+  const first = await checkIndex(root);
+  const second = await checkIndex(root);
+  assert.equal(first.outcome, "success");
+  assert.deepEqual(first, second);
+  assert.deepEqual(await snapshot(root), before);
+
+  await writeFile(join(features, "FEAT-001-valid.md"), featureDocument("FEAT-001").replace("Purpose.", "Changed purpose."));
+  const stale = await checkIndex(root);
+  assert.equal(stale.outcome, "failure");
+  assert.deepEqual(stale.findings.map((entry) => entry.checkId), ["index.stale"]);
+  assert.doesNotMatch(stale.findings[0]?.remediation ?? "", /harness index build/);
+  await writeFile(join(root, "docs", "harness", "index.md"), "not an index\n");
+  const malformed = await checkIndex(root);
+  assert.deepEqual(malformed.findings.map((entry) => entry.checkId), ["index.malformed"]);
+  await rm(join(root, "docs", "harness", "index.md"));
+  const missing = await checkIndex(root);
+  assert.deepEqual(missing.findings.map((entry) => entry.checkId), ["index.missing"]);
+  assert.equal(missing.findings[0]?.remediation, "run `harness init` in the intended repository");
+});
+
+test("index check preserves valid lifecycle sequence counters in expected bytes", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const counters = { next_feature_sequence: 7, next_decision_sequence: 3, next_report_sequence: 2, next_rule_sequence: 5 };
+  await writeFile(join(root, "docs", "harness", "index.md"), await renderExpectedIndex(root, counters));
+
+  const result = await checkIndex(root);
+  assert.equal(result.outcome, "success");
+  assert.match(result.expected, /next_feature_sequence: 7/);
+});
+
+test("full scan rejects missing Decision dependencies and invalid Plan lifecycle/layout evidence", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const plans = join(root, "docs", "harness", "plans");
+  const completed = join(plans, "260714-1200-completed-plan");
+  const pending = join(plans, "260714-1201-pending-plan");
+  await mkdir(completed, { recursive: true });
+  await mkdir(pending, { recursive: true });
+  await mkdir(join(plans, "invalid-layout"), { recursive: true });
+  await mkdir(join(plans, "260714-1202-valid-layout"), { recursive: true });
+  await mkdir(join(plans, "260714-1203-missing-root"), { recursive: true });
+  await writeFile(join(completed, "plan.md"), planDocument("completed", "approved", []));
+  await writeFile(join(completed, "phase-02-missing-dependency.md"), phaseDocument(2, "in_progress", [1], ['[[DEC-999-missing|DEC-999]]']));
+  await writeFile(join(pending, "plan.md"), planDocument("pending", "pending", []));
+  await writeFile(join(pending, "phase-01-active.md"), phaseDocument(1, "in_progress"));
+  await writeFile(join(plans, "invalid-layout", "wrong-name.md"), phaseDocument(1, "pending"));
+  await writeFile(join(plans, "260714-1202-valid-layout", "wrong-name.md"), phaseDocument(1, "pending"));
+  await writeFile(join(plans, "260714-1203-missing-root", "phase-01-alone.md"), phaseDocument(1, "pending"));
+
+  const result = await scanHarness(root);
+  const ids = new Set(result.findings.map((entry) => entry.checkId));
+  for (const checkId of ["phase.decision.missing", "plan.phase.dependency.missing", "plan.aggregation.incomplete", "plan.report.missing", "plan.approval.missing", "phase.filename", "plan.layout", "plan.root.missing"]) {
+    assert.ok(ids.has(checkId), `expected ${checkId}`);
+  }
+});
+
+test("doctor reports optional Graphify as a warning and preserves the workspace", async (t) => {
+  const root = await harnessFixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(join(root, "docs", "harness", "workflows"), { recursive: true });
+  await writeFile(join(root, "docs", "harness", "schema-v1.md"), "schema\n");
+  await writeFile(join(root, "docs", "harness", "workflows", "README.md"), "router\n");
+  await writeFile(join(root, "docs", "harness", "workflows", "cook.md"), "cook\n");
+  await writeFile(join(root, "docs", "harness", "index.md"), await renderExpectedIndex(root));
+  const before = await snapshot(root);
+  const result = await diagnoseHarness(root, { path: "" });
+  assert.equal(result.outcome, "success");
+  assert.ok(result.findings.every((entry) => entry.severity === "warning"));
+  assert.ok(result.findings.some((entry) => entry.checkId === "doctor.graphify.unavailable"));
+  assert.deepEqual(await snapshot(root), before);
+});
+
+async function harnessFixture(): Promise<string> {
+  const root = await mkdtemp(join(tmpdir(), "harness-integrity-"));
+  const harness = join(root, "docs", "harness");
+  await mkdir(join(harness, "features"), { recursive: true });
+  await writeFile(join(harness, "index.md"), "---\nschema_version: 1\ngenerated: true\n---\n\n# Harness Index\n");
+  return root;
+}
+
+async function writeFeature(directory: string, filename: string, id: string, relationships = ""): Promise<void> {
+  await writeFile(join(directory, filename), featureDocument(id, relationships));
+}
+
+function featureDocument(id: string, additions = ""): string {
+  let relationships = "  specs: []\n  decisions: []\n  plans: []\n  reports: []\n  rules: []\n  features: []\n  source_paths: []";
+  if (additions.startsWith("features:")) relationships = relationships.replace("  features: []", `  ${additions}`);
+  if (additions.startsWith("source_paths:")) relationships = relationships.replace("  source_paths: []", `  ${additions}`);
+  return `---\nschema_version: 1\ntype: feature\nid: ${id}\ntitle: Test ${id}\nstatus: draft\ncreated: 2026-07-14\nrelationships:\n${relationships}\n---\n\n${featureBody}`;
+}
+
+function planDocument(status: "pending" | "completed", approval: "pending" | "approved", reports: readonly string[]): string {
+  const decided = approval === "approved" ? "  decided: 2026-07-14\n" : "";
+  return `---\ntitle: Test Plan\ndescription: Test plan\nstatus: ${status}\napproval:\n  status: ${approval}\n  required_by: Repository Maintainer\n${decided}priority: P1\neffort: 1d\nbranch: main\ntags: []\nblockedBy: []\nblocks: []\nrelationships:\n  specs: []\n  decisions: []\n  plans: []\n  reports: [${reports.join(", ")}]\n  rules: []\n  features: []\n  source_paths: []\ncreated: "2026-07-14T00:00:00.000Z"\ncreatedBy: test\n---\n`;
+}
+
+function phaseDocument(phase: number, status: "pending" | "in_progress", dependencies: readonly number[] = [], decisions: readonly string[] = []): string {
+  const decisionYaml = decisions.length ? `decision_dependencies:\n${decisions.map((decision) => `  - "${decision}"`).join("\n")}` : "decision_dependencies: []";
+  return `---\nphase: ${phase}\ntitle: Test phase\nstatus: ${status}\npriority: P1\neffort: 1d\ndependencies: [${dependencies.join(", ")}]\n${decisionYaml}\n---\n`;
+}
+
+async function snapshot(root: string): Promise<readonly string[]> {
+  const files = await allFiles(root);
+  return Promise.all(files.map(async (path) => `${relative(root, path)}:${createHash("sha256").update(await readFile(path)).digest("hex")}`));
+}
+
+async function allFiles(root: string): Promise<string[]> {
+  const entries = await readdir(root, { withFileTypes: true });
+  const groups = await Promise.all(entries.map(async (entry) => {
+    const path = join(root, entry.name);
+    return entry.isDirectory() ? allFiles(path) : [path];
+  }));
+  return groups.flat().sort((left, right) => left.localeCompare(right));
+}
