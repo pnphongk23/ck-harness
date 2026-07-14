@@ -16,6 +16,8 @@ type: feature
 id: FEAT-001
 status: approved
 created: 2026-07-14
+approved: 2026-07-14
+approved_by: Product Authority
 ---
 
 # FEAT-001: Manage repository harness documents with the Harness CLI

@@ -1,61 +1,79 @@
 # Cook Workflow
 
 ## Purpose
-Implement an approved plan phase-by-phase, ensuring correctness through strict verification and producing a comprehensive delivery report.
+Implement an approved Plan one eligible phase at a time, verify every required
+criterion, and record delivery evidence without storing duplicate Cook state.
 
 ## Use When
-Use when an implementation plan under `docs/harness/plans/` has been approved and implementation is ready to begin.
+Use when Plan approval is approved and a pending phase has completed
+predecessors and approved Decision dependencies.
 
 ## Inputs
-- Approved plan directory `docs/harness/plans/YYMMDD-HHmm-slug/` containing `plan.md` and phase files.
-- Current codebase state.
-- Project specifications and RULES.md.
+- Approved Plan directory with Plan and phase files.
+- Governing Feature, Specs, approved Decisions, and Rules from Plan relationships.
+- Current codebase and preserved user changes.
 
 ## Hard Gates
-- **Phase Sequence Gate:** You must work on exactly one phase at a time. Do not begin work on phase N+1 until phase N is fully completed and verified.
-- **Evidence Gate:** No phase or task can be claimed complete without concrete verification evidence (command logs, test outputs, or build success).
-- **No Automatic Delivery Gate:** You must never automatically commit, push, or deploy changes.
+- **Eligibility Gate:** Plan approval, predecessors, and Decision dependencies must be satisfied.
+- **Single Phase Gate:** At most one phase is `in_progress`.
+- **Authority Gate:** Implementation remains inside approved behavior, technical authority, and Plan scope.
+- **Evidence Gate:** No phase completes without concrete passing evidence.
+- **No Automatic Delivery Gate:** Never automatically commit, push, release, or deploy.
 
 ## Procedure
-1. **Prepare Phase:** Select the next pending phase. Mark its status in the phase file as `in_progress`.
-2. **Read Stubs first:** Read any existing files or generated code stubs that will be replaced in this phase before writing new implementation.
-3. **Execute Smallest Change:** Make the minimal code modifications needed to satisfy the current phase requirements.
-4. **Compile and Type Check:** Run compiler and type checking commands (e.g. `npm run check`) to ensure syntax correctness.
-5. **Run Verification:** Execute the tests or checks specified in the phase's success criteria.
-6. **Review Changes:** Inspect the git diff for unintended side effects or scope drift.
-7. **Document Outcome:**
-   - If the check passes: record the command output, and mark the phase `completed`.
-   - If a success criterion check cannot be executed (e.g., missing dependencies, mock issues, hardware limits), write exactly this text: `Tôi không thể xác minh điều này hoạt động vì...` followed by the concrete, detailed reason, and leave the criterion incomplete.
-8. **Reconcile plans:** Proceed through subsequent phases sequentially.
-9. **Deliver Report:** Once all phases are completed, allocate the next monotonic `REP-XXX` ID and copy `templates/report.md` to `reports/REP-XXX-*.md`. Document the outcome, changed files, verification logs, plan variance, and repeated friction.
+1. **Derive eligibility:** Report current phase, blockers, and next action from
+   durable Plan, phase, Decision, and Report state; do not write Cook status.
+2. **Prepare phase:** Select the next eligible pending phase, mark it
+   `in_progress`, and set the Plan `in_progress` when execution first begins.
+3. **Read before writing:** Inspect existing files, generated stubs, user changes,
+   and the governing contracts for the phase.
+4. **Execute smallest change:** Modify only what the approved phase requires.
+5. **Run checks:** Execute compiler, type, test, build, static, or observable
+   commands specified by success criteria.
+6. **Review changes:** Inspect the diff for unintended side effects, authority conflicts, and scope drift.
+7. **Record outcome:**
+   - Passing criteria receive exact evidence and the phase becomes `completed`.
+   - A failing check under active authorized investigation leaves the phase `in_progress`.
+   - If a required check cannot run, write `Tôi không thể xác minh điều này hoạt động vì...`
+     plus the concrete reason and leave the criterion incomplete.
+   - A concrete condition preventing meaningful progress sets phase and aggregate
+     Plan state as required by [[workflow-lifecycle]] and records `status_reason`.
+8. **Handle material variance:** Preserve current work and interrupt for Feature,
+   Decision, Spec, or Plan revision. Reset affected approval before invalid continuation.
+9. **Continue sequentially:** Start no dependant phase until the current required phase passes.
+10. **Deliver:** After every required phase passes, create a completed Delivery
+    Report, link it to Plan and authority artifacts, then mark the Plan completed.
 
 ## Output
-- Verified code changes in the repository.
-- Updated plan and phase files with `completed` statuses.
-- A Delivery Report `docs/harness/reports/REP-XXX-*.md` conforming to `schema-v1.md`.
+- Verified implementation changes.
+- Updated Plan and phase execution state with exact evidence.
+- A completed `REP-XXX` Delivery Report when all required work passes.
 
 ## Completion Criteria
-- Every phase in the plan is marked `completed`.
-- Every completed success criterion has passing evidence. A criterion carrying
-  the exact Vietnamese block disclosure remains incomplete, so its phase and
-  the overall plan cannot be marked `completed`.
-- A completed Delivery Report (`REP-XXX`) exists and contains verification evidence.
-- The codebase builds and passes all automated checks successfully.
+- Every required phase is completed with passing evidence.
+- No cancelled phase is silently counted as completed.
+- A completed Delivery Report records outcome, changed files, verification,
+  variance, and friction.
+- Plan state is completed only after the Report exists.
+- Relevant builds and automated checks pass.
 
 ## Prohibited Actions
-- Do not work on multiple phases in parallel.
-- Do not hide failures or write confidence-based language (e.g., "This should work") instead of executing tests.
-- Do not automatically commit, push, release, or deploy changes.
-- Delegation is optional, never mandatory. If the active runtime uses a bounded
-  worker, one writer owns the checkout and the same plan, evidence, review, and
-  human side-effect gates still apply.
+- Do not begin an ineligible phase or work on multiple phases concurrently.
+- Do not turn a fixable failure into false completion or premature blocked state.
+- Do not let implementation evidence silently redefine Feature, Spec, Decision, or Rule authority.
+- Do not discard or revert user-owned changes without explicit approval.
+- Do not persist a Cook run or trace ledger.
+- Do not automatically commit, push, release, or deploy.
 
 ## Failure and Recovery
-- **Blocked Verification:** If a test cannot run, use the exact Vietnamese block disclosure `Tôi không thể xác minh điều này hoạt động vì...` and present the block to the user.
-- **Compilation/Test Failure:** Preserve user changes, investigate the failure,
-  and fix or revise only the authorized implementation. Do not discard the
-  working tree or proceed to the next phase while a failure exists. Reverting
-  user-owned content requires explicit approval.
-- **Handoff Boundary:** Once the Delivery Report is written and approved by the
-  human, hand off to Self Improve when the report contains friction, stale
-  guidance, missing validation, or a reusable lesson; otherwise conclude.
+- **Fixable failure:** Keep the phase in progress, preserve evidence, investigate
+  within scope, and rerun checks.
+- **Blocked verification:** Use the exact Vietnamese disclosure, record the
+  reason, and do not complete the phase or Plan.
+- **Material variance:** Pause invalid continuation, preserve work, revise the
+  owning contract, and obtain affected approval before resuming.
+- **Cancellation:** Record the reason, preserve completed evidence, and prevent new phases.
+- **Delivery rejection after completion:** Treat it as a follow-up change request;
+  do not rewrite completed evidence.
+- **Handoff:** A completed Report or approved Decision with improvement evidence
+  may enter Self Improve; otherwise conclude.

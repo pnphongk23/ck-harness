@@ -5,6 +5,8 @@ id: FEAT-042
 title: Recover a basket
 status: approved
 created: 2026-07-14
+approved: 2026-07-14
+approved_by: Product Authority
 relationships:
   specs: []
   decisions: []

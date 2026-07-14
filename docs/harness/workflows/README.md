@@ -1,91 +1,122 @@
 # Harness Workflow Router and State Machine
 
-This router defines the canonical end-to-end state machine for all engineering and product tasks in the repository. It defines how work flows through various workflows and how revisions or rejections are handled.
+This router classifies the requested outcome before durable mutation, sends work
+to the smallest authoritative workflow, and defines when a durable Decision may
+interrupt and return to another workflow. Exact lifecycle states and authority
+rules are defined by [[workflow-lifecycle]].
 
-## State Machine Diagram
+## Request Classification
+
+| Requested outcome | Route |
+| --- | --- |
+| Answer, explanation, review, diagnosis, plan, or status | Read only; do not create durable state unless explicitly requested |
+| Existing behavior already satisfies the request | Return evidence and stop |
+| Maintenance inside approved behavior | Reuse the governing Feature or Spec, then Plan |
+| New or changed observable behavior | [Feature Workflow](feature.md) |
+| Durable product or technical trade-off | [Decision Workflow](decision.md) at the affected boundary |
+| Approved implementation work | [Plan Workflow](plan.md), then [Cook Workflow](cook.md) |
+| Verified Harness improvement signal | [Self-Improve Workflow](self-improve.md) |
+
+Every code change requires an approved Plan. Classification determines whether
+a new Feature or Decision is necessary before planning; it does not bypass Plan
+or verification gates.
+
+## State Machine
 
 ```mermaid
-graph TD
-    Start([Start Task]) --> Feat[Feature Discovery]
-    Feat --> FeatApprove{Human Approved?}
-    FeatApprove -- "No (Revision)" --> Feat
-    FeatApprove -- Yes --> DecNeeded{Decision Needed?}
+flowchart TD
+    Start([Request]) --> Classify{Classify outcome}
+    Classify -->|Read-only| ReadOnly[Inspect smallest context and respond]
+    Classify -->|Already satisfied| NoChange[Return evidence; no Plan or Cook]
+    Classify -->|Maintenance| Existing[Resolve governing Feature or Spec]
+    Classify -->|New or changed behavior| Feature[Feature Discovery]
+    Feature --> FeatureGate{Product Authority approved?}
+    FeatureGate -->|No| Feature
+    FeatureGate -->|Yes| Existing
 
-    DecNeeded -- Yes --> Dec[Decision Workflow]
-    Dec --> DecApprove{Human Approved?}
-    DecApprove -- "No (Revision)" --> Dec
-    DecApprove -- Yes --> Plan[Plan Workflow]
+    Existing --> Context[Consult Rules, Specs, and approved Decisions]
+    Context --> Plan[Draft Plan]
+    Plan --> PlanValidate{Mechanically valid?}
+    PlanValidate -->|No| Plan
+    PlanValidate -->|Yes| PlanGate{Repository Maintainer approved?}
+    PlanGate -->|Changes requested| Plan
+    PlanGate -->|Approved| Cook[Cook next eligible phase]
 
-    DecNeeded -- No --> Plan
-    Plan --> PlanApprove{Human Approved?}
-    PlanApprove -- "No (Revision)" --> Plan
-    PlanApprove -- Yes --> Cook[Cook Workflow]
+    Cook --> Verify{Required evidence passes?}
+    Verify -->|Fixable in scope| Cook
+    Verify -->|Blocked| Blocked[Record blocker and stop invalid continuation]
+    Blocked -->|Resolved in scope| Cook
+    Verify -->|Yes| More{Required phases remain?}
+    More -->|Yes| Cook
+    More -->|No| Report[Complete Delivery Report and Plan]
+    Report --> Improve{Verified improvement signal?}
+    Improve -->|No| End([End])
+    Improve -->|Yes| SelfImprove[Self Improve]
+    SelfImprove --> End
 
-    Cook --> PhaseVerify{Phase Verified?}
-    PhaseVerify -- "No (Failure/Blocked)" --> CookFailure[Failure & Recovery / Revision]
-    CookFailure --> Cook
-    PhaseVerify -- Yes --> CookNext{All Phases Done?}
-
-    CookNext -- No --> Cook
-    CookNext -- Yes --> Rep[Generate Delivery Report]
-
-    Rep --> RepGate{Human Approved?}
-    RepGate -- "No (Revision)" --> Cook
-    RepGate -- Yes --> Improve{Improvement Signal?}
-
-    Improve -- Yes --> SelfImprove[Self-Improve Workflow]
-    Improve -- No --> End([End Task])
-
-    SelfImprove --> ImproveApprove{Canonical Change Approved?}
-    ImproveApprove -- Yes --> ImproveVerify{Improvement Verified?}
-    ImproveApprove -- No --> End
-    ImproveVerify -- No --> SelfImprove
-    ImproveVerify -- Yes --> End
+    Feature -. product trade-off .-> Decision[Decision Workflow]
+    Context -. technical trade-off .-> Decision
+    Plan -. planning trade-off .-> Decision
+    Cook -. material variance .-> Decision
+    SelfImprove -. policy trade-off .-> Decision
+    Decision --> DecisionGate{Required authority approved?}
+    DecisionGate -->|No| Decision
+    DecisionGate -->|Yes| Return[Return to the boundary that raised the Decision]
 ```
 
-## State Transition Definitions
-
-All work proceeds through the following sequential states:
+## Transition Contracts
 
 1. **Feature Discovery ([Feature Workflow](feature.md))**
-   - **Trigger:** A new capability request or need to document existing behavior.
-   - **Activities:** Scouting the repository, identifying evidence, and categorizing into Observed/Inferred/TBD.
-   - **Transition Gate:** Human approval of the business boundary. Ends by producing an approved `FEAT-XXX` artifact.
+   - Trigger: new or changed observable behavior, or a request to formalize
+     undocumented behavior.
+   - Gate: Product Authority approves purpose, scope, behavior, requirements,
+     and acceptance.
+   - Maintenance inside an approved contract reuses that Feature or Spec.
 
-2. **Decision Making ([Decision Workflow](decision.md)) [Optional / As Needed]**
-   - **Trigger:** Multiple technical or product approaches are viable, presenting durable trade-offs.
-   - **Activities:** Documenting context, presenting 2-3 alternatives, and selecting the simplest viable choice.
-   - **Transition Gate:** Human approval of the chosen alternative. Ends by producing an approved `DEC-XXX` artifact.
+2. **Decision ([Decision Workflow](decision.md)) [Interruptible]**
+   - Trigger: multiple viable paths have durable, cross-cutting, material, or
+     expensive-to-reverse consequences.
+   - Gate: Product Authority approves product choices; Repository Maintainer
+     approves technical choices.
+   - Return: resume Feature, Plan, Cook, or Self Improve at the affected boundary.
 
 3. **Planning ([Plan Workflow](plan.md))**
-   - **Trigger:** An approved `FEAT-XXX` (and any associated `DEC-XXX` documents) is ready for implementation.
-   - **Activities:** Scanning related/unfinished plans, generating a monotonic timestamped plan directory, and creating a phase-by-phase execution plan.
-   - **Transition Gate:** Human approval of the plan structure and success criteria. Ends by producing a `plans/YYMMDD-HHmm-slug/` directory with `plan.md` and phase files.
+   - Trigger: approved behavior or an existing governing contract is ready for implementation.
+   - Gates: mechanical validation, then Repository Maintainer approval.
+   - Output: an approved Plan with relationships, phase dependencies, and
+     executable success criteria.
 
-4. **Cooking/Implementation ([Cook Workflow](cook.md))**
-   - **Trigger:** A planned implementation is approved.
-   - **Activities:** Implementing the plan phase-by-phase, running builds/tests, and gathering concrete evidence.
-   - **Transition Gate:** Validation of each phase's success criteria. If blocked, using the exact unavailable-verification disclosure.
+4. **Cooking ([Cook Workflow](cook.md))**
+   - Trigger: Plan approval is approved and the next phase has completed
+     predecessors and approved Decision dependencies.
+   - Gate: no phase completes without concrete passing evidence.
+   - Variance: local failures remain in the active phase; material authority,
+     scope, or success-criteria changes return to Decision or Plan approval.
 
 5. **Reporting ([Cook Workflow](cook.md))**
-   - **Trigger:** All phases of the approved plan are successfully verified.
-   - **Activities:** Writing a Delivery Report (`REP-XXX`) from `templates/report.md` capturing outcomes, changed files, verification logs, plan variance, and repeated friction.
-   - **Transition Gate:** Human sign-off of the delivered outcomes.
+   - Trigger: all required phases and success criteria pass.
+   - Output: a completed Delivery Report and completed Plan.
+   - Product or high-risk acceptance, when required, belongs in approved Plan
+     success criteria; there is no second universal Report approval gate.
 
 6. **Self Improve ([Self-Improve Workflow](self-improve.md)) [Optional]**
-   - **Trigger:** A verified Report or Decision exposes friction, stale guidance,
-     missing validation, or a reusable lesson.
-   - **Activities:** Classify the signal, search existing guidance, propose the
-     smallest improvement, obtain approval, apply it, and verify the result.
-   - **Possible outcomes:** No change, retained candidate, Spec/template/workflow
-     correction, Decision, policy update, or promoted `RULE-XXX`.
-   - **Rule gate:** Promotion still requires two independent occurrences with
-     one `recurrence_key` plus explicit human approval.
+   - Trigger: completed Report or approved Decision evidence exposes friction,
+     stale guidance, missing validation, or a reusable lesson.
+   - Gate: every canonical change requires evidence and human approval; Rule
+     promotion still requires two independent occurrences with one recurrence key.
 
-## Rejection and Revision Loops
+## Revision and Terminal Outcomes
 
-If a gate fails, the workflow must loop back to the appropriate previous stage:
-- **Feature Revision:** If feature requirements are rejected, return to Discovery.
-- **Plan Revision:** If a plan cannot be executed or fails validation, return to Planning to adjust phases, risks, or success criteria.
-- **Cook Revision / Failure:** If implementation fails verification, roll back the current phase, address the failure, and re-test. If structurally blocked, seek human guidance to either modify the plan (looping back to Planning) or record the block.
-- **Report Revision:** If verification evidence is deemed insufficient, return to the Cook workflow to gather the required logs.
+- **No change:** Return evidence and end without Plan, Cook, or Report.
+- **Feature revision:** Material behavior change returns the Feature to review
+  and invalidates affected downstream approval.
+- **Plan revision:** Material scope or success-criteria change resets Plan
+  approval; routine fixes within approved scope do not.
+- **Verification failure:** Preserve user changes and evidence, investigate only
+  authorized scope, and never start a dependant phase early.
+- **Blocked:** Record the concrete condition only when meaningful approved
+  progress is impossible.
+- **Cancelled:** Preserve completed evidence, record the reason, and never claim
+  unfinished work as delivered.
+- **Delivered:** Complete from phase evidence and a Delivery Report; rejection
+  discovered afterward becomes a follow-up change request rather than rewritten history.

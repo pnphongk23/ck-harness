@@ -5,6 +5,9 @@ status: completed
 priority: P1
 effort: "5-7 days"
 dependencies: [1, 2]
+decision_dependencies:
+  - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
+  - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
 # Phase 3: Workflow and Skill Ports
@@ -16,19 +19,22 @@ Define the end-to-end working model and adapt the useful ClaudeKit skills into f
 ## Workflow Contract
 
 ```text
-Explore codebase or request
-  -> Feature business document
-  -> Shared spec consultation and decisions
-  -> CK-compatible plan
-  -> Cook implementation and verification
-  -> Delivery report
-  -> Human-approved repeated lesson promotion to rule
+Classify request
+  -> Feature only for new or changed observable behavior
+  -> consult authority and interrupt for durable Decisions as needed
+  -> mechanically valid and human-approved CK-compatible Plan
+  -> eligible phase Cook with verification evidence
+  -> Delivery Report
+  -> optional human-approved Self Improve
 ```
 
 - **Feature:** adapted from brainstorm, ask, and scout. It may describe a new feature or reverse-engineer existing behavior, but must distinguish observed evidence, inference, and TBD.
-- **Decision:** records context, alternatives, chosen trade-off, consequences, and evidence links.
-- **Plan:** preserves CK plan naming and file layout under `docs/harness/plans/`.
-- **Cook:** reads an approved plan, works phase by phase, requires verification, writes a report, and never requires subagents, commits, pushes, or deployments.
+- **Decision:** records durable context, alternatives, chosen trade-off,
+  consequences, and evidence, then returns to the boundary that raised it.
+- **Plan:** preserves CK naming and layout while recording approval, governing
+  relationships, and phase Decision dependencies.
+- **Cook:** derives eligibility from Plan and phase state, works one phase at a
+  time, requires verification, writes a report, and stores no duplicate Cook state.
 - **Self Improve:** verified reports/decisions feed a classified improvement loop;
   Rule promotion remains one gated outcome requiring at least two independent
   occurrences with one `recurrence_key` and explicit human approval.
@@ -67,12 +73,18 @@ Explore codebase or request
 8. Port optional Graphify behavior with clean skip semantics.
 9. Add static checks for missing local references, forbidden `$HOME/.claude` dependencies, stale CK paths, agent-spawning instructions, and uncredited copied material.
 10. Test implicit and explicit trigger prompts for each skill.
+11. Classify requests before Feature creation and document authority precedence.
+12. Separate Plan approval from execution, add Decision dependencies, and keep
+    Cook eligibility derived.
+13. Remove the universal post-Report approval gate; place material business or
+    high-risk acceptance in approved Plan success criteria.
 
 ## Risks
 
 - Copying CK skills unchanged reintroduces mandatory subagent orchestration and global paths; all ports require line-by-line dependency review.
 - Claude personal skills can override project skills; unique `harness-*` names are mandatory.
 - Skills can drift from CLI behavior; workflow docs and CLI schemas are canonical, while adapters are validated projections.
+- Plan extensions can drift from ClaudeKit; strict CK validation remains a required compatibility check.
 
 ## Success Criteria
 
@@ -82,6 +94,11 @@ Explore codebase or request
 - [x] Cook has no mandatory subagent, Task tool, commit, push, or deploy behavior.
 - [x] Provenance and licensing are recorded for every adapted source.
 - [x] Trigger tests select the correct skill and do not activate implementation during Feature discovery.
+- [x] Read-only, no-change, maintenance, behavior-change, durable-decision, and
+  improvement requests route to the smallest suitable workflow.
+- [x] Decision can interrupt and return to Feature, Plan, Cook, or Self Improve.
+- [x] Plan approval is separate from execution and phases declare Decision dependencies.
+- [x] Cook has no durable status and Plan completion is evidence-based through a Delivery Report.
 
 ## Verification Evidence
 
@@ -90,3 +107,11 @@ Explore codebase or request
   `docs/harness/SKILL-PORTS.md` and `docs/harness/PROVENANCE.md`.
 - `npm test` passed local-reference, forbidden-operation, provenance, and
   explicit/implicit trigger tests on 2026-07-14.
+- FEAT-002, DEC-004, DEC-005, and `workflow-lifecycle.md` record the approved
+  lifecycle revision and its evidence on 2026-07-14.
+- `npm run verify` passed 19 tests after lifecycle schema, workflow, Plan, and
+  snapshot alignment on 2026-07-14.
+- `ck plan validate docs/harness/plans/260714-0033-file-based-agent-harness/plan.md --strict`
+  passed with 0 errors and 0 warnings on ClaudeKit 4.4.0.
+- All 16 Feature, Decision, Spec, Plan, and phase files parsed under the
+  executable schema; their non-example wikilinks and source paths resolved.

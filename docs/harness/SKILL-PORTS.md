@@ -6,7 +6,7 @@ canonical; skills are thin projections.
 
 | Source behavior | Retained | Replaced | Optional | Removed |
 | --- | --- | --- | --- | --- |
-| brainstorm | requirements, approaches, approval gate | output path with `features/` and feature workflow | existing-code discovery | global rules and orchestration |
+| brainstorm | exact requirements, business behavior variants, approval gate | technical approach selection with interruptible Decision workflow | existing-code discovery | global rules and orchestration |
 | ask | alternative and trade-off analysis | personal context with index and linked specs | decision creation | hidden home-directory assumptions |
 | scout | source/evidence mapping | free-form output with Feature Relationships | reverse engineering | delegated discovery requirement |
 | ck-plan 4.4.0 | phase files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with `docs/harness/plans/` | external CK validation when installed | unrelated task hydration |
@@ -36,7 +36,7 @@ all files in the six source skill directories that inform this port:
 | `./plans/`, global plan roots, active-plan script | Replaced by `docs/harness/plans/`; no hidden active pointer |
 | Generic `./docs/*`, global rules, `.ck.json`, personal skill paths | Replaced by `docs/harness/index.md` and its linked specs |
 | CK `plan create/check/uncheck/status` | Retained as optional compatibility checks; Markdown remains usable without CK |
-| Requirements, alternative analysis, approval, plan-before-code, validation | Retained and simplified in Feature, Decision, Plan, and Cook workflows |
+| Requirements, business behavior variants, durable alternative analysis, approval, plan-before-code, validation | Retained and separated across Feature, Decision, Plan, and Cook workflows |
 | Task hydration, delegated research/testing/review/finalization | Removed; direct work with recorded evidence is sufficient |
 | Automatic journal, archive, commit, push, PR, release, deploy | Removed from canonical skills |
 | Gemini/OpenCode scouting, MCP server, semantic LLM graph extraction | Removed from MVP |

@@ -21,7 +21,8 @@ sibling temporary file, best-effort `fsync`, then atomic rename.
 - Features own observable business behavior and immutable `FEAT-XXX` IDs.
 - Specs own project-wide technical context and use semantic filenames.
 - Decisions own chosen trade-offs and evidence.
-- CK plans own approved implementation sequencing.
+- CK plans own approved implementation sequencing, governing relationships,
+  phase Decision dependencies, and execution state.
 - Reports own delivered outcomes and verification evidence.
 - Rules own human-approved, reusable guidance.
 - Templates and workflows define authoring contracts.
@@ -29,6 +30,10 @@ sibling temporary file, best-effort `fsync`, then atomic rename.
 
 Root `AGENTS.md` and `CLAUDE.md` are routers only. They must not duplicate this
 manual or workflow content.
+
+Request classification prevents read-only, no-change, and maintenance work from
+creating unnecessary Features. Decision is an interruptible workflow for
+durable trade-offs; it is not one mandatory fixed stage in every task.
 
 ## Naming and links
 

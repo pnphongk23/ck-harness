@@ -5,6 +5,9 @@ status: pending
 priority: P1
 effort: "5-7 days"
 dependencies: [3, 4, 5, 6]
+decision_dependencies:
+  - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
+  - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
 # Phase 7: Verification and Release Readiness

@@ -44,22 +44,28 @@ test("workflows enforce key architectural boundaries and behaviors", async () =>
   assert.match(featureContent, /Observed/i, "Feature workflow must mention Observed evidence");
   assert.match(featureContent, /Inferred/i, "Feature workflow must mention Inferred evidence");
   assert.match(featureContent, /TBD/i, "Feature workflow must mention TBD evidence");
-  assert.match(featureContent, /2-3/i, "Feature workflow must mention proposing 2-3 approaches");
-  assert.match(featureContent, /simplest/i, "Feature workflow must prioritize the simplest approach");
-  assert.match(featureContent, /human approval/i, "Feature workflow must require human approval");
+  assert.match(featureContent, /behavior variants/i, "Feature workflow must keep alternatives at business-behavior level");
+  assert.match(featureContent, /do not create a Feature for every repository task/i, "Feature workflow must avoid universal Feature creation");
+  assert.match(featureContent, /Product Authority/i, "Feature workflow must name its approval authority");
   assert.match(featureContent, /do not create.*plan/i, "Feature workflow must prohibit planning");
+
+  const decisionContent = await readFile(join(docsRoot, "workflows", "decision.md"), "utf8");
+  assert.match(decisionContent, /return boundary/i, "Decision must return to the workflow that raised it");
+  assert.match(decisionContent, /proposed or approved Feature/i, "Product Decision may use a proposed Feature");
+  assert.match(decisionContent, /local, mandated, (?:and|or) cheaply\s+reversible/i, "Decision must avoid local-choice artifacts");
 
   const cookContent = await readFile(join(docsRoot, "workflows", "cook.md"), "utf8");
   assert.match(cookContent, /approved plan/i, "Cook workflow must require an approved plan");
-  assert.match(cookContent, /one phase at a time/i, "Cook workflow must work one phase at a time");
+  assert.match(cookContent, /one (?:eligible )?phase at a time/i, "Cook workflow must work one phase at a time");
   assert.match(cookContent, /evidence/i, "Cook workflow must require evidence of success");
   assert.match(cookContent, /never.*automatically commit/i, "Cook workflow must prohibit automatic commits");
-  assert.match(cookContent, /delegation is optional, never mandatory/i, "Cook must not require or forbid bounded workers");
-  assert.match(cookContent, /cannot be marked `completed`/i, "Blocked verification must keep the plan incomplete");
+  assert.match(cookContent, /do not write Cook status/i, "Cook must derive rather than persist its state");
+  assert.match(cookContent, /do not complete the phase or Plan/i, "Blocked verification must keep the plan incomplete");
 
   const planContent = await readFile(join(docsRoot, "workflows", "plan.md"), "utf8");
-  assert.doesNotMatch(planContent, /status.*`approved`/i, "Plan workflow must not invent an approved status");
-  assert.match(planContent, /every generated phase stub/i, "Plan workflow must read generated stubs before replacement");
+  assert.match(planContent, /approval metadata/i, "Plan workflow must store approval separately from execution");
+  assert.match(planContent, /decision_dependencies/i, "Plan phases must record Decision dependencies");
+  assert.match(planContent, /every generated Plan and phase file/i, "Plan workflow must read generated stubs before replacement");
 
   const selfImproveContent = await readFile(join(docsRoot, "workflows", "self-improve.md"), "utf8");
   assert.match(selfImproveContent, /classify the signal/i, "Self Improve must classify evidence before acting");
@@ -93,4 +99,7 @@ test("workflows/README.md references all five workflow files", async () => {
   assert.ok(content.includes("cook.md"), "workflow router must link to cook.md");
   assert.ok(content.includes("self-improve.md"), "workflow router must link to self-improve.md");
   assert.equal(content.includes("rule-promotion.md"), false, "workflow router must not reference the retired workflow path");
+  assert.match(content, /Request Classification/, "workflow router must classify requests before Feature creation");
+  assert.match(content, /Decision Workflow.*Interruptible/i, "workflow router must model Decision as interruptible");
+  assert.doesNotMatch(content, /ReportGate/, "workflow router must not require a universal Report approval gate");
 });

@@ -29,4 +29,5 @@ Describe how conformance is checked.
 
 Use this starter for semantic files such as `architecture.md`,
 `api-overview.md`, `database.md`, `security.md`, `testing.md`, or
-`conventions.md`. Create only the specs the project materially needs.
+`conventions.md`. Exact workflow states and transition predicates belong in a
+semantic lifecycle Spec. Create only the specs the project materially needs.

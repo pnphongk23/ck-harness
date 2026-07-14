@@ -5,6 +5,10 @@ status: pending
 priority: P1
 effort: "4-5 days"
 dependencies: [2, 4]
+decision_dependencies:
+  - "[[DEC-003-index-watch-and-graph-runtime|DEC-003]]"
+  - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
+  - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
 # Phase 5: Index Watcher and Knowledge Graph

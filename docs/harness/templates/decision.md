@@ -4,7 +4,7 @@ type: decision
 id: DEC-000
 title: Choose the canonical persistence format
 status: proposed
-decided: 2026-01-01
+created: 2026-01-01
 relationships:
   specs:
     - "[[architecture]]"

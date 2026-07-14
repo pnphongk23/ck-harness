@@ -16,7 +16,7 @@ relationships:
 type: decision
 id: DEC-001
 status: proposed
-decided: 2026-07-14
+created: 2026-07-14
 ---
 
 # DEC-001: Choose the CLI command parsing architecture

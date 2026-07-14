@@ -5,6 +5,11 @@ status: pending
 priority: P1
 effort: "5-7 days"
 dependencies: [1, 2, 3]
+decision_dependencies:
+  - "[[DEC-001-cli-command-parsing|DEC-001]]"
+  - "[[DEC-002-crash-recoverable-file-mutations|DEC-002]]"
+  - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
+  - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
 # Phase 4: CLI Core and Validation
@@ -63,6 +68,8 @@ The CLI may execute deterministic local helpers such as Graphify when explicitly
 2. Implement CLI parsing, stable exit codes, `--json`, `--dry-run`, and actionable diagnostics.
 3. Implement `init` as an idempotent allowlisted scaffold operation.
 4. Implement parsers and schema validation for frontmatter, headings, IDs, filenames, statuses, relationships, and wikilinks.
+   Validate approval provenance, Decision dependencies, authority conflicts,
+   lifecycle transitions, and Cook eligibility from [[workflow-lifecycle]].
 5. Implement monotonic feature allocation and generic counters for decision/report/rule artifacts.
 6. Implement create/list/show operations and deterministic template rendering.
 7. Implement rename with inbound-link rewrite and rollback on validation failure.

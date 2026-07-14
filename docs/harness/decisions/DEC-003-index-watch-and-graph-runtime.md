@@ -17,7 +17,7 @@ relationships:
 type: decision
 id: DEC-003
 status: proposed
-decided: 2026-07-14
+created: 2026-07-14
 ---
 
 # DEC-003: Choose the index watcher and graph process runtime

@@ -1,45 +1,70 @@
 # Decision Workflow
 
 ## Purpose
-Evaluate and record durable technical or product trade-offs that have a lasting impact on the codebase or architecture.
+Evaluate and preserve the rationale for a durable product or technical trade-off
+that future work must inherit.
 
 ## Use When
-Use when there are multiple viable technical paths, database schemas, library selections, or architectural approaches that require selecting one over others.
+Use when two or more viable paths have material, cross-cutting,
+expensive-to-reverse, security, data-ownership, API, validation, source-of-truth,
+or product-policy consequences. Keep local, mandated, and cheaply reversible
+choices in the governing Spec or Plan.
 
 ## Inputs
-- An approved Feature (`FEAT-XXX`) for feature-scoped choices, or a semantic
-  project Spec for project-wide choices.
-- Project technical specs (`docs/harness/specs/*.md`).
-- Existing decision log and code constraints.
+- A proposed or approved Feature for product choices.
+- An approved Feature or active semantic Spec for technical choices.
+- Existing Decisions, Rules, repository evidence, and the workflow boundary that raised the choice.
 
 ## Hard Gates
-- **Alternative Viability Gate:** At least 2-3 credible alternatives must be formally evaluated.
-- **Human Approval Gate:** The final decision and its trade-offs must be approved by the human before finalizing.
+- **Durability Gate:** The choice must justify durable Decision history.
+- **Alternative Viability Gate:** Evaluate at least two credible alternatives,
+  including the status quo when it is viable.
+- **Evidence Gate:** Consequences and recommendation must cite direct evidence or an explicit bounded spike.
+- **Human Approval Gate:** Product Authority approves product choices;
+  Repository Maintainer approves technical choices.
 
 ## Procedure
-1. **Analyze Constraints:** Read the index, the linked feature, and relevant specifications.
-2. **Formulate Alternatives:** Identify 2-3 credible alternatives, listing the simplest viable choice first.
-3. **Evaluate Trade-offs:** Record the advantages, disadvantages, and technical consequences of each alternative.
-4. **Draft Decision:** Allocate the next monotonic `DEC-XXX` ID. Copy `templates/decision.md` to `decisions/DEC-XXX-kebab-slug.md`.
-5. **Handle Supersession:** If this choice replaces an older decision, set the `supersedes` key in the frontmatter to the old decision's wikilink, and update the old decision's status to `superseded` in its file.
-6. **Set Recurrence Key:** If the decision deals with friction that has been encountered repeatedly in reports or previous decisions, define a stable `recurrence_key`.
-7. **Obtain Approval:** Present the alternatives and recommended choice to the human for approval.
+1. **Identify return boundary:** Record whether the Decision interrupts Feature,
+   Plan, Cook, or Self Improve.
+2. **Analyze authority and constraints:** Read the linked Feature, Specs,
+   Decisions, Rules, and source evidence.
+3. **Confirm durability:** If the choice is local, mandated, or cheaply
+   reversible, record it in the Plan or Spec and return without a DEC artifact.
+4. **Formulate alternatives:** Compare the smallest credible set, state benefits,
+   costs, risks, reversibility, and evidence, and recommend one.
+5. **Draft Decision:** Allocate the next monotonic `DEC-XXX`, write `created`,
+   keep status `proposed`, and link the affected artifacts.
+6. **Handle supersession:** When replacing an approved Decision, link it through
+   `supersedes` and update the old Decision to `superseded` only after approval.
+7. **Obtain authority:** Record approved or rejected outcome, date, and authority.
+8. **Update affected contracts:** Change Feature, Spec, or Plan only within the
+   approved outcome and reset downstream approval when scope or criteria changed.
+9. **Return:** Resume the workflow boundary that raised the Decision.
 
 ## Output
-An approved `docs/harness/decisions/DEC-XXX-*.md` artifact conforming to `schema-v1.md`.
+One of:
+- an approved, rejected, or superseding `DEC-XXX` artifact;
+- a local choice retained in Plan or Spec because no durable Decision was needed.
 
 ## Completion Criteria
-- Decision artifact is written using the exact structure from the template.
-- Status is updated to `approved` after human selection.
-- Inbound and outbound wikilinks are verified and resolved.
-- Historical records are preserved (superseded files are marked `superseded`, not deleted or rewritten).
+- Status and approval or rejection provenance conform to [[workflow-lifecycle]].
+- Alternatives, selected outcome, consequences, evidence, and supersession are explicit.
+- Required authority matches product or technical ownership.
+- Inbound and outbound wikilinks resolve.
+- The affected workflow resumes at the correct boundary without silently expanding scope.
 
 ## Prohibited Actions
-- Do not create plans or write production code during this workflow.
-- Do not silently delete or rewrite the history of superseded decisions.
-- Do not propose options that violate existing specifications or project rules without a corresponding spec update.
+- Do not create Decisions for every implementation detail.
+- Do not treat `proposed` or `rejected` as normative.
+- Do not modify product code while deciding, except for an explicitly authorized
+  disposable spike that cannot affect production behavior.
+- Do not delete or rewrite superseded history.
+- Do not let a Plan or current code override Feature, Spec, Rule, or approved Decision authority.
 
 ## Failure and Recovery
-- **Rejection of Choice:** If the human rejects the recommended option, revise the alternative comparison, investigate other options, and re-submit for approval.
-- **Ambiguous Consequences:** If consequences are unclear, consult existing specifications or run local spikes (without modifying production code) to gather evidence.
-- **Handoff Boundary:** Once the Decision document is approved, hand off to the Plan Workflow to detail the implementation phases.
+- **Not durable:** Record the choice in Plan or Spec and return without allocating an ID.
+- **Rejected proposal:** Mark materially reviewed history rejected or revise the alternatives and resubmit.
+- **Insufficient evidence:** Run a bounded spike or retain the unresolved dependency; do not guess.
+- **Conflicting authority:** Return to the owning Feature, Spec, Rule, or Decision before resuming.
+- **Handoff:** After resolution, update affected artifacts and return to Feature,
+  Plan, Cook, or Self Improve at the recorded boundary.

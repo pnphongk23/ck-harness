@@ -15,7 +15,10 @@ All durable harness documents must reside under the `docs/harness/` directory. A
 - Plans: `docs/harness/plans/YYMMDD-HHmm-*/`
 - Reports: `docs/harness/reports/REP-XXX-*.md`
 - Rules: `docs/harness/rules/RULE-XXX-*.md`
-- The index `docs/harness/index.md` is derived and owned exclusively by CLI tooling; humans must not edit its catalog or backlinks.
+- The index `docs/harness/index.md` is derived and owned exclusively by CLI tooling;
+  humans must not edit its catalog or backlinks. Before the allocator exists in
+  bootstrap development, a human-approved repository change may advance only a
+  monotonic sequence counter and must never decrease or reuse it.
 
 ### R-002: No Trace Store
 Durable harness business and engineering state is represented by readable
@@ -27,7 +30,9 @@ A Feature (`FEAT-XXX`) defines observable business behavior and requirements
 from a Business Analyst (BA) perspective. A Spec defines shared technical
 constraints, architecture, APIs, data, testing, or conventions using a semantic
 filename. Implementation design does not belong in the Feature behavior; source
-paths may appear only in Relationships as evidence.
+paths may appear only in Relationships as evidence. Exact workflow status enums,
+transition predicates, approval provenance, and aggregation rules belong in a
+semantic lifecycle Spec rather than Feature flows.
 
 ### R-004: Immutable Monotonic IDs
 All ID-bearing artifacts must receive a sequential, monotonic, immutable ID matching `FEAT-XXX`, `DEC-XXX`, `REP-XXX`, or `RULE-XXX` (where `XXX` is a three-digit zero-padded integer, starting from `001`). Once allocated, an ID is permanently reserved and cannot be reused, even if the artifact is deprecated, superseded, or deleted.
@@ -62,18 +67,27 @@ Artifacts are deprecated by default rather than deleted. Deletion is a rare, des
 
 ### R-013: Decisions and Supersession
 Durable trade-offs must be recorded as decisions (`DEC-XXX`). When a decision is replaced, the new decision must include a `supersedes: [[DEC-old-slug|DEC-old]]` link, and the status of the old decision must be updated to `superseded` rather than deleting or rewriting its history.
+Proposed and rejected Decisions are non-normative. Decision may interrupt
+Feature, Plan, Cook, or Self Improve and must return to the boundary that raised
+the durable choice after the required authority records its outcome.
 
 ### R-014: Workflow Approval Boundaries
 Material state transitions require an explicit human gate: finalizing a Feature,
 approving a Decision, approving a Plan for Cook, accepting destructive or
 externally visible side effects, and promoting a Rule. Routine revision inside
 an already authorized stage does not require a new gate unless scope changes.
+Product Authority owns observable behavior and product choices; Repository
+Maintainer owns technical Decisions and Plans. Plan approval must be stored
+separately from execution state with its date and required authority.
 
 ### R-015: Verification Evidence Before Completion
 No implementation task or phase can be marked complete without executing verification tests, builds, or static checks. Recording confidence-based assumptions without concrete logs or outputs is prohibited.
 
 ### R-016: Required Delivery Reports
 Every successful implementation plan must conclude by generating a Delivery Report (`REP-XXX`) in `docs/harness/reports/` using `templates/report.md`. The report must record changed files, verification commands, plan variance, and repeated friction.
+Plan completion is evidence-based and requires this Report. Product or high-risk
+acceptance, when material, must be an approved Plan success criterion rather
+than a second universal post-Report approval gate.
 
 ### R-017: Self-Improvement and Rule Promotion Requirements
 Self Improve starts from verified Report or Decision evidence, classifies the
@@ -95,6 +109,10 @@ equivalent flush, and atomic rename to the target path.
 
 ### R-020: Derived Index Ownership
 `docs/harness/index.md` is owned and managed exclusively by the harness CLI tooling. Humans must not manually edit the index's catalog, backlinks, or relationships.
+The sole bootstrap exception is advancing a monotonic sequence counter in an
+explicitly human-approved repository change before the allocator command exists.
+The generated body remains tooling-owned, and the exception expires once the
+allocator is available.
 
 ### R-021: Optional Graphify and Privacy
 `graphify` is an optional visualization utility. If the `graphify` dependency or command is missing, the system must warn and degrade gracefully instead of failing verification. Repository content must never be transmitted to external servers without explicit user permission.

@@ -5,6 +5,7 @@ status: completed
 priority: P1
 effort: "2-3 days"
 dependencies: []
+decision_dependencies: []
 ---
 
 # Phase 1: Foundation and Contracts

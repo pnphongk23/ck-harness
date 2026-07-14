@@ -48,7 +48,8 @@ Spec, template, workflow, project policy, or promoted Rule.
    - stale technical truth → propose a focused Spec correction;
    - unclear authoring structure → propose a template correction;
    - repeated process friction → propose a workflow improvement;
-   - durable trade-off → use the Decision Workflow;
+   - durable trade-off → interrupt with the Decision Workflow and return to the
+     Self Improve proposal after resolution;
    - repeated reusable lesson → evaluate a promoted Rule.
 3. **Search Existing Guidance:** Check Specs, Decisions, workflows, templates,
    `RULES.md`, and promoted Rules for an existing answer. Prefer correcting or
@@ -124,5 +125,6 @@ Exactly one of these evidence-backed outcomes:
 - **Graphify Unavailable:** Warn and continue using canonical wikilinks and
   index checks.
 - **Handoff Boundary:** The workflow ends after the improvement is approved,
-  verified, and recorded. Any resulting product change starts a new Feature or
-  Plan cycle rather than continuing implementation here.
+  verified, and recorded. A resulting product behavior change starts Feature;
+  maintenance inside existing authority starts Plan; a durable policy choice
+  interrupts through Decision and then returns to the appropriate boundary.

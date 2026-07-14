@@ -2,12 +2,29 @@
 title: "File-Based Multi-Agent Repository Harness"
 description: "Remake repository-harness as a lean file-based CLI, document workflow, and portable skill adapter layer for Claude, Codex, Cursor, and Antigravity."
 status: in_progress
+approval:
+  status: approved
+  required_by: Repository Maintainer
+  decided: 2026-07-14
 priority: P1
 effort: "4-6 weeks"
 branch: "main"
 tags: [harness, cli, file-based, claudekit, agent-skills]
 blockedBy: []
 blocks: []
+relationships:
+  specs:
+    - "[[workflow-lifecycle]]"
+  decisions:
+    - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
+    - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
+  plans: []
+  reports: []
+  rules: []
+  features:
+    - "[[FEAT-001-harness-cli|FEAT-001]]"
+    - "[[FEAT-002-govern-traceable-work-lifecycle|FEAT-002]]"
+  source_paths: []
 created: "2026-07-13T17:33:23.850Z"
 createdBy: "ck:plan"
 source: skill
@@ -22,7 +39,9 @@ Build a deterministic repository harness whose durable state is readable Markdow
 ### Outcomes
 
 - A cross-platform `harness` CLI implemented in TypeScript on Node.js 20+.
-- A compact document model, templates, and explicit `feature -> spec/decision -> plan -> cook -> report -> rule` workflow.
+- A compact document model, classified request routing, interruptible durable
+  Decisions, and explicit `authority -> approved plan -> verified cook -> report`
+  workflow.
 - Canonical Agent Skills with thin adapters for Claude, Codex, Cursor, and Antigravity.
 - A generated `docs/harness/index.md` with catalog, backlinks, validation findings, and a monotonic feature sequence.
 - Tests proving ID integrity, safe file mutation, watcher reconciliation, adapter correctness, and zero agent spawning.

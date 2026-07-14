@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import { artifactSchema, validateArtifactFilename } from "../src/core/schemas/artifacts.js";
@@ -28,6 +28,50 @@ test("CK-compatible plan and phase frontmatter parse", async () => {
   const phase = parseMarkdownDocument(await readFile(join(planDir, "phase-01-foundation-and-contracts.md"), "utf8"));
   assert.equal("title" in plan.frontmatter && plan.frontmatter.title, "File-Based Multi-Agent Repository Harness");
   assert.equal("phase" in phase.frontmatter && phase.frontmatter.phase, 1);
+  assert.equal("approval" in plan.frontmatter && plan.frontmatter.approval.status, "approved");
+  assert.equal("relationships" in plan.frontmatter && plan.frontmatter.relationships.features.length, 2);
+  assert.deepEqual("decision_dependencies" in phase.frontmatter && phase.frontmatter.decision_dependencies, []);
+});
+
+test("decision lifecycle requires outcome provenance", () => {
+  const base = {
+    schema_version: 1,
+    type: "decision" as const,
+    id: "DEC-099",
+    title: "Choose a boundary",
+    created: "2026-07-14",
+    relationships: {},
+  };
+
+  assert.equal(artifactSchema.parse({ ...base, status: "proposed" }).status, "proposed");
+  assert.throws(() => artifactSchema.parse({ ...base, status: "approved" }));
+  assert.equal(artifactSchema.parse({
+    ...base,
+    status: "approved",
+    approved: "2026-07-14",
+    approved_by: "Repository Maintainer",
+  }).status, "approved");
+  assert.throws(() => artifactSchema.parse({ ...base, status: "rejected" }));
+  assert.equal(artifactSchema.parse({ ...base, status: "rejected", rejected: "2026-07-14" }).status, "rejected");
+});
+
+test("all canonical lifecycle artifacts parse under the executable schema", async () => {
+  const roots = [
+    join(process.cwd(), "docs", "harness", "features"),
+    join(process.cwd(), "docs", "harness", "decisions"),
+    join(process.cwd(), "docs", "harness", "specs"),
+    join(process.cwd(), "docs", "harness", "plans", "260714-0033-file-based-agent-harness"),
+  ];
+
+  for (const root of roots) {
+    for (const name of (await readdir(root)).filter((entry) => entry.endsWith(".md"))) {
+      const source = await readFile(join(root, name), "utf8");
+      assert.doesNotThrow(
+        () => parseMarkdownDocument(source),
+        `${join(root, name)} must parse`,
+      );
+    }
+  }
 });
 
 test("filename rules reject bad names and ID drift", () => {
