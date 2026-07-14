@@ -1,0 +1,29 @@
+{
+  "name": "@ck-harness/file-harness",
+  "version": "0.1.0",
+  "description": "Deterministic, file-based repository harness contracts",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "docs/harness/templates",
+    ".agents/skills"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "yaml": "^2.8.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "license": "MIT"
+}
