@@ -1,5 +1,5 @@
 ---
-phase: 2
+work_item: 2
 title: "Scoped Harness Validation"
 status: completed
 priority: P1
@@ -9,7 +9,7 @@ decision_dependencies:
   - "[[DEC-001-cli-command-parsing|DEC-001]]"
 ---
 
-# Phase 2: Scoped Harness Validation
+# Work Item 2: Scoped Harness Validation
 
 ## Overview
 

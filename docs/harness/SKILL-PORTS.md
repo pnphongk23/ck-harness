@@ -9,8 +9,8 @@ canonical; skills are thin projections.
 | brainstorm | exact requirements, business behavior variants, approval gate | technical approach selection with interruptible Decision workflow | existing-code discovery | global rules and orchestration |
 | ask | alternative and trade-off analysis | personal context with index and linked specs | decision creation | hidden home-directory assumptions |
 | scout | source/evidence mapping | free-form output with Feature Relationships | reverse engineering | delegated discovery requirement |
-| ck-plan 4.4.0 | phase files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with `docs/harness/plans/` | external CK validation when installed | unrelated task hydration |
-| cook | approved-plan gate, phase order, tests, review | global reports with `docs/harness/reports/` | unavailable-check disclosure | automated source-control and delivery actions |
+| ck-plan 4.4.0 | Work Item files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with `docs/harness/plans/` | external CK validation when installed | unrelated task hydration |
+| cook | approved-plan gate, Work Item order, tests, review | global reports with `docs/harness/reports/` | unavailable-check disclosure | automated source-control and delivery actions |
 | ck-graphify | relationship visualization | trace roots with canonical Markdown roots | `graphify` executable | trace ledger and required executable |
 
 All local references used by a skill are listed in its `SKILL.md`. No entrypoint
@@ -35,7 +35,7 @@ all files in the six source skill directories that inform this port:
 | Relative `references/*.md` and shared workflow artifact schema | Replaced by the five canonical workflow documents and templates |
 | `./plans/`, global plan roots, active-plan script | Replaced by `docs/harness/plans/`; no hidden active pointer |
 | Generic `./docs/*`, global rules, `.ck.json`, personal skill paths | Replaced by `docs/harness/index.md` and its linked specs |
-| CK `plan create/check/uncheck/status` | Retained as optional compatibility checks; Markdown remains usable without CK |
+| CK `plan create/check/uncheck/status` | Not retained; Harness validation owns the Work Item contract |
 | Requirements, business behavior variants, durable alternative analysis, approval, plan-before-code, validation | Retained and separated across Feature, Decision, Plan, and Cook workflows |
 | Task hydration, delegated research/testing/review/finalization | Removed; direct work with recorded evidence is sufficient |
 | Automatic journal, archive, commit, push, PR, release, deploy | Removed from canonical skills |

@@ -22,9 +22,9 @@ relationships:
     - "[[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]"
   source_paths:
     - docs/harness/RULES.md
-    - docs/harness/plans/260714-1128-verify-harness-integrity/phase-02-scoped-validation.md
-    - docs/harness/plans/260714-1128-verify-harness-integrity/phase-03-index-correctness.md
-    - docs/harness/plans/260714-1128-verify-harness-integrity/phase-04-health-diagnostics.md
+    - docs/harness/plans/260714-1128-verify-harness-integrity/work-item-02-scoped-validation.md
+    - docs/harness/plans/260714-1128-verify-harness-integrity/work-item-03-index-correctness.md
+    - docs/harness/plans/260714-1128-verify-harness-integrity/work-item-04-health-diagnostics.md
 ---
 
 # FEAT-003: Verify Harness integrity
@@ -160,6 +160,6 @@ And unrelated required checks can still succeed.
 - Related Features: [[FEAT-001-harness-cli|FEAT-001]], [[FEAT-002-govern-traceable-work-lifecycle|FEAT-002]], [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]
 - Plan: [[260714-1128-verify-harness-integrity/plan|Plan]]
 - Source: `docs/harness/RULES.md`
-- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/phase-02-scoped-validation.md`
-- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/phase-03-index-correctness.md`
-- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/phase-04-health-diagnostics.md`
+- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/work-item-02-scoped-validation.md`
+- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/work-item-03-index-correctness.md`
+- Source: `docs/harness/plans/260714-1128-verify-harness-integrity/work-item-04-health-diagnostics.md`

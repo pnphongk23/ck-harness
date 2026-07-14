@@ -1,5 +1,5 @@
 ---
-phase: 1
+work_item: 1
 title: "Diagnostic Model and Repository Scan"
 status: completed
 priority: P1
@@ -8,7 +8,7 @@ dependencies: []
 decision_dependencies: []
 ---
 
-# Phase 1: Diagnostic Model and Repository Scan
+# Work Item 1: Diagnostic Model and Repository Scan
 
 ## Overview
 

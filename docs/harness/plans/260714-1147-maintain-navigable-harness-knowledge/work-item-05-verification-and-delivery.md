@@ -1,5 +1,5 @@
 ---
-phase: 5
+work_item: 5
 title: "Navigation Verification and Delivery"
 status: completed
 priority: P1
@@ -10,7 +10,7 @@ decision_dependencies:
   - "[[DEC-006-graphify-directory-extraction-boundary|DEC-006]]"
 ---
 
-# Phase 5: verification-and-delivery
+# Work Item 5: verification-and-delivery
 
 ## Overview
 
@@ -30,7 +30,7 @@ Create the required Delivery Report before marking the Plan complete.
 4. Test process and command boundaries: `index check` remains read-only and
    independent of watch; Graphify is explicit, local, shell-free, and optional;
    no command adds agent, network, Git, release, or deployment behavior.
-5. Revalidate plan relationships, phase dependencies, Decision approval, and
+5. Revalidate plan relationships, Work Item dependencies, Decision approval, and
    documentation. Create a `REP-XXX` Delivery Report with changed files, exact
    commands/output, variance, limitations, and recurrence evidence.
 
@@ -53,7 +53,7 @@ Create the required Delivery Report before marking the Plan complete.
 ## Verification Evidence
 
 - `npm run verify` — passed on 2026-07-14: typecheck and all 74 tests passed.
-- Focused Phase 4 integration command — passed: all 31 graph, index-resolution,
+- Focused Work Item 4 integration command — passed: all 31 graph, index-resolution,
   watcher, and lifecycle tests passed.
 - `npm pack --dry-run --json` — passed with 66 allowlisted entries.
 - `git diff --check` — passed.

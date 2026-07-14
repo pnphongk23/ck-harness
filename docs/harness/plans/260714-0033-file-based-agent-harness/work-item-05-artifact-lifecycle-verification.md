@@ -1,5 +1,5 @@
 ---
-phase: 5
+work_item: 5
 title: "Artifact Lifecycle Verification and Release Readiness"
 status: blocked
 status_reason: "Required Linux and Windows verification evidence is unavailable until an external CI run is authorized and completed."
@@ -13,7 +13,7 @@ decision_dependencies:
   - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
-# Phase 5: Artifact Lifecycle Verification and Release Readiness
+# Work Item 5: Artifact Lifecycle Verification and Release Readiness
 
 ## Overview
 
@@ -53,11 +53,11 @@ Verify the complete approved FEAT-001 lifecycle across supported platforms and r
 2. Add adversarial fixtures for staged validation, external-change rejection, handled publication failure, best-effort rollback reporting, and later detection of inconsistent state.
 3. Run the lifecycle matrix on macOS, Linux, and Windows, recording exact command evidence or an explicit verification blocker.
 4. Run typecheck, tests, build, package-content audit, and packed FEAT-001 CLI smoke tests.
-5. Verify the Plan remains CK-compatible and every phase relationship and Decision dependency resolves.
+5. Verify the Plan remains CK-compatible and every Work Item relationship and Decision dependency resolves.
 6. Audit tracked output so no build, cache, temporary sibling, Graphify, watcher, adapter, or agent log artifact is included accidentally.
 7. Document single-writer limits, non-atomic multi-file publication, manual crash repair, conflict handling, cleanup ownership, and unsupported proposed capabilities.
 8. Produce the Delivery Report with changed files, exact verification evidence, Plan variance, and repeated friction.
-9. Do not mark this phase or Plan complete until every required criterion passes and the Delivery Report exists.
+9. Do not mark this Work Item or Plan complete until every required criterion passes and the Delivery Report exists.
 
 ## Risks
 
@@ -90,4 +90,4 @@ Verify the complete approved FEAT-001 lifecycle across supported platforms and r
 
 ## Current Verification Blocker
 
-Tôi không thể xác minh điều này hoạt động vì... môi trường hiện tại chỉ cung cấp macOS ARM64; Docker CLI có mặt nhưng Docker daemon không chạy, không có Windows runtime, và chưa có CI run vì Cook không được tự động commit, push, hoặc tạo hoạt động bên ngoài. Linux và Windows matrix evidence therefore remains required before this phase, the Delivery Report, and the Plan can be completed.
+Tôi không thể xác minh điều này hoạt động vì... môi trường hiện tại chỉ cung cấp macOS ARM64; Docker CLI có mặt nhưng Docker daemon không chạy, không có Windows runtime, và chưa có CI run vì Cook không được tự động commit, push, hoặc tạo hoạt động bên ngoài. Linux và Windows matrix evidence therefore remains required before this Work Item, the Delivery Report, and the Plan can be completed.

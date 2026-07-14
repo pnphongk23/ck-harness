@@ -2,7 +2,9 @@
 
 ## Purpose
 Discover, clarify, and document new or changed observable behavior from a
-Business Analyst perspective without deciding implementation design.
+Business Analyst perspective without deciding implementation design. Feature is
+an authority document with its own lifecycle, not a mandatory stage of every
+Coding workflow.
 
 ## Use When
 Use for a new capability, a material behavior change, an ambiguous business
@@ -20,12 +22,13 @@ approved Feature or active Spec.
 - **Evidence Labeling Gate:** Classify material findings as **Observed**,
   **Inferred**, or **TBD**.
 - **Business Boundary Gate:** Product Authority must approve purpose, scope,
-  observable behavior, requirements, and acceptance before downstream work.
+  observable behavior, requirements, and acceptance before that behavior may
+  govern a Coding Plan.
 
 ## Procedure
 1. **Confirm route:** Verify that behavior is new, changing, ambiguous, or
    undocumented. If an approved contract already governs maintenance, link it
-   and hand off to Plan without creating a duplicate Feature.
+   and end Feature work without creating a duplicate artifact.
 2. **Scout repository:** Read relevant code, docs, Features, Specs, Decisions,
    Rules, Reports, and unfinished Plans.
 3. **Collect evidence:** Separate direct facts, inferred interpretations, and
@@ -46,7 +49,8 @@ approved Feature or active Spec.
 
 ## Output
 An approved `docs/harness/features/FEAT-XXX-*.md` artifact, or a documented
-no-change/existing-contract handoff that creates no duplicate Feature.
+no-change/existing-contract outcome that creates no duplicate Feature. Feature
+completion does not require a Coding Plan.
 
 ## Completion Criteria
 - Exactly the five H2 sections exist and content validation passes.
@@ -59,17 +63,22 @@ no-change/existing-contract handoff that creates no duplicate Feature.
 ## Prohibited Actions
 - Do not create a Feature for every repository task.
 - Do not create Plans or modify product code during Feature discovery.
+- Do not place implementation design in the Feature; when Coding work needs a
+  separate design, use `design.md` beside and linked by its owning `plan.md`.
 - Do not place classes, services, libraries, schemas, or source layout in the
   actor and flow model.
 - Do not allocate an ID without advancing the monotonic sequence safely.
 
 ## Failure and Recovery
-- **Wrong route:** Reuse the governing Feature or Spec and continue at Plan.
+- **Wrong route:** Reuse the governing Feature or Spec and stop Feature discovery;
+  continue to Plan only when Coding work is separately requested.
 - **Missing information:** Keep material gaps as TBD and request Product Authority clarification.
 - **Rejected boundary:** Revise the behavior and resubmit; do not authorize implementation.
 - **Product trade-off:** Pause Feature approval, run Decision using the proposed
   Feature as context, then resume discovery.
 - **Material revision after approval:** Return the Feature to proposed, preserve
   history through version control, and invalidate affected downstream approval.
-- **Handoff:** After approval, consult technical authority and proceed to Plan or
-  an interrupting technical Decision.
+- **Document-only completion:** After approval, stop when no repository
+  implementation was requested.
+- **Optional Coding handoff:** When coding is requested, resolve every governing
+  Feature and blocking Decision before the Plan approval boundary.

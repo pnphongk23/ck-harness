@@ -1,5 +1,5 @@
 ---
-phase: 2
+work_item: 2
 title: "Document Model and Templates"
 status: completed
 priority: P1
@@ -8,7 +8,7 @@ dependencies: [1]
 decision_dependencies: []
 ---
 
-# Phase 2: Document Model and Templates
+# Work Item 2: Document Model and Templates
 
 ## Overview
 

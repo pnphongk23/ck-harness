@@ -1,5 +1,5 @@
 ---
-phase: 1
+work_item: 1
 title: "Foundation and Contracts"
 status: completed
 priority: P1
@@ -8,11 +8,11 @@ dependencies: []
 decision_dependencies: []
 ---
 
-# Phase 1: Foundation and Contracts
+# Work Item 1: Foundation and Contracts
 
 ## Overview
 
-Establish the product boundary, repository contract, naming invariants, package skeleton, and file ownership rules before implementing storage or workflows. This phase prevents the new harness from inheriting the database and generated-file complexity of the upstream project.
+Establish the product boundary, repository contract, naming invariants, package skeleton, and file ownership rules before implementing storage or workflows. This Work Item prevents the new harness from inheriting the database and generated-file complexity of the upstream project.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ Establish the product boundary, repository contract, naming invariants, package 
 - Feature IDs match `^FEAT-[0-9]{3}$`, are immutable, unique, monotonic, and never reused.
 - Feature filenames match `FEAT-XXX-kebab-name.md` and retain the same ID when the slug changes.
 - Specs use semantic filenames without generated IDs.
-- Plans use ClaudeKit directory naming `{date}-{issue}-{slug}` with `YYMMDD-HHmm` dates and retain `plan.md` plus `phase-XX-name.md` files.
+- Plans use ClaudeKit directory naming `{date}-{issue}-{slug}` with `YYMMDD-HHmm` dates and retain `plan.md` plus `work-item-XX-name.md` files.
 - MVP is single-writer and file-first; no SQLite, MCP server, trace directory, or agent runtime is included.
 
 ## Architecture
@@ -51,7 +51,7 @@ Establish the product boundary, repository contract, naming invariants, package 
    - Report: `REP-XXX-kebab-name.md`.
    - Rule: `RULE-XXX-kebab-name.md`.
    - Spec: semantic kebab-case filename without ID.
-   - Plan: unchanged ClaudeKit naming and internal phase layout.
+   - Plan: unchanged ClaudeKit naming and internal Work Item layout.
 4. Define link format as Obsidian wikilinks, preferring `[[full-basename|ID]]` for ID-bearing artifacts and semantic links for specs.
 5. Define deletion behavior: referenced features default to deprecation; forced deletion must report and require explicit acceptance of affected links.
 6. Scaffold the TypeScript package and module boundaries without implementing commands.

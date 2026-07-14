@@ -56,16 +56,20 @@ test("workflows enforce key architectural boundaries and behaviors", async () =>
 
   const cookContent = await readFile(join(docsRoot, "workflows", "cook.md"), "utf8");
   assert.match(cookContent, /approved plan/i, "Cook workflow must require an approved plan");
-  assert.match(cookContent, /one (?:eligible )?phase at a time/i, "Cook workflow must work one phase at a time");
+  assert.match(cookContent, /one (?:eligible )?Work Item at a time/i, "Cook workflow must work one Work Item at a time");
   assert.match(cookContent, /evidence/i, "Cook workflow must require evidence of success");
   assert.match(cookContent, /never.*automatically commit/i, "Cook workflow must prohibit automatic commits");
   assert.match(cookContent, /do not write Cook status/i, "Cook must derive rather than persist its state");
-  assert.match(cookContent, /do not complete the phase or Plan/i, "Blocked verification must keep the plan incomplete");
+  assert.match(cookContent, /do not complete the Work Item or Plan/i, "Blocked verification must keep the Plan incomplete");
 
   const planContent = await readFile(join(docsRoot, "workflows", "plan.md"), "utf8");
   assert.match(planContent, /approval metadata/i, "Plan workflow must store approval separately from execution");
-  assert.match(planContent, /decision_dependencies/i, "Plan phases must record Decision dependencies");
-  assert.match(planContent, /every generated Plan and phase file/i, "Plan workflow must read generated stubs before replacement");
+  assert.match(planContent, /decision_dependencies/i, "Plan Work Items must record Decision dependencies");
+  assert.match(planContent, /every generated Plan and Work Item file/i, "Plan workflow must read generated stubs before replacement");
+  assert.match(planContent, /work-item-XX/i, "Plan workflow must use Work Item filenames");
+  assert.match(planContent, /work_item/i, "Plan workflow must use Work Item frontmatter");
+  assert.match(planContent, /design\.md.*beside `plan\.md`/is, "Plan workflow must co-locate optional design with its Plan");
+  assert.doesNotMatch(planContent, /design\.md`? outside (?:the )?(?:canonical )?Plan/i, "Plan workflow must not place design outside its Plan");
 
   const selfImproveContent = await readFile(join(docsRoot, "workflows", "self-improve.md"), "utf8");
   assert.match(selfImproveContent, /classify the signal/i, "Self Improve must classify evidence before acting");

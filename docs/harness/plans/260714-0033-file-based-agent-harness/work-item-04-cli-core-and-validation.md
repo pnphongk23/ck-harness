@@ -1,5 +1,5 @@
 ---
-phase: 4
+work_item: 4
 title: "CLI Artifact Lifecycle"
 status: completed
 priority: P1
@@ -12,11 +12,11 @@ decision_dependencies:
   - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
-# Phase 4: CLI Artifact Lifecycle
+# Work Item 4: CLI Artifact Lifecycle
 
 ## Overview
 
-Implement the deterministic FEAT-001 CLI boundary for initialization, canonical artifact scaffolding, Feature discovery and lifecycle mutation, monotonic ID allocation, and allowlisted cleanup. Internal contract validation supports safe publication; a public validation or health command is outside this phase.
+Implement the deterministic FEAT-001 CLI boundary for initialization, canonical artifact scaffolding, Feature discovery and lifecycle mutation, monotonic ID allocation, and allowlisted cleanup. Internal contract validation supports safe publication; a public validation or health command is outside this Work Item.
 
 ## Command Contract
 
@@ -27,7 +27,7 @@ harness new spec|decision|report|rule
 harness clean
 ```
 
-The CLI must never launch an AI agent or silently execute Git, network, verification, commit, push, release, or deployment actions. Commands governed by FEAT-003–005 are not registered by this phase.
+The CLI must never launch an AI agent or silently execute Git, network, verification, commit, push, release, or deployment actions. Commands governed by FEAT-003–005 are not registered by this Work Item.
 
 ## Architecture
 

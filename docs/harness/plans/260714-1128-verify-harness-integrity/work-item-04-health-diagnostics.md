@@ -1,5 +1,5 @@
 ---
-phase: 4
+work_item: 4
 title: "Consolidated Health Diagnostics"
 status: completed
 priority: P1
@@ -9,7 +9,7 @@ decision_dependencies:
   - "[[DEC-001-cli-command-parsing|DEC-001]]"
 ---
 
-# Phase 4: Consolidated Health Diagnostics
+# Work Item 4: Consolidated Health Diagnostics
 
 ## Overview
 
@@ -24,7 +24,7 @@ synchronization, and diagnostics are not part of this Plan.
 2. Register required prerequisite failures as errors and optional limitations
    as warnings; in particular, detect unavailable Graphify locally without
    invoking it or sending repository content externally.
-3. Compose provider outcomes into the Phase 1 diagnostic model, preserving
+3. Compose provider outcomes into the Work Item 1 diagnostic model, preserving
    deterministic ordering and an explicit overall outcome that permits
    warnings without treating required failures as success.
 4. Add the `doctor` command, human grouping, JSON envelope, and stable exit

@@ -1,5 +1,5 @@
 ---
-phase: 5
+work_item: 5
 title: "Integrity Verification and Delivery"
 status: completed
 priority: P1
@@ -9,7 +9,7 @@ decision_dependencies:
   - "[[DEC-001-cli-command-parsing|DEC-001]]"
 ---
 
-# Phase 5: Integrity Verification and Delivery
+# Work Item 5: Integrity Verification and Delivery
 
 ## Overview
 

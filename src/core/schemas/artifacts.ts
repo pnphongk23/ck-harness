@@ -157,8 +157,8 @@ export const planSchema = z.object({
   }
 });
 
-export const phaseSchema = z.object({
-  phase: z.number().int().positive(),
+export const workItemSchema = z.object({
+  work_item: z.number().int().positive(),
   title: z.string().min(1),
   status: planStatus,
   priority: z.enum(["P1", "P2", "P3"]),
@@ -168,11 +168,11 @@ export const phaseSchema = z.object({
   status_reason: z.string().min(1).optional(),
 }).strict().superRefine((value, context) => {
   if (["blocked", "cancelled"].includes(value.status) && !value.status_reason) {
-    context.addIssue({ code: "custom", path: ["status_reason"], message: `${value.status} phase requires status reason` });
+    context.addIssue({ code: "custom", path: ["status_reason"], message: `${value.status} work item requires status reason` });
   }
 });
 
-export const harnessFrontmatterSchema = z.union([artifactSchema, planSchema, phaseSchema]);
+export const harnessFrontmatterSchema = z.union([artifactSchema, planSchema, workItemSchema]);
 export type HarnessFrontmatter = z.infer<typeof harnessFrontmatterSchema>;
 
 const patterns = {

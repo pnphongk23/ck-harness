@@ -22,15 +22,24 @@ test("schema rejects malformed artifact values", async () => {
   assert.throws(() => parseMarkdownDocument(source));
 });
 
-test("CK-compatible plan and phase frontmatter parse", async () => {
+test("Plan and Work Item frontmatter parse", async () => {
   const planDir = join(process.cwd(), "docs", "harness", "plans", "260714-0033-file-based-agent-harness");
   const plan = parseMarkdownDocument(await readFile(join(planDir, "plan.md"), "utf8"));
-  const phase = parseMarkdownDocument(await readFile(join(planDir, "phase-01-foundation-and-contracts.md"), "utf8"));
+  const workItem = parseMarkdownDocument(await readFile(join(planDir, "work-item-01-foundation-and-contracts.md"), "utf8"));
   assert.equal("title" in plan.frontmatter && plan.frontmatter.title, "File-Based Multi-Agent Repository Harness");
-  assert.equal("phase" in phase.frontmatter && phase.frontmatter.phase, 1);
+  assert.equal("work_item" in workItem.frontmatter && workItem.frontmatter.work_item, 1);
   assert.equal("approval" in plan.frontmatter && plan.frontmatter.approval.status, "approved");
   assert.equal("relationships" in plan.frontmatter && plan.frontmatter.relationships.features.length, 2);
-  assert.deepEqual("decision_dependencies" in phase.frontmatter && phase.frontmatter.decision_dependencies, []);
+  assert.deepEqual("decision_dependencies" in workItem.frontmatter && workItem.frontmatter.decision_dependencies, []);
+});
+
+test("Plan-local design remains plain supporting Markdown", async () => {
+  const design = await readFile(
+    join(process.cwd(), "docs", "harness", "plans", "260714-2354-co-locate-plan-design", "design.md"),
+    "utf8",
+  );
+  assert.match(design, /^# Plan-local design contract/);
+  assert.throws(() => parseMarkdownDocument(design), /missing opening frontmatter delimiter/);
 });
 
 test("decision lifecycle requires outcome provenance", () => {

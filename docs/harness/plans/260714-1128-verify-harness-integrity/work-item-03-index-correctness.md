@@ -1,5 +1,5 @@
 ---
-phase: 3
+work_item: 3
 title: "Derived Index Correctness Gate"
 status: completed
 priority: P1
@@ -9,7 +9,7 @@ decision_dependencies:
   - "[[DEC-001-cli-command-parsing|DEC-001]]"
 ---
 
-# Phase 3: Derived Index Correctness Gate
+# Work Item 3: Derived Index Correctness Gate
 
 ## Overview
 

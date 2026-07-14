@@ -22,7 +22,7 @@ relationships:
     - "[[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]]"
   source_paths:
     - docs/harness/RULES.md
-    - docs/harness/plans/260714-0033-file-based-agent-harness/phase-04-cli-core-and-validation.md
+    - docs/harness/plans/260714-0033-file-based-agent-harness/work-item-04-cli-core-and-validation.md
 ---
 
 # FEAT-001: Manage the Harness artifact lifecycle
@@ -169,4 +169,4 @@ And the referring artifact is identified.
 - Related Features: [[FEAT-003-verify-harness-integrity|FEAT-003]], [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]], [[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]]
 - Plan: [[260714-0033-file-based-agent-harness/plan|Plan]]
 - Source: `docs/harness/RULES.md`
-- Source: `docs/harness/plans/260714-0033-file-based-agent-harness/phase-04-cli-core-and-validation.md`
+- Source: `docs/harness/plans/260714-0033-file-based-agent-harness/work-item-04-cli-core-and-validation.md`

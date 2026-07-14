@@ -2,7 +2,7 @@
 schema_version: 1
 type: feature
 id: FEAT-002
-title: Govern work through a traceable and approved lifecycle
+title: Govern work through document and coding workflows
 status: approved
 created: 2026-07-14
 approved: 2026-07-14
@@ -13,62 +13,76 @@ relationships:
   decisions:
     - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
     - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
+    - "[[DEC-007-separate-document-authority-from-coding-execution|DEC-007]]"
+    - "[[DEC-008-use-work-item-as-the-only-plan-execution-unit|DEC-008]]"
+    - "[[DEC-009-co-locate-implementation-design-with-its-plan|DEC-009]]"
   plans:
     - "[[260714-0033-file-based-agent-harness/plan|Plan]]"
+    - "[[260714-2354-co-locate-plan-design/plan|Plan]]"
   reports: []
   rules: []
   features:
     - "[[FEAT-001-harness-cli|FEAT-001]]"
+    - "[[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]"
   source_paths:
     - docs/harness/workflows/README.md
     - docs/harness/RULES.md
 ---
 
-# FEAT-002: Govern work through a traceable and approved lifecycle
+# FEAT-002: Govern work through document and coding workflows
 
 ## Introduction
 
-**Purpose:** Let humans and coding agents turn authorized business intent into
-verified repository outcomes while preserving what governs the work, why
-material choices were made, what may execute next, and what evidence proves
-completion.
+**Purpose:** Let people finish product and technical documents independently
+from coding while ensuring that every coding Plan is grounded in the codebase,
+closed over its governing authority, decomposed into reviewable work, and
+traceable back to the requirements it delivers.
 
 **In scope:**
 
-- Classify requests so read-only, no-change, maintenance, behavior-change,
-  durable-decision, and Harness-improvement work use the smallest suitable flow.
-- Discover and approve observable business behavior before it authorizes implementation.
-- Keep Features, Specs, Decisions, Plans, phases, Reports, and Rules traceable.
-- Interrupt the affected workflow when a durable product or technical trade-off
-  requires human judgment.
-- Require an approved, verifiable Plan before implementation begins.
-- Execute eligible Plan phases sequentially and prevent unsupported completion.
-- Record delivered outcomes and verification evidence in a Delivery Report.
-- Route verified friction into a human-approved Self Improve flow.
+- Separate Harness work into Document and Coding workflows.
+- Let document work finish before coding or continue alongside coding.
+- Treat Feature as an authority document with its own lifecycle, not as a
+  mandatory stage through which every request must pass.
+- Require all Features governing a behavior-changing Plan to be approved and
+  all blocking Decisions to be resolved before Plan approval.
+- Allow technical-only work to proceed without a Feature when it does not
+  change observable behavior.
+- Ground authority in the Harness document graph and ground implementation in
+  direct codebase scouting.
+- Keep optional delivery-specific implementation design as `design.md` beside
+  its owning `plan.md`; keep reusable contracts in Specs or Decisions.
+- Decompose a Plan into Work Items and inline Tasks, and map requirements or
+  technical objectives to the Work Items that deliver them.
+- Execute eligible Work Items with concrete verification evidence and record
+  the delivered outcome in a Report.
 
 **Out of scope:**
 
+- A separate Implementation Readiness artifact or named readiness gate.
+- A separate Change Design artifact.
+- A Plan for every Task or a mandatory Story layer.
 - Choosing project-specific architecture, libraries, APIs, storage, or source layout.
-- Treating local, mandated, or cheaply reversible choices as durable Decisions.
-- Making the deterministic Harness CLI launch or orchestrate coding agents.
-- Automatically granting human approval, committing, pushing, releasing, or deploying.
-- Defining exact frontmatter fields, status enums, or transition algorithms;
-  those belong to [[workflow-lifecycle]].
+- Automatically approving documents, launching coding agents, committing,
+  pushing, releasing, or deploying.
 
 ### Evidence classification
 
-- **Observed:** The project bridges business intent, technical context, and
-  coding through repository-local documents, relationships, approval gates, and
-  verification before completion.
-- **Observed:** Material Feature, Decision, Plan, destructive-action, and Rule
-  transitions require explicit human authority.
-- **Observed:** Phase and Plan completion require concrete verification evidence.
-- **Inferred and approved:** Request classification prevents simple or read-only
-  work from being forced through unnecessary Feature creation.
-- **Inferred and approved:** Decision is an interruptible workflow rather than a
-  single fixed stage after Feature approval.
-- **Inferred and approved:** Plan approval is independent from execution, while
-  Cook eligibility is derived rather than stored as duplicate durable state.
+- **Observed:** Multiple Features can govern the same actor or component, so a
+  Plan based on only one of them can implement an incomplete or conflicting contract.
+- **Observed:** Technical migrations such as Android XML to Compose can require
+  design, decomposition, and verification without introducing new product behavior.
+- **Observed:** Repository code can differ materially from the system described
+  by approved documents, so planning needs current codebase evidence.
+- **Inferred and approved:** Document and Coding workflows may progress
+  independently, but active coding may implement only approved governing behavior.
+- **Inferred and approved:** Plan approval is the single execution boundary;
+  authority closure, design, grounding, decomposition, and coverage are inputs
+  to that approval rather than separate gates.
+- **Observed and approved:** Plan execution shall use Work Item as its only unit
+  name in documents, filenames, frontmatter, validation, and tooling; retaining
+  a second storage alias creates an avoidable duplicate concept.
+- **Inferred and approved:** Work Item Tasks do not need individual Plans.
 
 ## Business Understanding
 
@@ -76,245 +90,238 @@ completion.
 
 | Actor | Type | Goal | Responsibility |
 | --- | --- | --- | --- |
-| Product Authority | Business role | Preserve intended business outcomes | Clarify and approve observable behavior and product choices |
-| Repository Maintainer | Business role | Keep repository work coherent and executable | Approve technical Decisions, Plans, and material lifecycle changes |
-| Coding Agent | External system | Deliver authorized work without losing intent | Read governing artifacts, implement eligible phases, run checks, and record evidence |
-| Validation System | External system | Prevent invalid handoffs and unsupported completion | Validate artifacts, relationships, eligibility, and recorded verification results |
+| Product Authority | Business role | Preserve intended observable behavior | Approve Features and product Decisions |
+| Repository Maintainer | Business role | Authorize coherent repository changes | Confirm technical authority, design, Plan, coverage, and verification |
+| Documentation Contributor | Business role | Produce durable product or technical authority | Write and revise Features, Specs, Decisions, and guidance |
+| Coding Agent | External system | Deliver authorized work against the real repository | Scout code, prepare the Plan, execute eligible Work Items, and record evidence |
+| Graphify | External system | Supply derived Harness-document relationships | Index the explicitly permitted documentation scope and return non-authoritative evidence |
+| Validation System | External system | Reject invalid handoffs and unsupported completion | Validate artifacts, links, dependencies, coverage, and evidence |
 
 ### User needs
 
-- A Product Authority needs business behavior to remain understandable without
-  reading implementation details.
-- A Repository Maintainer needs to know which contract governs the work, which
-  choices are approved, and what may execute next.
-- A Coding Agent needs the smallest relevant map of behavior, constraints,
-  decisions, phase scope, and required proof.
-- A Validation System needs explicit contracts so invalid transitions are
-  rejected before they authorize downstream work.
+- A Product Authority needs Features to be settled without pretending that
+  documentation itself is executable work.
+- A Repository Maintainer needs one Plan to combine several approved Features
+  without losing requirements at component boundaries.
+- A Coding Agent needs current codebase evidence and, when the work needs a
+  separate implementation design, an unambiguous Plan-owned place to write it.
+- A technical migration needs a legitimate Coding workflow even when no Feature exists.
+- A reviewer needs to see which Work Item delivers each requirement or technical objective.
 
 ### Preconditions
 
-- The repository contains canonical Harness workflow and artifact guidance.
-- A requested outcome or verified improvement signal has been identified.
-- Relevant repository evidence can be inspected.
-- A human authority is available for every material approval boundary.
+- The requested outcome has been classified as Document work, Coding work, or both.
+- Repository-local authority and evidence can be inspected.
+- A human authority is available at every required approval boundary.
 
 ### Trigger
 
-A human requests an answer or repository outcome, reports behavior to formalize,
-or approves evaluation of a verified Harness improvement signal.
+A person requests a durable document, a repository change, or both.
 
 ### Main flow
 
-1. **Actor:** The requester states the intended outcome. **System:** The Harness
-   classifies the request and identifies the smallest authoritative context and workflow.
-2. **Actor:** When observable behavior is new or changing, the Product Authority
-   clarifies scope and acceptance. **System:** The Harness records evidence as
-   Observed, Inferred, or TBD and prevents unresolved material behavior from
-   becoming approved.
-3. **Actor:** The Product Authority approves the business boundary. **System:**
-   The approved Feature becomes the authority for observable behavior.
-4. **Actor:** The Coding Agent and Repository Maintainer inspect governing Specs,
-   Decisions, Rules, and repository evidence. **System:** The Harness reports
-   conflicts or a durable unresolved trade-off instead of allowing a lower-level
-   artifact to override its authority.
-5. **Actor:** The Coding Agent drafts the smallest phased implementation Plan.
-   **System:** The Validation System checks relationships, dependencies, risks,
-   and executable success criteria before human review.
-6. **Actor:** The Repository Maintainer approves the Plan. **System:** The Harness
-   records approval separately from execution and makes only eligible phases available for Cook.
-7. **Actor:** The Coding Agent implements one eligible phase and runs its required
-   verification. **System:** The Validation System records or checks the evidence
-   and prevents the phase or its dependants from completing early.
-8. **Actor:** The Coding Agent repeats the verified phase loop. **System:** The
-   Harness preserves approval, progress, dependencies, blockers, and approved variance.
-9. **Actor:** After all required criteria pass, the Coding Agent records the
-   delivery. **System:** The Harness links a completed Delivery Report to the
-   governing artifacts and closes the Plan from concrete evidence.
-10. **Actor:** The Repository Maintainer reviews any verified friction. **System:**
-    The Harness ends the work or routes the signal into Self Improve without
-    changing canonical guidance automatically.
+1. **Actor:** The requester states the outcome. **System:** The Harness
+   classifies it as Document work, Coding work, or a combination of both.
+2. **Actor:** A Documentation Contributor writes the required Feature, Spec,
+   Decision, or guidance. **System:** Each document follows its own
+   approval lifecycle and may finish without creating a Coding Plan.
+3. **Actor:** For Coding work, the Repository Maintainer identifies every
+   governing Feature and Decision. **System:** Behavior-changing work remains
+   ineligible for Plan approval until all governing Features are approved and
+   no blocking Decision remains unresolved.
+4. **Actor:** The Coding Agent uses Graphify when available to inspect
+   Harness-document relationships and directly scouts affected source,
+   dependencies, tests, and constraints. **System:** The resulting graph and
+   scout notes remain derived evidence rather than authority.
+5. **Actor:** When separate implementation design is useful, the Coding Agent
+   writes `design.md` beside the owning `plan.md` and links its exact path from
+   the Plan. **System:** The design explains how approved intent fits the
+   observed codebase without becoming a Spec or separate lifecycle artifact.
+6. **Actor:** The Coding Agent prepares the current Plan template. **System:**
+   The Plan decomposes delivery into ordered Work Items, each with inline Tasks,
+   success criteria, risks, and required evidence.
+7. **Actor:** The Coding Agent maps each in-scope Feature requirement, or each
+   technical design objective for technical-only work, to one or more Work
+   Items. **System:** Uncovered or conflicting obligations remain visible.
+8. **Actor:** The Repository Maintainer reviews and approves the Plan. **System:**
+   Plan approval is the execution boundary and only eligible Work Items may enter Cook.
+9. **Actor:** The Coding Agent completes one eligible Work Item and its Tasks.
+   **System:** Passing evidence is required before dependants become eligible.
+10. **Actor:** After all required Work Items pass, the Coding Agent records the
+    delivered outcome, verification, variance, and friction. **System:** The
+    Report closes the trace from authority through implementation evidence.
 
 ### Alternative flows
 
-- **A1 — Read-only request.** Source step: 1. Condition: the requested outcome is
-  an answer, explanation, review, diagnosis, plan, or status report without an
-  authorized repository change. Behavior: inspect the smallest relevant context
-  and return an evidence-backed response without durable Harness mutation. Ends
-  with: repository unchanged.
-- **A2 — Existing behavior already satisfies the request.** Source step: 1.
-  Condition: approved contracts and current evidence already demonstrate the
-  requested outcome. Behavior: return the evidence without creating a Plan or
-  entering Cook. Ends with: no-change success.
-- **A3 — Maintenance inside approved behavior.** Source step: 2. Condition: work
-  changes implementation or operations without changing observable behavior.
-  Behavior: link the existing governing Feature or Spec and continue at step 4
-  without creating a new Feature.
-- **A4 — Durable Decision is required.** Source step: 2, 4, 5, 7, or 10.
-  Condition: multiple viable product or technical paths have material,
-  cross-cutting, or expensive-to-reverse consequences. Behavior: pause only the
-  affected transition, obtain Decision approval, update affected artifacts, and
-  return to the boundary that raised it.
-- **A5 — Plan changes requested.** Source step: 6. Condition: the Plan boundary,
-  phase sequence, risk treatment, or success criteria are not approved. Behavior:
-  retain non-executable Plan state, revise it, validate again, and resubmit at step 6.
-- **A6 — Material variance during Cook.** Source step: 7. Condition: new evidence
-  changes approved behavior, technical authority, scope, or success criteria.
-  Behavior: preserve current work, block only invalid continuation, revise the
-  owning artifact, and obtain every affected approval again before resuming.
-- **A7 — Recover from a blocker.** Source step: 7. Condition: a recorded blocker
-  is resolved without changing approved scope. Behavior: resume the same phase
-  and rerun its required checks without obtaining redundant approval.
-- **A8 — Human cancellation.** Source step: 5, 6, or 7. Condition: the responsible
-  human ends the work before delivery. Behavior: preserve completed evidence,
-  record the cancellation reason, and prevent new phases from starting. Ends
-  with: unfinished outcomes are not claimed.
-- **A9 — Verified improvement signal.** Source step: 10. Condition: completed
-  Report or approved Decision evidence exposes friction, stale guidance, or
-  missing validation. Behavior: classify the signal and run Self Improve. Ends
-  with: no change, retained candidate, approved correction, Decision, or promoted Rule.
+- **A1 — Document only.** Source step: 1. Condition: the request changes or
+  clarifies durable knowledge but authorizes no repository implementation.
+  Behavior: complete the applicable document workflow and stop without a Plan.
+  Ends with: approved or otherwise valid document state and no Coding Plan.
+- **A2 — Documentation and coding overlap.** Source step: 2. Condition: future
+  behavior is still being documented while coding proceeds. Behavior: coding
+  continues only for the approved authority already in scope; unapproved new
+  behavior cannot enter the active Plan or Cook. Resume at step: 3 for any newly
+  approved behavior entering Coding work.
+- **A3 — Technical-only change.** Source step: 3. Condition: work such as an XML
+  to Compose migration preserves observable behavior. Behavior: omit a new
+  Feature, use active technical authority and explicit technical objectives,
+  add Plan-local `design.md` when useful, and map objectives to Work Items.
+  Resume at step: 4.
+- **A4 — Multiple governing Features.** Source step: 3. Condition: one Plan
+  changes a component governed by several Features. Behavior: include all of
+  them in the authority set and require approval of each before Plan approval.
+  Resume at step: 4 after authority closes.
+- **A5 — Small coding task.** Source step: 6. Condition: one reviewable and
+  verifiable Work Item is sufficient. Behavior: keep one Work Item with inline
+  Tasks; do not create a Story layer or a Plan per Task. Resume at step: 7.
+- **A6 — Durable Decision is required.** Source step: 2 through 9. Condition: a
+  material, cross-cutting, or expensive-to-reverse choice remains unresolved.
+  Behavior: pause the affected transition, approve the Decision, update affected
+  artifacts, and resume from the boundary that raised it. Resume at step: the
+  affected source step.
+- **A7 — Material variance during Cook.** Source step: 9. Condition: new
+  evidence changes approved behavior, design authority, scope, or success
+  criteria. Behavior: preserve completed evidence, revise affected authority or
+  Plan, and obtain affected approval again before resuming. Resume at step: 8.
 
 ### Exception flows
 
-- **E1 — Insufficient business evidence.** Source step: 2. Failure: material
-  intent, scope, actor behavior, or acceptance remains ambiguous. Handling:
-  record the gap as TBD and request Product Authority clarification. Prohibited:
-  approving an inference as fact. Failure postcondition: downstream implementation remains ineligible.
-- **E2 — Required approval is absent.** Source step: 3 or 6. Failure: the required
-  authority has not approved the transition. Handling: retain pre-approval state
-  and report the exact review required. Prohibited: inferring approval from agent
-  confidence or elapsed time. Failure postcondition: Cook remains ineligible.
-- **E3 — Contract conflict or unresolved Decision.** Source step: 4, 5, or 7.
-  Failure: governing artifacts conflict or an affected phase depends on a
-  non-approved Decision. Handling: identify the owner and block the affected
-  transition. Prohibited: allowing a Plan, Report, or current code to override
-  higher authority. Failure postcondition: last valid authority remains effective.
-- **E4 — Verification fails or is unavailable.** Source step: 7. Failure: a
+- **E1 — Authority is not closed.** Source step: 3. Failure: a governing Feature
+  is not approved or a blocking Decision is unresolved. Handling: identify the
+  missing authority and reject Plan approval. Prohibited: treating confidence or
+  partial Feature coverage as approval.
+- **E2 — Grounding is unavailable or stale.** Source step: 4. Failure: permitted
+  Graphify evidence cannot establish document relationships or direct repository
+  inspection cannot establish the affected code. Handling: record the limitation
+  and continue only after the Repository Maintainer accepts adequate current
+  evidence. Prohibited: treating generated graph output as authority.
+- **E3 — Coverage is incomplete.** Source step: 7. Failure: a requirement or
+  technical objective has no delivering Work Item. Handling: revise scope,
+  design, or decomposition before Plan approval.
+- **E4 — Verification fails or is unavailable.** Source step: 9. Failure: a
   required check fails or cannot run. Handling: retain evidence and continue
-  authorized investigation when meaningful progress remains possible; otherwise
-  record the blocker. Prohibited: completing the phase or starting a dependant.
-  Failure postcondition: the Plan is not completed.
-- **E5 — Artifact transition is invalid.** Source step: 3 through 9. Failure: a
-  status, approval, dependency, relationship, identifier, or evidence record
-  violates the lifecycle contract. Handling: reject the transition with exact
-  diagnostics. Prohibited: silent repair or partial publication. Failure
-  postcondition: the last valid lifecycle state remains authoritative.
+  authorized investigation when possible. Prohibited: completing the Work Item
+  or starting a dependant.
+- **E5 — Document conflict.** Source step: 2 through 9. Failure: lower authority
+  conflicts with an approved Feature, active Spec, Decision, or Rule. Handling:
+  identify the owning authority and block only the affected transition.
 
 ### Postconditions
 
-- **Delivered:** Governing behavior and constraints, approved Decisions and Plan,
-  completed phases, verification evidence, and Delivery Report form a resolvable trace.
-- **No change:** Existing evidence satisfies the request without Plan or Cook.
-- **Blocked:** The exact owner, approval, Decision, dependency, or verification
-  requirement is visible and no invalid transition occurs.
-- **Cancelled:** Completed evidence is preserved and unfinished work is not represented as delivered.
+- **Documented:** The requested document has a valid lifecycle state and can
+  exist without Coding work.
+- **Delivered:** Approved authority, codebase evidence, design, Plan, Work Item
+  evidence, coverage, and Report form a resolvable trace.
+- **Blocked:** The missing approval, Decision, coverage, grounding, dependency,
+  or verification is explicit and no invalid execution occurs.
+- **No change:** Evidence shows no repository mutation is required.
 
 ## Requirements
 
-- **FR-001 [Observed]:** The Harness shall classify the requested outcome before
-  creating or changing durable workflow state.
-- **FR-002 [Observed]:** New or changed observable behavior shall require an
-  approved Feature whose material evidence is labeled Observed, Inferred, or TBD.
-- **FR-003 [Observed]:** Maintenance inside approved behavior shall reuse the
-  governing Feature or Spec rather than creating a duplicate Feature.
-- **FR-004 [Observed]:** Features, Specs, Decisions, Plans, phases, Reports, and
-  Rules shall expose enough explicit relationships for a future actor to resolve
-  authority, dependencies, delivery, and evidence.
-- **FR-005 [Inferred and approved]:** A durable unresolved trade-off shall
-  interrupt only the affected Feature, Plan, Cook, or Self Improve transition and
-  shall return to that boundary after approval.
-- **FR-006 [Observed]:** Local, mandated, and cheaply reversible choices shall
-  remain in the governing Spec or Plan rather than creating durable Decisions.
-- **FR-007 [Observed]:** Every implementation shall require a mechanically valid
-  and explicitly approved Plan before its first phase starts.
-- **FR-008 [Observed]:** Cook shall execute at most one eligible phase at a time
-  and shall preserve predecessor and Decision dependencies.
-- **FR-009 [Observed]:** A phase shall complete only when every required success
-  criterion has concrete passing evidence.
-- **FR-010 [Observed]:** A Plan shall complete only after every required phase
-  passes and a completed Delivery Report records outcome, changed files,
-  verification, variance, and friction.
-- **FR-011 [Observed]:** Material scope, behavior, authority, or success-criteria
-  changes shall invalidate affected approval before implementation resumes.
-- **FR-012 [Observed]:** Verified Report or approved Decision evidence may enter
-  Self Improve, but canonical guidance shall change only after human approval.
-- **BR-001 [Observed]:** `RULES.md` and active Rules own workflow policy; approved
-  Features own observable behavior; active Specs and approved Decisions own
-  technical constraints and rationale; Plans sequence work; Reports record outcomes.
-- **BR-002 [Observed]:** A lower-authority artifact shall not override a higher-authority contract.
-- **BR-003 [Observed]:** Waiting for initial approval is not an execution blocker.
-- **BR-004 [Observed]:** A failed check under active investigation is not a
-  completed phase and is not blocked while meaningful approved work remains.
-- **BR-005 [Observed]:** Human cancellation is a valid terminal outcome, not a verification failure.
-- **BR-006 [Observed]:** Harness tooling shall not grant human approval or
-  automatically commit, push, release, or deploy.
+- **FR-001 [Inferred and approved]:** The Harness shall classify work as
+  Document, Coding, or both instead of enforcing a universal Feature-to-Plan-to-Cook pipeline.
+- **FR-002 [Inferred and approved]:** A Feature shall have an independent
+  document lifecycle and shall not be mandatory for work that changes no observable behavior.
+- **FR-003 [Observed]:** Before a behavior-changing Plan is approved, every
+  governing Feature shall be approved and every blocking Decision shall be resolved.
+- **FR-004 [Inferred and approved]:** Technical-only Coding work may omit a
+  Feature when it preserves observable behavior and has explicit technical objectives.
+- **FR-005 [Inferred and approved]:** Coding work shall use available scoped
+  Graphify output to ground Harness-document relationships and shall use direct
+  codebase scouting to ground implementation before Plan approval. Missing
+  Graphify shall warn and degrade to direct canonical document inspection.
+- **FR-006 [Inferred and approved]:** A Plan may own one optional plain
+  `design.md` beside `plan.md`. When present, the Plan shall link its exact path
+  through `relationships.source_paths`; reusable or cross-Plan contracts belong
+  in Specs or approved Decisions, not in Plan-specific design.
+- **FR-007 [Observed]:** Coding work shall use the current Plan template and
+  require explicit Plan approval before Cook begins.
+- **FR-008 [Inferred and approved]:** A Plan shall decompose work into ordered,
+  reviewable Work Items containing inline Tasks; Tasks shall not require separate Plans.
+- **FR-009 [Observed and approved]:** The Harness shall use `Work Item` as the
+  only name for an executable Plan child across canonical documents, filenames,
+  frontmatter, diagnostics, tests, and tooling, and shall not expose a second
+  alias for the same concept.
+- **FR-010 [Inferred and approved]:** Each Work Item shall identify its kind as
+  story, technical, migration, docs, or verification when the distinction aids review.
+- **FR-011 [Inferred and approved]:** A Plan shall map every in-scope Feature
+  requirement, or every technical objective when no Feature governs the change,
+  to one or more Work Items.
+- **FR-012 [Observed]:** Cook shall execute at most one eligible Work Item at a
+  time and complete it only from concrete passing evidence.
+- **FR-013 [Observed]:** Material variance shall invalidate affected approval;
+  routine recovery inside approved scope shall not.
+- **FR-014 [Inferred and approved]:** Document work may precede or overlap
+  Coding work, but active coding shall not implement unapproved Feature behavior.
+- **BR-001 [Observed]:** `RULES.md` and active Rules own workflow policy;
+  approved Features own observable behavior; active Specs and approved Decisions
+  own technical constraints and rationale; Plans sequence work; Reports record outcomes.
+- **BR-002 [Observed]:** Graphify output and scout notes are derived evidence and
+  shall not override canonical authority or current source evidence.
+- **BR-003 [Observed]:** A lower-authority artifact shall not override a
+  higher-authority contract.
+- **BR-004 [Observed]:** Harness tooling shall not grant human approval or
+  automatically launch agents, commit, push, release, or deploy.
 - **NFR-001 [Observed]:** A future human or coding agent shall identify current
-  authority, next eligible action, blocker, and required proof from repository-local artifacts.
+  authority, uncovered obligations, next eligible action, blocker, and required proof.
 - **NFR-002 [Observed]:** Equivalent artifact state and evidence shall produce
   deterministic eligibility and validation outcomes.
-- **NFR-003 [Observed]:** Invalid transitions, unresolved dependencies, broken
-  relationships, and stale approvals shall be rejected before downstream execution.
-- **NFR-004 [Inferred and approved]:** Actors shall retrieve the smallest relevant
-  context without loading unrelated repository history.
+- **NFR-003 [Observed]:** Invalid approval, dependency, coverage, relationship,
+  and evidence states shall be rejected before downstream execution.
 
 ## Acceptance
 
-- [ ] Read-only and no-change outcomes create no unnecessary Feature, Plan, or Report.
-- [ ] New or changed observable behavior cannot authorize implementation before Feature approval.
-- [ ] Maintenance can reuse an existing Feature or Spec without duplicating business documentation.
-- [ ] Durable Decisions can interrupt and return to the affected workflow boundary.
-- [ ] A lower-authority artifact cannot override approved behavior or technical constraints.
-- [ ] Cook cannot start before Plan approval or while a required Decision is unresolved.
-- [ ] At most one phase is in progress and no dependant phase starts early.
-- [ ] Failed or unavailable verification prevents phase and Plan completion.
-- [ ] Material variance invalidates affected approval while routine recovery does not.
-- [ ] Completed delivery resolves from governing Feature or Spec through Decisions,
-  Plan, phase evidence, and Report.
+- [ ] Document work can complete without creating a Coding Plan.
+- [ ] New or changed observable behavior cannot enter Cook before all governing Features are approved.
+- [ ] A technical-only change can reach Plan and Cook without inventing a Feature.
+- [ ] Available Graphify output grounds Harness-document relationships and
+  direct scouting grounds source code without either becoming authority.
+- [ ] Optional implementation design is stored as `design.md` beside its owning
+  `plan.md`, linked by that Plan, and is not treated as a Spec or lifecycle artifact.
+- [ ] Every in-scope requirement or technical objective maps to at least one Work Item.
+- [ ] Work Items contain Tasks without requiring a Plan per Task.
+- [ ] Plan children are named Work Items consistently in their filename,
+  frontmatter, validation messages, documentation, and tooling.
+- [ ] Failed or unavailable verification prevents Work Item and Plan completion.
+- [ ] Documentation may overlap coding without letting unapproved behavior enter active work.
 
-**Scenario: route maintenance without a duplicate Feature**  
-Given approved behavior already governs the requested maintenance  
-When the requester authorizes an implementation-only change  
-Then the Plan links the existing Feature or Spec  
-And no new Feature is created.
+**Scenario: plan across several Features**
+Given one component is governed by two relevant Features
+And one Feature is approved while the other is proposed
+When a Coding Agent submits a Plan covering both behaviors
+Then Plan approval is rejected
+And the proposed Feature is identified as missing authority.
 
-**Scenario: interrupt Feature discovery for a product Decision**  
-Given a proposed Feature has two viable policies that change acceptance behavior  
-When Product Authority judgment is required  
-Then the Feature remains unapproved  
-And a proposed Decision records the alternatives and evidence  
-And Feature discovery resumes only after the Decision is approved or rejected.
+**Scenario: migrate Android XML to Compose without a Feature**
+Given the migration preserves approved observable behavior
+When the Coding Agent scouts the codebase and writes the migration design
+Then the Plan maps technical objectives to migration and verification Work Items
+And no new Feature is required.
 
-**Scenario: prevent Cook before approval**  
-Given a mechanically valid Plan has not been approved  
-When the Coding Agent attempts to start a phase  
-Then the phase remains unstarted  
-And the Harness reports the required Repository Maintainer approval.
+**Scenario: document future behavior alongside coding**
+Given coding is executing an approved Plan
+And a new Feature for future behavior is still proposed
+When documentation and coding progress in parallel
+Then current approved work may continue
+And the proposed behavior cannot be added to Cook.
 
-**Scenario: preserve active investigation**  
-Given one approved phase is in progress  
-When a required test fails and investigation remains inside approved scope  
-Then the phase remains in progress  
-And the failure evidence is retained  
-And no dependant phase begins.
+**Scenario: keep decomposition lightweight**
+Given a small technical change needs three implementation Tasks
+When the Plan is prepared
+Then one technical Work Item contains the three Tasks
+And no Story layer or Task-level Plan is created.
 
-**Scenario: require reapproval after material variance**  
-Given a phase is in progress under an approved Plan  
-When new evidence changes scope or success criteria  
-Then current work is preserved  
-And invalid continuation is blocked  
-And the affected artifact and Plan require approval before Cook resumes.
-
-**Scenario: complete from evidence**  
-Given every required phase criterion has passing evidence  
-When the Delivery Report records outcome, changed files, verification, variance, and friction  
-Then the Plan becomes completed  
-And the Report can enter Self Improve without a second universal approval gate.
+**Scenario: reject uncovered requirements**
+Given all governing Features are approved
+And one in-scope requirement has no delivering Work Item
+When the Repository Maintainer reviews the Plan
+Then Plan approval is rejected until coverage is complete or scope is corrected.
 
 ## Relationships
 
 - Spec: [[workflow-lifecycle]]
-- Decisions: [[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]], [[DEC-005-separate-approval-and-execution-state|DEC-005]]
-- Related Feature: [[FEAT-001-harness-cli|FEAT-001]]
-- Plan: [[260714-0033-file-based-agent-harness/plan|Plan]]
+- Decisions: [[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]], [[DEC-005-separate-approval-and-execution-state|DEC-005]], [[DEC-007-separate-document-authority-from-coding-execution|DEC-007]], [[DEC-008-use-work-item-as-the-only-plan-execution-unit|DEC-008]], [[DEC-009-co-locate-implementation-design-with-its-plan|DEC-009]]
+- Related Features: [[FEAT-001-harness-cli|FEAT-001]], [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]
+- Plans: [[260714-0033-file-based-agent-harness/plan|Plan]], [[260714-2354-co-locate-plan-design/plan|Plan]]
 - Source: `docs/harness/workflows/README.md`
 - Source: `docs/harness/RULES.md`

@@ -1,5 +1,5 @@
 ---
-phase: 3
+work_item: 3
 title: "Workflow and Skill Ports"
 status: completed
 priority: P1
@@ -10,7 +10,7 @@ decision_dependencies:
   - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
 ---
 
-# Phase 3: Workflow and Skill Ports
+# Work Item 3: Workflow and Skill Ports
 
 ## Overview
 
@@ -23,7 +23,7 @@ Classify request
   -> Feature only for new or changed observable behavior
   -> consult authority and interrupt for durable Decisions as needed
   -> mechanically valid and human-approved CK-compatible Plan
-  -> eligible phase Cook with verification evidence
+  -> eligible Work Item Cook with verification evidence
   -> Delivery Report
   -> optional human-approved Self Improve
 ```
@@ -32,8 +32,8 @@ Classify request
 - **Decision:** records durable context, alternatives, chosen trade-off,
   consequences, and evidence, then returns to the boundary that raised it.
 - **Plan:** preserves CK naming and layout while recording approval, governing
-  relationships, and phase Decision dependencies.
-- **Cook:** derives eligibility from Plan and phase state, works one phase at a
+  relationships, and Work Item Decision dependencies.
+- **Cook:** derives eligibility from Plan and Work Item state, works one Work Item at a
   time, requires verification, writes a report, and stores no duplicate Cook state.
 - **Self Improve:** verified reports/decisions feed a classified improvement loop;
   Rule promotion remains one gated outcome requiring at least two independent
@@ -44,7 +44,7 @@ Classify request
 - `brainstorm`: retain scout-first discovery, exact requirements, approaches, and approval gate; replace global plan/report paths.
 - `ask`: retain architecture consultation; replace `$HOME/.claude/rules/*` assumptions with `docs/harness/index.md` and linked specs.
 - `scout`: retain codebase mapping; make output feed Feature Relationships and source paths.
-- `ck-plan`: retain CK CLI scaffolding, naming, phases, validation, and status operations; set plan root to `docs/harness/plans/`; remove mandatory task hydration and unrelated global plan behavior.
+- `ck-plan`: retain CK CLI scaffolding, naming, Work Items, validation, and status operations; set plan root to `docs/harness/plans/`; remove mandatory task hydration and unrelated global plan behavior.
 - `cook`: retain plan-before-code, acceptance, test, review, and side-effect gates; remove mandatory Claude Task/subagent orchestration and automatic Git/finalization actions.
 - `ck-graphify`: retain optional graph guidance; update canonical roots and cleanup policy.
 
@@ -97,7 +97,7 @@ Classify request
 - [x] Read-only, no-change, maintenance, behavior-change, durable-decision, and
   improvement requests route to the smallest suitable workflow.
 - [x] Decision can interrupt and return to Feature, Plan, Cook, or Self Improve.
-- [x] Plan approval is separate from execution and phases declare Decision dependencies.
+- [x] Plan approval is separate from execution and Work Items declare Decision dependencies.
 - [x] Cook has no durable status and Plan completion is evidence-based through a Delivery Report.
 
 ## Verification Evidence
@@ -113,5 +113,5 @@ Classify request
   snapshot alignment on 2026-07-14.
 - `ck plan validate docs/harness/plans/260714-0033-file-based-agent-harness/plan.md --strict`
   passed with 0 errors and 0 warnings on ClaudeKit 4.4.0.
-- All 16 Feature, Decision, Spec, Plan, and phase files parsed under the
+- All 16 Feature, Decision, Spec, Plan, and Work Item files parsed under the
   executable schema; their non-example wikilinks and source paths resolved.

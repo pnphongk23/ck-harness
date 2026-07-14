@@ -46,18 +46,18 @@ people and CI. This Plan deliberately does not build or watch the index,
 synchronize runtime adapters, or repair authored documents: those behaviors
 remain outside this Plan or require an explicit user action.
 
-Repository Maintainer approved this Plan on 2026-07-14. All required phases
-completed with the evidence recorded in their phase documents and REP-001.
+Repository Maintainer approved this Plan on 2026-07-14. All required Work Items
+completed with the evidence recorded in their Work Item documents and REP-001.
 
-## Phases
+## Work Items
 
-| Phase | Name | Status |
+| Work Item | Name | Status |
 |-------|------|--------|
-| 1 | [Diagnostic model and repository scan](./phase-01-diagnostics.md) | Completed |
-| 2 | [Scoped Harness validation](./phase-02-scoped-validation.md) | Completed |
-| 3 | [Derived index correctness gate](./phase-03-index-correctness.md) | Completed |
-| 4 | [Consolidated health diagnostics](./phase-04-health-diagnostics.md) | Completed |
-| 5 | [Integrity verification and delivery](./phase-05-verification.md) | Completed |
+| 1 | [Diagnostic model and repository scan](./work-item-01-diagnostics.md) | Completed |
+| 2 | [Scoped Harness validation](./work-item-02-scoped-validation.md) | Completed |
+| 3 | [Derived index correctness gate](./work-item-03-index-correctness.md) | Completed |
+| 4 | [Consolidated health diagnostics](./work-item-04-health-diagnostics.md) | Completed |
+| 5 | [Integrity verification and delivery](./work-item-05-verification.md) | Completed |
 
 ## Dependencies
 

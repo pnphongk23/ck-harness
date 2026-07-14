@@ -67,10 +67,10 @@ createdBy: Dev
 `;
 }
 
-function phaseDocument(phase: number, dependencies: number[] = []): string {
+function workItemDocument(workItem: number, dependencies: number[] = []): string {
   return `---
-phase: ${phase}
-title: Phase
+work_item: ${workItem}
+title: Work Item
 status: pending
 priority: P1
 effort: 1d
@@ -78,7 +78,7 @@ dependencies: [${dependencies.join(", ")}]
 decision_dependencies: []
 ---
 
-# Phase
+# Work Item
 `;
 }
 
@@ -147,7 +147,7 @@ test("ambiguous duplicates list all candidates in sorted order with no guessed e
   assert.equal(ambiguousFinding.message, "ambiguous wikilink: [[FEAT-998]] resolves to docs/harness/rules/FEAT-998.md, docs/harness/specs/nested/FEAT-998.md");
 });
 
-test("canonical plan and phase targets resolve correctly", async (t) => {
+test("canonical Plan and Work Item targets resolve correctly", async (t) => {
   const root = await harnessFixture();
   t.after(() => rm(root, { recursive: true, force: true }));
 
@@ -155,17 +155,17 @@ test("canonical plan and phase targets resolve correctly", async (t) => {
   await mkdir(planDir, { recursive: true });
   
   await writeFile(join(planDir, "plan.md"), planDocument("in_progress"));
-  await writeFile(join(planDir, "phase-02-link-resolution.md"), phaseDocument(2));
-  await writeFile(join(planDir, "phase-01.md"), phaseDocument(1));
+  await writeFile(join(planDir, "work-item-02-link-resolution.md"), workItemDocument(2));
+  await writeFile(join(planDir, "work-item-01.md"), workItemDocument(1));
 
   await writeFile(join(root, "docs", "harness", "features", "FEAT-001.md"), featureDocument("FEAT-001", [
     "[[260714-1147-maintain-navigable-harness-knowledge/plan]]",
-    "[[260714-1147-maintain-navigable-harness-knowledge/phase-02-link-resolution]]"
+    "[[260714-1147-maintain-navigable-harness-knowledge/work-item-02-link-resolution]]"
   ]));
 
   const rendered = await renderExpectedIndex(root);
   assert.match(rendered, /FEAT-001\.md.*→.*plan\.md/);
-  assert.match(rendered, /FEAT-001\.md.*→.*phase-02-link-resolution\.md/);
+  assert.match(rendered, /FEAT-001\.md.*→.*work-item-02-link-resolution\.md/);
   assert.match(rendered, /## Unresolved relationships\n- None\./);
   
   await writeFile(join(root, "docs", "harness", "features", "FEAT-002.md"), featureDocument("FEAT-002", ["[[plan]]"]));

@@ -29,10 +29,14 @@ Markdown under `docs/harness/`. Introducing a hidden trace ledger, database
 A Feature (`FEAT-XXX`) defines observable business behavior and requirements
 from a Business Analyst (BA) perspective. A Spec defines shared technical
 constraints, architecture, APIs, data, testing, or conventions using a semantic
-filename. Implementation design does not belong in the Feature behavior; source
-paths may appear only in Relationships as evidence. Exact workflow status enums,
-transition predicates, approval provenance, and aggregation rules belong in a
-semantic lifecycle Spec rather than Feature flows.
+filename. A Feature is an authority document with its own lifecycle, not a
+mandatory stage for every repository change. Technical-only work that preserves
+observable behavior may proceed without inventing a Feature. Implementation
+design does not belong in the Feature behavior; optional delivery-specific
+design belongs in `design.md` beside its owning `plan.md`, while source paths may appear in Feature
+Relationships only as evidence. Exact workflow status enums, transition
+predicates, approval provenance, and aggregation rules belong in a semantic
+lifecycle Spec rather than Feature flows.
 
 ### R-004: Immutable Monotonic IDs
 All ID-bearing artifacts must receive a sequential, monotonic, immutable ID matching `FEAT-XXX`, `DEC-XXX`, `REP-XXX`, or `RULE-XXX` (where `XXX` is a three-digit zero-padded integer, starting from `001`). Once allocated, an ID is permanently reserved and cannot be reused, even if the artifact is deprecated, superseded, or deleted.
@@ -43,8 +47,13 @@ The ID embedded in an artifact's filename must match the `id` field in its YAML 
 ### R-006: Semantic Spec Names
 Technical specifications must use semantic kebab-case filenames (e.g., `security-audit.md` or `database-guidelines.md`) and must never be prefixed with a numeric ID or a `SPEC-` prefix.
 
-### R-007: ClaudeKit Plan Naming and Layout
-Implementation plans must follow the ClaudeKit YYMMDD-HHmm-slug directory layout under `docs/harness/plans/` using local time (e.g., `docs/harness/plans/260714-0100-implement-checkout/`). Each plan must contain a `plan.md` root and ordered `phase-XX-*.md` children.
+### R-007: Plan and Work Item Naming and Layout
+Implementation plans must follow the YYMMDD-HHmm-slug directory layout under `docs/harness/plans/` using local time (e.g., `docs/harness/plans/260714-0100-implement-checkout/`). Each plan must contain a `plan.md` root and ordered `work-item-XX-*.md` children. It may contain one plain `design.md` sibling. When present, the Plan must link that exact path through `relationships.source_paths`; a Plan must not claim another Plan's design.
+Each Work Item child is the persisted representation of one reviewable Work Item;
+its kind, inline Tasks, and success evidence remain Markdown body content so the
+current schema stays compatible. The Plan body must map every in-scope Feature
+requirement, or every technical objective for technical-only work, to one or
+more Work Items. A Task does not require a separate Plan or Story layer.
 
 ### R-008: Exact Five-Section Feature Contract and BA Actors
 Every Feature document must contain exactly five H2 sections: `Introduction`, `Business Understanding`, `Requirements`, `Acceptance`, and `Relationships`.
@@ -78,10 +87,19 @@ externally visible side effects, and promoting a Rule. Routine revision inside
 an already authorized stage does not require a new gate unless scope changes.
 Product Authority owns observable behavior and product choices; Repository
 Maintainer owns technical Decisions and Plans. Plan approval must be stored
-separately from execution state with its date and required authority.
+separately from execution state with its date and required authority. Before a
+behavior-changing Plan is approved, every governing Feature must be approved and
+no blocking Decision may remain unresolved. Authority closure, document
+grounding, direct codebase scouting, any applicable Plan-local design, Work Item decomposition, and
+requirement or technical-objective coverage are Plan approval preconditions,
+not separate readiness artifacts or approval gates.
 
 ### R-015: Verification Evidence Before Completion
-No implementation task or phase can be marked complete without executing verification tests, builds, or static checks. Recording confidence-based assumptions without concrete logs or outputs is prohibited.
+No implementation Task or Work Item can be marked complete without
+executing its required verification tests, builds, static checks, or observable
+checks. A Work Item completes only after its required Tasks and success criteria
+have concrete passing evidence. Recording confidence-based assumptions without
+concrete logs or outputs is prohibited.
 
 ### R-016: Required Delivery Reports
 Every successful implementation plan must conclude by generating a Delivery Report (`REP-XXX`) in `docs/harness/reports/` using `templates/report.md`. The report must record changed files, verification commands, plan variance, and repeated friction.
@@ -115,7 +133,13 @@ The generated body remains tooling-owned, and the exception expires once the
 allocator is available.
 
 ### R-021: Optional Graphify and Privacy
-`graphify` is an optional visualization utility. If the `graphify` dependency or command is missing, the system must warn and degrade gracefully instead of failing verification. Repository content must never be transmitted to external servers without explicit user permission.
+`graphify` is an optional visualization utility for derived Harness-document
+grounding within the boundary approved by DEC-006. It is not source-code
+scouting and its output is not authority. Coding workflows inspect source,
+dependencies, and tests directly. If the `graphify` dependency or command is
+missing, the system must warn and degrade gracefully instead of failing
+verification. Repository content must never be transmitted to external servers
+without explicit user permission.
 
 ### R-022: Canonical Skills and Thin Adapters
 The `.agents/skills/harness-*` skills are thin routers to the repository
@@ -148,6 +172,6 @@ canonical artifacts.
 | R-022–R-024 | Skill reference/provenance tests and adapter projection checks |
 | R-025–R-026 | Existing-target guards, worktree inspection, LF snapshots, and cross-platform CI |
 
-A test enforces only the behavior it directly observes. Until a later CLI phase
+A test enforces only the behavior it directly observes. Until a later CLI Work Item
 implements an enforcement point, the corresponding rule remains a documented
 contract and must not be reported as mechanically enforced.

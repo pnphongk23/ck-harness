@@ -59,8 +59,8 @@ type PlanFrontmatter = HarnessFrontmatter & {
   approval: { status: "pending" | "changes_requested" | "approved" };
   relationships: ArtifactFrontmatter["relationships"];
 };
-type PhaseFrontmatter = HarnessFrontmatter & {
-  phase: number;
+type WorkItemFrontmatter = HarnessFrontmatter & {
+  work_item: number;
   dependencies: readonly number[];
   decision_dependencies: readonly string[];
 };
@@ -85,9 +85,11 @@ export async function scanHarness(
   }
 
   const documents: ScannedDocument[] = [];
+  const planMarkdown = await listMarkdown(join(paths.harness, "plans"));
+  const planDesigns = planMarkdown.filter((path) => isPlanLocalDesign(paths.harness, path));
   const files = [
     ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(join(paths.harness, directory)))).then((groups) => groups.flat())),
-    ...(await listMarkdown(join(paths.harness, "plans"))),
+    ...planMarkdown.filter((path) => !isPlanLocalDesign(paths.harness, path)),
   ].sort((left, right) => left.localeCompare(right));
 
   for (const path of files) {
@@ -116,8 +118,9 @@ export async function scanHarness(
 
   findings.push(...relationshipFindings(documents));
   findings.push(...identityFindings(documents));
-  findings.push(...phaseDependencyFindings(documents));
+  findings.push(...workItemDecisionFindings(documents));
   findings.push(...planLifecycleFindings(documents));
+  findings.push(...planDesignFindings(paths.root, documents, planDesigns));
   if (scope.path === undefined && scope.kind === undefined) return result(findings);
   const selected = await selectScope(paths.root, documents, scope);
   if (selected instanceof Set) return result(findings.filter((entry) => selected.has(entry.path)));
@@ -182,6 +185,12 @@ export async function renderExpectedIndex(root: string, counters: IndexCounters 
     "---",
     "",
     "# Harness Index",
+    "",
+    "## Core Documentation",
+    "- [Project Rules](RULES.md)",
+    "- [Workflow Router](workflows/README.md)",
+    "- [Repository Contract](README.md)",
+    "- [Schema Specification](schema-v1.md)",
     "",
     section("Catalog", catalog),
     "",
@@ -250,9 +259,10 @@ export async function diagnoseHarness(root: string, options: DoctorOptions = {})
 }
 
 async function canonicalFiles(harness: string): Promise<string[]> {
+  const planMarkdown = await listMarkdown(join(harness, "plans"));
   return [
     ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(join(harness, directory)))).then((groups) => groups.flat())),
-    ...(await listMarkdown(join(harness, "plans"))),
+    ...planMarkdown.filter((path) => !isPlanLocalDesign(harness, path)),
   ].sort((left, right) => left.localeCompare(right));
 }
 
@@ -416,7 +426,7 @@ function identityFindings(documents: readonly ScannedDocument[]): IntegrityFindi
   return findings;
 }
 
-function phaseDependencyFindings(documents: readonly ScannedDocument[]): IntegrityFinding[] {
+function workItemDecisionFindings(documents: readonly ScannedDocument[]): IntegrityFinding[] {
   const decisions = new Map<string, Extract<ArtifactFrontmatter, { type: "decision" }>>();
   for (const document of documents) {
     if (isArtifact(document.frontmatter) && document.frontmatter.type === "decision") {
@@ -426,16 +436,16 @@ function phaseDependencyFindings(documents: readonly ScannedDocument[]): Integri
 
   const findings: IntegrityFinding[] = [];
   for (const document of documents) {
-    if (!("phase" in document.frontmatter)) continue;
+    if (!("work_item" in document.frontmatter)) continue;
     for (const link of document.frontmatter.decision_dependencies) {
       const target = link.slice(2, -2).split("|", 1)[0]!;
       const decision = decisions.get(target);
       if (!decision) {
-        findings.push(finding("phase.decision.missing", document.relativePath, `decision dependency does not resolve: ${link}`, "workflow-lifecycle", "correct the Decision wikilink or create the required approved Decision"));
+        findings.push(finding("work-item.decision.missing", document.relativePath, `decision dependency does not resolve: ${link}`, "workflow-lifecycle", "correct the Decision wikilink or create the required approved Decision"));
         continue;
       }
       if (decision.status !== "approved") {
-        findings.push(finding("phase.decision.unapproved", document.relativePath, `decision dependency is not approved: ${link}`, "workflow-lifecycle", "approve the Decision before starting this phase"));
+        findings.push(finding("work-item.decision.unapproved", document.relativePath, `decision dependency is not approved: ${link}`, "workflow-lifecycle", "approve the Decision before starting this Work Item"));
       }
     }
   }
@@ -449,38 +459,38 @@ function planLifecycleFindings(documents: readonly ScannedDocument[]): Integrity
   for (const document of documents) {
     if (isArtifact(document.frontmatter) && document.frontmatter.type === "report") reports.set(basename(document.path, ".md"), document.frontmatter);
   }
-  const activePhases: ScannedDocument[] = [];
+  const activeWorkItems: ScannedDocument[] = [];
 
   for (const document of documents) findings.push(...planLayoutFindings(document));
   const planDirectories = new Set(plans.map((plan) => dirname(plan.path)));
-  for (const phase of documents.filter((document) => isPhase(document.frontmatter))) {
-    if (!planDirectories.has(dirname(phase.path))) {
-      findings.push(finding("plan.root.missing", phase.relativePath, "phase directory has no plan.md root document", "R-007", "add the required plan.md for this Plan directory"));
+  for (const workItem of documents.filter((document) => isWorkItem(document.frontmatter))) {
+    if (!planDirectories.has(dirname(workItem.path))) {
+      findings.push(finding("plan.root.missing", workItem.relativePath, "Work Item directory has no plan.md root document", "R-007", "add the required plan.md for this Plan directory"));
     }
   }
   for (const plan of plans) {
     const directory = dirname(plan.path);
-    const phases = documents.filter((document) => dirname(document.path) === directory && isPhase(document.frontmatter)) as (ScannedDocument & { frontmatter: PhaseFrontmatter })[];
+    const workItems = documents.filter((document) => dirname(document.path) === directory && isWorkItem(document.frontmatter)) as (ScannedDocument & { frontmatter: WorkItemFrontmatter })[];
     const byNumber = new Map<number, ScannedDocument>();
-    for (const phase of phases) {
-      const number = phase.frontmatter.phase;
-      if (byNumber.has(number)) findings.push(finding("plan.phase.duplicate", phase.relativePath, `duplicate phase number ${number}`, "workflow-lifecycle", "give each phase a unique ordered number"));
-      else byNumber.set(number, phase);
-      if (phase.frontmatter.status === "in_progress" || phase.frontmatter.status === "in-progress") activePhases.push(phase);
-      for (const dependency of phase.frontmatter.dependencies) {
+    for (const workItem of workItems) {
+      const number = workItem.frontmatter.work_item;
+      if (byNumber.has(number)) findings.push(finding("plan.work-item.duplicate", workItem.relativePath, `duplicate Work Item number ${number}`, "workflow-lifecycle", "give each Work Item a unique ordered number"));
+      else byNumber.set(number, workItem);
+      if (workItem.frontmatter.status === "in_progress" || workItem.frontmatter.status === "in-progress") activeWorkItems.push(workItem);
+      for (const dependency of workItem.frontmatter.dependencies) {
         const predecessor = byNumber.get(dependency);
-        if (!predecessor) findings.push(finding("plan.phase.dependency.missing", phase.relativePath, `missing predecessor phase ${dependency}`, "workflow-lifecycle", "restore the predecessor phase or correct dependencies"));
-        else if (["in_progress", "in-progress", "completed"].includes(phase.frontmatter.status) && predecessor.frontmatter.status !== "completed") {
-          findings.push(finding("plan.phase.order", phase.relativePath, `predecessor phase ${dependency} is not completed`, "workflow-lifecycle", "complete predecessor phases before starting this phase"));
+        if (!predecessor) findings.push(finding("plan.work-item.dependency.missing", workItem.relativePath, `missing predecessor Work Item ${dependency}`, "workflow-lifecycle", "restore the predecessor Work Item or correct dependencies"));
+        else if (["in_progress", "in-progress", "completed"].includes(workItem.frontmatter.status) && predecessor.frontmatter.status !== "completed") {
+          findings.push(finding("plan.work-item.order", workItem.relativePath, `predecessor Work Item ${dependency} is not completed`, "workflow-lifecycle", "complete predecessor Work Items before starting this Work Item"));
         }
       }
-      if (["in_progress", "in-progress", "completed"].includes(phase.frontmatter.status) && plan.frontmatter.approval.status !== "approved") {
-        findings.push(finding("plan.approval.missing", phase.relativePath, "phase execution started without approved Plan authority", "workflow-lifecycle", "obtain Repository Maintainer approval before execution"));
+      if (["in_progress", "in-progress", "completed"].includes(workItem.frontmatter.status) && plan.frontmatter.approval.status !== "approved") {
+        findings.push(finding("plan.approval.missing", workItem.relativePath, "Work Item execution started without approved Plan authority", "workflow-lifecycle", "obtain Repository Maintainer approval before execution"));
       }
     }
     if (plan.frontmatter.status === "completed") {
-      if (phases.some((phase) => phase.frontmatter.status !== "completed")) {
-        findings.push(finding("plan.aggregation.incomplete", plan.relativePath, "completed Plan has a required phase that is not completed", "workflow-lifecycle", "complete every required phase or revise the approved Plan"));
+      if (workItems.some((workItem) => workItem.frontmatter.status !== "completed")) {
+        findings.push(finding("plan.aggregation.incomplete", plan.relativePath, "completed Plan has a required Work Item that is not completed", "workflow-lifecycle", "complete every required Work Item or revise the approved Plan"));
       }
       const linkedReports = plan.frontmatter.relationships.reports
         .map((link) => link.slice(2, -2).split("|", 1)[0]!)
@@ -490,10 +500,43 @@ function planLifecycleFindings(documents: readonly ScannedDocument[]): Integrity
       }
     }
   }
-  if (activePhases.length > 1) {
-    for (const phase of activePhases) findings.push(finding("phase.in-progress.multiple", phase.relativePath, "more than one Harness phase is in progress", "workflow-lifecycle", "leave only one phase in progress"));
+  if (activeWorkItems.length > 1) {
+    for (const workItem of activeWorkItems) findings.push(finding("work-item.in-progress.multiple", workItem.relativePath, "more than one Harness Work Item is in progress", "workflow-lifecycle", "leave only one Work Item in progress"));
   }
   return findings;
+}
+
+function planDesignFindings(root: string, documents: readonly ScannedDocument[], designPaths: readonly string[]): IntegrityFinding[] {
+  const findings: IntegrityFinding[] = [];
+  const plans = documents.filter((document) => isPlan(document.frontmatter)) as (ScannedDocument & { frontmatter: PlanFrontmatter })[];
+  const plansByDirectory = new Map(plans.map((plan) => [dirname(plan.path), plan]));
+
+  for (const designPath of designPaths) {
+    const relativePath = toRepositoryPath(root, designPath);
+    const plan = plansByDirectory.get(dirname(designPath));
+    if (!plan) {
+      findings.push(finding("plan.design.root.missing", relativePath, "Plan-local design has no sibling plan.md root", "R-007", "add the owning plan.md or remove the orphaned design.md"));
+      continue;
+    }
+    if (!plan.frontmatter.relationships.source_paths.includes(relativePath)) {
+      findings.push(finding("plan.design.unlinked", relativePath, "Plan-local design is not linked by its owning Plan", "DEC-009", "add the exact design.md path to the sibling Plan relationships.source_paths"));
+    }
+  }
+
+  for (const plan of plans) {
+    const expected = toRepositoryPath(root, join(dirname(plan.path), "design.md"));
+    for (const sourcePath of plan.frontmatter.relationships.source_paths.filter((path) => basename(path) === "design.md")) {
+      if (sourcePath !== expected) {
+        findings.push(finding("plan.design.location", plan.relativePath, `Plan references design outside its own directory: ${sourcePath}`, "DEC-009", `move the design to ${expected} and link that exact path`));
+      }
+    }
+  }
+  return findings;
+}
+
+function isPlanLocalDesign(harness: string, path: string): boolean {
+  const relativePath = relative(harness, path).replace(/\\/g, "/");
+  return /^plans\/\d{6}-\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\/design\.md$/.test(relativePath);
 }
 
 function planLayoutFindings(document: ScannedDocument): IntegrityFinding[] {
@@ -503,7 +546,7 @@ function planLayoutFindings(document: ScannedDocument): IntegrityFinding[] {
   if (!match) return [finding("plan.layout", document.relativePath, "plan file is outside the required YYMMDD-HHmm-slug directory layout", "R-007", "move it under docs/harness/plans/YYMMDD-HHmm-slug")];
   const filename = match[2]!;
   if (isPlan(document.frontmatter) && filename !== "plan.md") return [finding("plan.filename", document.relativePath, "Plan document must be named plan.md", "R-007", "rename the Plan document to plan.md")];
-  if (isPhase(document.frontmatter) && !/^phase-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/.test(filename)) return [finding("phase.filename", document.relativePath, "phase filename must match phase-XX-kebab-name.md", "R-007", "rename the phase document")];
+  if (isWorkItem(document.frontmatter) && !/^work-item-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/.test(filename)) return [finding("work-item.filename", document.relativePath, "Work Item filename must match work-item-XX-kebab-name.md", "R-007", "rename the Work Item document")];
   return [];
 }
 
@@ -528,8 +571,8 @@ function isPlan(frontmatter: HarnessFrontmatter): frontmatter is PlanFrontmatter
   return "approval" in frontmatter;
 }
 
-function isPhase(frontmatter: HarnessFrontmatter): frontmatter is PhaseFrontmatter {
-  return "phase" in frontmatter;
+function isWorkItem(frontmatter: HarnessFrontmatter): frontmatter is WorkItemFrontmatter {
+  return "work_item" in frontmatter;
 }
 
 function hasRelationships(frontmatter: HarnessFrontmatter): frontmatter is HarnessFrontmatter & { relationships: ArtifactFrontmatter["relationships"] } {

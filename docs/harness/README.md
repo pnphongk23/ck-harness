@@ -25,7 +25,7 @@ attempts best-effort rollback without overwriting a divergent external edit.
 - Specs own project-wide technical context and use semantic filenames.
 - Decisions own chosen trade-offs and evidence.
 - CK plans own approved implementation sequencing, governing relationships,
-  phase Decision dependencies, and execution state.
+  Work Item Decision dependencies, and execution state.
 - Reports own delivered outcomes and verification evidence.
 - Rules own human-approved, reusable guidance.
 - Templates and workflows define authoring contracts.
@@ -40,29 +40,37 @@ durable trade-offs; it is not one mandatory fixed stage in every task.
 
 ## Artifact lifecycle CLI
 
-Run the installed `harness` binary from the repository or pass an explicit
-workspace after the command path:
+After building, install the CLI locally for all shell sessions from this
+repository:
+
+```sh
+npm link
+```
+
+You can then use `ck-harness` or the shorter `ckh` alias. The existing
+`harness` name remains supported for compatibility. Run either binary from the
+repository or pass an explicit workspace after the command path:
 
 ```text
-harness init [--workspace PATH] [--json]
-harness feature create --title TITLE [--created YYYY-MM-DD]
-harness feature list
-harness feature show TARGET
-harness feature rename TARGET --title TITLE
-harness feature deprecate TARGET
-harness feature delete TARGET [--force]
-harness validate PATH | --kind KIND | --all
-harness index build
-harness index check
-harness index watch [--poll] [--debounce MS] [--rebind-attempts N]
-harness graph check
-harness graph build --allow-external
-harness doctor
-harness new spec --title TITLE
-harness new decision --title TITLE [--created YYYY-MM-DD]
-harness new report --title TITLE --delivered YYYY-MM-DD
-harness new rule --title TITLE --approved YYYY-MM-DD --scope SCOPE
-harness clean [--dry-run]
+ckh init [--workspace PATH] [--json]
+ckh feature create --title TITLE [--created YYYY-MM-DD]
+ckh feature list
+ckh feature show TARGET
+ckh feature rename TARGET --title TITLE
+ckh feature deprecate TARGET
+ckh feature delete TARGET [--force]
+ckh validate PATH | --kind KIND | --all
+ckh index build
+ckh index check
+ckh index watch [--poll] [--debounce MS] [--rebind-attempts N]
+ckh graph check
+ckh graph build --allow-external
+ckh doctor
+ckh new spec --title TITLE
+ckh new decision --title TITLE [--created YYYY-MM-DD]
+ckh new report --title TITLE --delivered YYYY-MM-DD
+ckh new rule --title TITLE --approved YYYY-MM-DD --scope SCOPE
+ckh clean [--dry-run]
 ```
 
 `TARGET` is an immutable `FEAT-XXX` ID or an exact Feature basename. Options
@@ -97,8 +105,9 @@ Invalid examples include `FEAT-1-name.md`, `feat-001-name.md`, a reused deleted
 ID, `SPEC-001-security.md`, or a feature whose frontmatter says `FEAT-002`
 while its filename says `FEAT-001-name.md`.
 
-Plans retain the ClaudeKit directory form `YYMMDD-HHmm-slug/`, with `plan.md`
-and `phase-XX-name.md` children. For example,
+Plans use the directory form `YYMMDD-HHmm-slug/`, with `plan.md`, optional plain
+`design.md`, and `work-item-XX-name.md` children. A present design is linked by
+its sibling Plan through `relationships.source_paths`. For example,
 `260714-0033-file-based-agent-harness/plan.md` is valid.
 
 ## Rename, deletion, and interruption

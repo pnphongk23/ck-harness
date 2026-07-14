@@ -2,7 +2,7 @@
 title: "File-Based Multi-Agent Repository Harness"
 description: "Complete the approved Harness artifact lifecycle CLI while preserving the verified repository contracts and workflow foundation."
 status: blocked
-status_reason: "Phase 5 requires Linux and Windows verification evidence that is unavailable until an external CI run is authorized and completed."
+status_reason: "Work Item 5 requires Linux and Windows verification evidence that is unavailable until an external CI run is authorized and completed."
 approval:
   status: approved
   required_by: Repository Maintainer
@@ -37,7 +37,7 @@ source: skill
 
 ## Overview
 
-Complete the approved FEAT-001 artifact lifecycle on top of the verified file-based Harness foundation from Phases 1–3. The remaining executable scope is initialization, canonical artifact scaffolding, Feature discovery and lifecycle mutation, monotonic ID allocation, and allowlisted cleanup. DEC-001 selects Node `parseArgs`; DEC-002 selects minimal per-file atomic writes with best-effort handled rollback and no automatic crash recovery. Repository Maintainer approval authorizes Cook to begin the next eligible phase without expanding into FEAT-003–005.
+Complete the approved FEAT-001 artifact lifecycle on top of the verified file-based Harness foundation from Work Items 1–3. The remaining executable scope is initialization, canonical artifact scaffolding, Feature discovery and lifecycle mutation, monotonic ID allocation, and allowlisted cleanup. DEC-001 selects Node `parseArgs`; DEC-002 selects minimal per-file atomic writes with best-effort handled rollback and no automatic crash recovery. Repository Maintainer approval authorizes Cook to begin the next eligible Work Item without expanding into FEAT-003–005.
 
 ### Outcomes
 
@@ -54,19 +54,19 @@ Complete the approved FEAT-001 artifact lifecycle on top of the verified file-ba
 - No public Harness integrity verification, index build/check, watcher, knowledge graph, runtime-adapter, or doctor capability until FEAT-003–005 are approved and separately planned.
 - No promise of multi-writer transactions; FEAT-001 supports one Harness CLI writer and must preserve conflicting external user changes.
 
-## Phases
+## Work Items
 
-| Phase | Name | Status |
+| Work Item | Name | Status |
 |-------|------|--------|
-| 1 | [Foundation and Contracts](./phase-01-foundation-and-contracts.md) | Completed |
-| 2 | [Document Model and Templates](./phase-02-document-model-and-templates.md) | Completed |
-| 3 | [Workflow and Skill Ports](./phase-03-workflow-and-skill-ports.md) | Completed |
-| 4 | [CLI Artifact Lifecycle](./phase-04-cli-core-and-validation.md) | Completed |
-| 5 | [Artifact Lifecycle Verification and Release Readiness](./phase-05-artifact-lifecycle-verification.md) | Blocked |
+| 1 | [Foundation and Contracts](./work-item-01-foundation-and-contracts.md) | Completed |
+| 2 | [Document Model and Templates](./work-item-02-document-model-and-templates.md) | Completed |
+| 3 | [Workflow and Skill Ports](./work-item-03-workflow-and-skill-ports.md) | Completed |
+| 4 | [CLI Artifact Lifecycle](./work-item-04-cli-core-and-validation.md) | Completed |
+| 5 | [Artifact Lifecycle Verification and Release Readiness](./work-item-05-artifact-lifecycle-verification.md) | Blocked |
 
 ## Dependencies
 
 - Node.js 20+ and npm for CLI development and distribution.
 - ClaudeKit CLI for plan compatibility tests; installed version at planning time is 4.4.0.
-- Approved FEAT-001 and the completed repository contract, document model, and workflow foundation from Phases 1–3.
-- Approved DEC-001 and DEC-002 define the Phase 4 command and mutation boundaries.
+- Approved FEAT-001 and the completed repository contract, document model, and workflow foundation from Work Items 1–3.
+- Approved DEC-001 and DEC-002 define the Work Item 4 command and mutation boundaries.

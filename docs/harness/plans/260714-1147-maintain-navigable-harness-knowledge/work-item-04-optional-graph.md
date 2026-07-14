@@ -1,5 +1,5 @@
 ---
-phase: 4
+work_item: 4
 title: "Optional Local Graph View"
 status: completed
 priority: P2
@@ -10,7 +10,7 @@ decision_dependencies:
   - "[[DEC-006-graphify-directory-extraction-boundary|DEC-006]]"
 ---
 
-# Phase 4: optional-graph
+# Work Item 4: optional-graph
 
 ## Overview
 

@@ -50,7 +50,7 @@ cannot spawn until the actor supplies `--allow-external`.
   `tests/index-watch.test.ts`, `tests/graph-adapter.test.ts`, and
   `tests/cli-lifecycle.test.ts` — feature, failure, preservation, and CLI
   evidence.
-- Harness Feature, Decisions, Plan phases, and README — approved contracts and
+- Harness Feature, Decisions, Plan Work Items, and README — approved contracts and
   operator guidance.
 
 ## Verification evidence
@@ -67,7 +67,7 @@ cannot spawn until the actor supplies `--allow-external`.
   backend; the missing-permission CLI path was verified to fail before spawn.
 - Direct validation of FEAT-004, DEC-006, and this report passed. The read-only
   workspace `index check` correctly rejected an unrelated pre-existing
-  FEAT-005 source path to the removed `phase-06-runtime-adapters-and-doctor.md`;
+  FEAT-005 source path to the removed `work-item-06-runtime-adapters-and-doctor.md`;
   no index publication was attempted.
 - Independent read-only AGY review completed successfully. Its executable-name
   consistency and successful-CLI-test findings were addressed; a speculative
@@ -75,7 +75,7 @@ cannot spawn until the actor supplies `--allow-external`.
 
 ## Plan variance
 
-Phase 4 originally assumed JSON over stdin. Installed Graphify 0.8.39 has no
+Work Item 4 originally assumed JSON over stdin. Installed Graphify 0.8.39 has no
 such protocol, so approved DEC-006 replaced it with fixed directory extraction
 over `docs/harness/`, output under the same directory, symlink rejection, and
 explicit `--allow-external` acknowledgement. Watcher scope was unchanged.
@@ -91,7 +91,7 @@ explicit `--allow-external` acknowledgement. Watcher scope was unchanged.
 
 ## Repeated friction
 
-The stdin assumption blocked Phase 4 once because the Plan had not been checked
+The stdin assumption blocked Work Item 4 once because the Plan had not been checked
 against the installed Graphify CLI. DEC-006 records the corrected integration
 boundary. This is one observed occurrence, so no reusable harness improvement
 is promoted yet.

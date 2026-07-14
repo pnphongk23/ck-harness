@@ -44,11 +44,11 @@ does not reopen or rewrite the completed delivery evidence. The implementation
 keeps `validate`, `index check`, and `doctor` read-only and does not add index
 build, watch, adapter, process, agent, network, Git, or delivery behavior.
 
-## Phases
+## Work Items
 
-| Phase | Name | Status |
+| Work Item | Name | Status |
 |-------|------|--------|
-| 1 | [Restore index and lifecycle validation](./phase-01-restore-validation.md) | Completed |
+| 1 | [Restore index and lifecycle validation](./work-item-01-restore-validation.md) | Completed |
 
 ## Dependencies
 
@@ -57,5 +57,5 @@ build, watch, adapter, process, agent, network, Git, or delivery behavior.
   Plan adds no new command.
 - REP-001 is completed historical evidence. Rejection findings create this
   follow-up instead of modifying the prior Report.
-- REP-002 records verified follow-up delivery after this Plan's required phase
+- REP-002 records verified follow-up delivery after this Plan's required Work Item
   passed.

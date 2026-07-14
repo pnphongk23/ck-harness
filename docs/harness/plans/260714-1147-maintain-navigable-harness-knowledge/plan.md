@@ -55,20 +55,20 @@ replaceable derived artifacts.
 This Plan is deliberately separate from the approved FEAT-003 integrity Plan.
 FEAT-003 owns the read-only scanner and `index check`; this Plan may reuse its
 completed scanner and renderer contracts but must not change its approved
-scope. No FEAT-004 phase may start until the entire FEAT-003 plan is completed,
+scope. No FEAT-004 Work Item may start until the entire FEAT-003 plan is completed,
 so the plans never concurrently change shared CLI or index-engine boundaries.
-Watch and graph phases also cannot start until DEC-003 is approved. Repository
-Maintainer approval is required before any Cook phase starts.
+Watch and graph Work Items also cannot start until DEC-003 is approved. Repository
+Maintainer approval is required before any Cook Work Item starts.
 
-## Phases
+## Work Items
 
-| Phase | Name | Status |
+| Work Item | Name | Status |
 |-------|------|--------|
-| 1 | [index-build](./phase-01-index-build.md) | Completed |
-| 2 | [link-resolution](./phase-02-link-resolution.md) | Completed |
-| 3 | [watch-reconciliation](./phase-03-watch-reconciliation.md) | Completed |
-| 4 | [optional-graph](./phase-04-optional-graph.md) | Completed |
-| 5 | [verification-and-delivery](./phase-05-verification-and-delivery.md) | Completed |
+| 1 | [index-build](./work-item-01-index-build.md) | Completed |
+| 2 | [link-resolution](./work-item-02-link-resolution.md) | Completed |
+| 3 | [watch-reconciliation](./work-item-03-watch-reconciliation.md) | Completed |
+| 4 | [optional-graph](./work-item-04-optional-graph.md) | Completed |
+| 5 | [verification-and-delivery](./work-item-05-verification-and-delivery.md) | Completed |
 
 ## Dependencies
 
@@ -80,4 +80,4 @@ Maintainer approval is required before any Cook phase starts.
   command registry, repository discovery, and validated atomic-write boundary.
 - [[DEC-001-cli-command-parsing|DEC-001]] governs strict CLI grammar; [[DEC-002-minimal-file-mutations|DEC-002]] governs every index publication.
 - [[DEC-003-index-watch-and-graph-runtime|DEC-003]] is approved and governs
-  Phases 3 and 4.
+  Work Items 3 and 4.

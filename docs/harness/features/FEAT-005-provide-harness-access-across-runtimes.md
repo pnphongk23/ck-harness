@@ -2,7 +2,7 @@
 schema_version: 1
 type: feature
 id: FEAT-005
-title: Provide Harness access across agent runtimes
+title: Use Harness across AI platforms
 status: proposed
 created: 2026-07-14
 relationships:
@@ -20,36 +20,36 @@ relationships:
   source_paths:
     - docs/harness/RULES.md
     - docs/harness/SKILL-PORTS.md
-    - docs/harness/plans/260714-0033-file-based-agent-harness/phase-06-runtime-adapters-and-doctor.md
 ---
 
-# FEAT-005: Provide Harness access across agent runtimes
+# FEAT-005: Use Harness across AI platforms
 
 ## Introduction
 
-**Purpose:** Let repository contributors use the same canonical Harness workflows from supported agent runtimes without duplicating workflow authority or overwriting user-owned runtime configuration.
+**Purpose:** Let contributors use the same Harness workflows from supported AI platforms such as Codex, Claude, Cursor, and Antigravity.
 
 **In scope:**
 
-- Make canonical Harness skills discoverable directly where a supported runtime can use them.
-- Synchronize thin runtime-specific adapters where direct discovery is unavailable.
-- Check adapters for absence, drift, broken routing, and conflicts with user-owned configuration.
-- Include runtime-access findings in consolidated Harness health diagnostics.
-- Preview adapter changes and remove only obsolete Harness-owned adapter output.
+- Let each supported AI platform find the repository's Harness skills.
+- Create small adapter files for platforms that cannot read the Harness skills directly.
+- Preview adapter changes before writing them.
+- Find missing, outdated, changed, or broken adapters.
+- Report platform access problems through Harness health checks.
+- Remove old adapters only when they were created and owned by Harness.
 
 **Out of scope:**
 
-- Launching or orchestrating any agent runtime.
-- Duplicating canonical workflow or template bodies into adapters.
-- Changing user-global runtime configuration.
-- Overwriting unowned repository configuration or resolving product behavior differently per runtime.
+- Starting or controlling an AI platform.
+- Copying full Harness workflows into platform-specific files.
+- Changing a user's global configuration.
+- Overwriting repository files that Harness does not own.
 
 ### Evidence classification
 
-- **Observed:** The approved split assigns adapter synchronization, adapter checks, and runtime-specific health diagnostics to a dedicated capability.
-- **Observed:** Phase 6 defines direct discovery for Codex and Antigravity and thin adapters for Claude and Cursor while preserving user-owned configuration.
-- **Inferred:** Direct discovery and generated adapters are alternative delivery paths for one business outcome: consistent access to the same canonical Harness workflows.
-- **TBD:** Runtime discovery contracts may evolve; supported adapter formats and fingerprints remain downstream compatibility details.
+- **Observed:** Harness workflows and skills in this repository are the shared source for all supported platforms.
+- **Observed:** Repository rules require Harness to preserve user-owned files and never launch AI agents.
+- **Inferred:** Some platforms can read the shared skills directly, while others may need a small adapter file that points to them.
+- **TBD:** The supported platforms and the exact adapter format for each platform still need technical confirmation.
 
 ## Business Understanding
 
@@ -57,99 +57,98 @@ relationships:
 
 | Actor | Type | Goal | Responsibility |
 | --- | --- | --- | --- |
-| Repository Contributor | Business role | Invoke the same Harness workflows from a preferred supported runtime | Use repository-local runtime access and report incorrect routing |
-| Repository Maintainer | Business role | Keep runtime access current without losing custom configuration | Preview, synchronize, and verify Harness-owned adapters |
-| Supported agent runtime | External system | Discover and present repository-local Harness workflows | Follow canonical entrypoints or generated thin adapters |
+| Repository Contributor | Business role | Use Harness from a preferred AI platform | Choose and follow a Harness workflow |
+| Repository Maintainer | Business role | Keep platform access working without losing custom files | Review, apply, and check adapter changes |
+| Supported AI platform | External system | Find the repository's Harness skills | Open the shared skill directly or through an adapter |
 
 ### User needs
 
-- A Contributor needs workflow meaning and approval boundaries to remain consistent across supported runtimes.
-- A Maintainer needs adapter drift to be detectable and repairable without manually duplicating canonical documents.
-- A Maintainer needs user-owned runtime configuration to remain untouched when adapter synchronization encounters a conflict.
+- A Contributor needs the same Harness workflow regardless of which supported AI platform is used.
+- A Maintainer needs to see proposed adapter changes before any file is written.
+- A Maintainer needs clear errors when an adapter is missing, outdated, changed, or points to a missing skill.
+- A Maintainer needs confidence that Harness will not overwrite custom platform files.
 
 ### Preconditions
 
-- The repository contains readable canonical Harness skill, workflow, and template sources.
-- The requested runtime belongs to the supported runtime contract.
-- Adapter synchronization has permission to write only Harness-owned repository-local adapter paths.
+- The repository contains the Harness skills and workflows.
+- The selected AI platform is supported by the repository.
+- Harness may write only to repository files that are reserved for Harness adapters.
 
 ### Trigger
 
-A Repository Maintainer requests adapter synchronization or checking, or a Contributor accesses a Harness workflow through a supported agent runtime.
+A Maintainer previews, applies, or checks AI platform access, or a Contributor opens a Harness skill from a supported platform.
 
 ### Main flow
 
-1. **Actor:** The Maintainer requests runtime-access synchronization or verification. **System:** The system identifies canonical workflow sources, supported runtimes, and existing runtime configuration ownership.
-2. **Actor:** The Maintainer reviews the proposed or current access paths. **System:** The system distinguishes direct discovery from required thin adapters and identifies missing, stale, or obsolete Harness-owned output.
-3. **Actor:** The Maintainer confirms synchronization when changes are requested. **System:** The system publishes only Harness-owned adapter changes that route to canonical repository sources.
-4. **Actor:** The Contributor invokes a Harness workflow from a supported runtime. **System:** The runtime resolves the canonical workflow through direct discovery or its thin adapter without changing workflow meaning.
-5. **Actor:** The Contributor follows the workflow. **System:** The same repository authority, approval boundaries, and canonical templates apply regardless of runtime.
+1. **Actor:** The Maintainer asks Harness to check AI platform access. **System:** The system checks how each supported platform reaches the shared Harness skills and reports any missing, outdated, or broken adapter.
+2. **Actor:** The Maintainer asks to preview repairs. **System:** The system lists every adapter file it would create, update, or remove without changing the repository.
+3. **Actor:** The Maintainer approves the proposed file changes by requesting synchronization. **System:** The system creates, updates, or removes only Harness-owned adapter files.
+4. **Actor:** The Contributor opens a Harness skill from a supported AI platform. **System:** The platform reaches the shared Harness skill directly or through its adapter.
+5. **Actor:** The Contributor follows the skill. **System:** The same Harness workflow and approval rules apply on every supported platform.
 
 ### Alternative flows
 
-- **A1 — Check without synchronization.** Source step: 1. Condition: the Maintainer requests adapter verification only. Behavior: the system reports direct-discovery health, missing or stale adapters, ownership conflicts, and broken canonical targets without writing. Resume at step: 2.
-- **A2 — Use direct discovery.** Source step: 2. Condition: the selected runtime supports the canonical repository skill location. Behavior: the system reports the direct canonical entrypoint and creates no redundant adapter. Resume at step: 4.
-- **A3 — Preview synchronization.** Source step: 3. Condition: the Maintainer requests a preview. Behavior: the system lists every Harness-owned file that would be created, updated, or removed and makes no change. Resume at step: 2.
-- **A4 — Diagnose runtime access.** Source step: 1. Condition: the Maintainer requests consolidated health diagnostics. Behavior: the system reports canonical entrypoint, fingerprint, adapter, ownership, and runtime-location findings as part of overall Harness health. Ends with: runtime findings available to the integrity capability.
+- **A1 — Direct access.** Source step: 1. Condition: the platform can already read the shared Harness skills. Behavior: the system reports direct access and creates no adapter. Resume at step: 4.
+- **A2 — Preview only.** Source step: 2. Condition: the Maintainer does not request synchronization after reviewing the preview. Behavior: the system makes no file changes. Ends with: unchanged repository.
+- **A3 — Check only.** Source step: 1. Condition: the Maintainer does not request a repair preview. Behavior: the system reports problems and suggested actions without changing any file. Ends with: platform access report.
+- **A4 — Health check.** Source step: 1. Condition: the Maintainer runs the general Harness health check. Behavior: the system includes platform access problems in the health result. Ends with: combined health report.
 
 ### Exception flows
 
-- **E1 — Canonical source unavailable.** Source step: 1. Failure: a required canonical skill, workflow, or template target cannot be resolved. Handling: report the broken target and block adapter success. Prohibited: embedding a substitute workflow body in the adapter. Failure postcondition: no new adapter is presented as valid.
-- **E2 — Unowned configuration conflict.** Source step: 2. Failure: synchronization would replace or remove content not marked as Harness-owned. Handling: identify the conflict and refuse that write. Prohibited: overwriting, deleting, or silently merging unowned content. Failure postcondition: user-owned configuration remains unchanged.
-- **E3 — Adapter drift.** Source step: A1. Failure: an existing Harness-owned adapter does not match its canonical source or declared ownership evidence. Handling: report the stale adapter and proposed remediation. Prohibited: treating drifted routing as current. Failure postcondition: the read-only check fails without modifying the adapter.
-- **E4 — Unsupported runtime.** Source step: 1. Failure: the requested runtime has no approved repository-local access contract. Handling: report it as unsupported. Prohibited: guessing or writing an ungoverned adapter format. Failure postcondition: repository configuration remains unchanged.
+- **E1 — Shared skill is missing.** Source step: 1. Failure: an adapter points to a Harness skill that does not exist. Handling: name the missing skill and fail the check. Prohibited: copying or inventing a replacement workflow. Failure postcondition: no adapter is reported as working.
+- **E2 — File belongs to the user.** Source step: 3. Failure: a proposed adapter would replace or remove a file that Harness does not own. Handling: identify the file and refuse that change. Prohibited: overwriting, deleting, or merging the user's file. Failure postcondition: the user's file is unchanged.
+- **E3 — Adapter is outdated or changed.** Source step: A3. Failure: an adapter no longer matches the shared Harness skill or the expected adapter content. Handling: identify the adapter and explain that synchronization can repair it. Prohibited: reporting the adapter as current. Failure postcondition: the check changes no files.
+- **E4 — Platform is unsupported.** Source step: 1. Failure: no approved access method exists for the selected platform. Handling: report that the platform is unsupported. Prohibited: guessing where or how to create an adapter. Failure postcondition: the repository is unchanged.
 
 ### Postconditions
 
-- **Synchronization success:** Every supported runtime has a valid direct or thin-adapter route to the canonical Harness workflow sources.
-- **Check success:** Runtime access is current, canonical targets resolve, and no ownership conflict exists.
-- **Preview success:** The exact proposed Harness-owned changes are visible and no file changes.
-- **Failure:** User-owned configuration is unchanged and diagnostics identify the broken source, adapter, ownership, or runtime contract.
+- **Synchronization success:** Every supported AI platform can reach the shared Harness skills.
+- **Check success:** Required adapters exist, point to real skills, and have the expected content.
+- **Preview success:** The Maintainer sees the exact proposed changes and no file is changed.
+- **Failure:** User-owned files remain unchanged and the result names the platform and file that need attention.
 
 ## Requirements
 
-- **FR-001 — Canonical access [Observed]:** The system shall provide each supported runtime one repository-local route to the canonical Harness skills and workflows.
-- **FR-002 — Thin adapters [Observed]:** Where direct discovery is unavailable, the system shall synchronize thin adapters that identify and route to canonical sources without duplicating their bodies.
-- **FR-003 — Ownership safety [Observed]:** Synchronization shall write or remove only clearly Harness-owned adapter content and shall preserve unowned runtime configuration.
-- **FR-004 — Preview [Inferred]:** The system shall let a Maintainer inspect every proposed adapter creation, update, and removal without mutation.
-- **FR-005 — Drift detection [Observed]:** Read-only checks shall identify missing, stale, modified, broken, or obsolete runtime access paths.
-- **FR-006 — Runtime diagnostics [Observed]:** Consolidated health diagnostics shall include stable runtime-access and adapter findings.
-- **BR-001 [Observed]:** Canonical workflow authority remains under `docs/harness/` and canonical `.agents/skills/harness-*` entrypoints; adapters shall not become a parallel source of truth.
-- **BR-002 [Observed]:** Runtime access shall not launch agents, change user-global configuration, or grant human approval.
-- **BR-003 [Inferred]:** All supported runtimes shall expose equivalent Harness workflow meaning and approval boundaries.
-- **NFR-001 — Determinism [Observed]:** Equivalent canonical sources shall produce byte-stable Harness-owned adapter output and fingerprints.
-- **NFR-002 — Portability [Observed]:** Runtime routes shall resolve from the repository root across supported path conventions and nested working directories.
-- **NFR-003 — Diagnosability [Inferred]:** A failed runtime-access check shall identify the runtime, affected route, ownership state, and expected canonical target.
+- **FR-001 — Platform access [Observed]:** Each supported AI platform shall have one repository-local way to reach the shared Harness skills.
+- **FR-002 — Small adapters [Inferred]:** A platform that cannot read the shared skills directly shall use small adapter files that point to those skills without copying full workflows.
+- **FR-003 — Safe changes [Observed]:** Synchronization shall change or remove only adapter files owned by Harness.
+- **FR-004 — Preview [Inferred]:** A Maintainer shall be able to see every proposed adapter change without changing the repository.
+- **FR-005 — Clear checks [Inferred]:** Read-only checks shall report missing, outdated, changed, broken, and unneeded adapters.
+- **FR-006 — Health report [Inferred]:** General Harness health checks shall include AI platform access problems.
+- **BR-001 [Observed]:** Shared Harness skills and workflows remain the source used by every platform.
+- **BR-002 [Observed]:** Platform access shall not start an agent, change global configuration, or approve work for a human.
+- **NFR-001 — Repeatable output [Observed]:** The same Harness skills and platform settings shall produce the same adapter files and check results.
+- **NFR-002 — Clear errors [Inferred]:** A failed check shall name the platform, affected file, problem, and suggested next action.
 
 ## Acceptance
 
-- [ ] Every supported runtime resolves the same canonical Harness workflow meaning and approval boundaries.
-- [ ] Direct-discovery runtimes require no redundant generated adapter.
-- [ ] Thin adapters contain routing and ownership evidence without copied canonical workflow bodies.
-- [ ] Preview lists exact proposed Harness-owned changes and changes no file.
-- [ ] Checks detect missing, stale, modified, broken, and obsolete adapters.
-- [ ] Synchronization never overwrites or removes unowned runtime configuration.
-- [ ] Broken canonical sources cause adapter checks to fail with the affected target identified.
-- [ ] Runtime-access diagnostics appear in consolidated Harness health results.
+- [ ] Every supported AI platform can reach the same shared Harness skills.
+- [ ] Platforms with direct access do not receive unnecessary adapters.
+- [ ] Adapter files point to shared skills and do not copy full workflows.
+- [ ] Preview lists exact changes without writing files.
+- [ ] Checks report missing, outdated, changed, broken, and unneeded adapters.
+- [ ] Synchronization does not overwrite or remove user-owned files.
+- [ ] A missing shared skill causes the check to fail and names the missing skill.
+- [ ] General Harness health results include AI platform access problems.
 
-**Scenario: synchronize a thin adapter**
-Given a supported runtime cannot directly discover the canonical Harness skill
-And its target adapter path is available for Harness ownership
-When the Repository Maintainer synchronizes runtime access
-Then a thin adapter routes to the canonical repository source
-And no workflow body is duplicated.
+**Scenario: create an adapter**
+Given a supported AI platform cannot read the shared Harness skill directly
+And its adapter path is available for Harness to use
+When the Maintainer synchronizes platform access
+Then Harness creates a small adapter that points to the shared skill
+And the adapter does not contain a copy of the workflow.
 
-**Scenario: preserve custom runtime configuration**
-Given a target runtime path contains unowned user configuration
-When adapter synchronization would replace that content
-Then the write is rejected with an ownership conflict
-And the existing configuration remains unchanged.
+**Scenario: preserve a custom file**
+Given the adapter path contains a file that Harness does not own
+When synchronization would replace that file
+Then Harness refuses the change and identifies the conflict
+And the existing file remains unchanged.
 
-**Scenario: detect adapter drift without mutation**
-Given a Harness-owned adapter no longer matches its canonical source
-When the Repository Maintainer checks runtime access
-Then the stale adapter and expected canonical target are reported
-And no repository file changes.
+**Scenario: find an outdated adapter**
+Given a Harness-owned adapter no longer matches the shared skill
+When the Maintainer checks platform access
+Then Harness reports the outdated adapter and the skill it should use
+And no repository file is changed.
 
 ## Relationships
 
@@ -159,4 +158,3 @@ And no repository file changes.
 - Plan: [[260714-0033-file-based-agent-harness/plan|Plan]]
 - Source: `docs/harness/RULES.md`
 - Source: `docs/harness/SKILL-PORTS.md`
-- Source: `docs/harness/plans/260714-0033-file-based-agent-harness/phase-06-runtime-adapters-and-doctor.md`

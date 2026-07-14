@@ -1,5 +1,5 @@
 ---
-phase: 3
+work_item: 3
 title: "Explicit Watch Reconciliation"
 status: completed
 priority: P1
@@ -9,7 +9,7 @@ decision_dependencies:
   - "[[DEC-003-index-watch-and-graph-runtime|DEC-003]]"
 ---
 
-# Phase 3: watch-reconciliation
+# Work Item 3: watch-reconciliation
 
 ## Overview
 
@@ -23,7 +23,7 @@ edits or degraded coverage.
 1. Add the approved watcher dependency and strict watch grammar, including
    explicit polling mode and configurable debouncing under DEC-003.
 2. Perform one initial full reconciliation, then coalesce normalized change
-   notifications into bounded full scans and reuse the Phase 1 build path.
+   notifications into bounded full scans and reuse the Work Item 1 build path.
 3. Exclude `.harness-tmp/`, Graphify output, `docs/harness/index.md`, and
    Harness temporary or rollback sibling files matching `.*.harness-tmp-*` or
    `.*.harness-rollback-*` from invalidation; never infer correctness from
@@ -64,7 +64,7 @@ edits or degraded coverage.
   bounded rebind exhaustion, polling, strict CLI numbers, graceful shutdown,
   and independent `index check` behavior.
 - `npm run build && node --test dist/tests/index-build.test.js dist/tests/index-resolution.test.js dist/tests/index-watch.test.js`
-  — passed on 2026-07-14: 25 Phase 1-3 tests passed, 0 failed.
+  — passed on 2026-07-14: 25 Work Item 1-3 tests passed, 0 failed.
 - `npm run verify` — passed on 2026-07-14: TypeScript checks passed; 68 tests
   passed, 0 failed.
 - `git diff --check -- package.json package-lock.json src/watcher/index.ts src/cli/index.ts tests/index-watch.test.ts`

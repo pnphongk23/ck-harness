@@ -1,5 +1,5 @@
 ---
-phase: 1
+work_item: 1
 title: "Derived Index Build and Publication"
 status: completed
 priority: P1
@@ -10,7 +10,7 @@ decision_dependencies:
   - "[[DEC-002-minimal-file-mutations|DEC-002]]"
 ---
 
-# Phase 1: index-build
+# Work Item 1: index-build
 
 ## Overview
 
@@ -72,5 +72,5 @@ and only when its logical bytes changed.
   sequence counters from canonical IDs when the prior index is unavailable.
 - A direct build of this working tree was correctly rejected without mutation
   because pre-existing, out-of-scope canonical state contains a stale FEAT-005
-  source path and another active phase. Those findings do not replace the
-  isolated passing Phase 1 evidence and must be resolved before Phase 2 starts.
+  source path and another active Work Item. Those findings do not replace the
+  isolated passing Work Item 1 evidence and must be resolved before Work Item 2 starts.

@@ -30,7 +30,7 @@ relationships:
 
 Plan `status` currently tracks execution but Cook requires an approved Plan.
 Approval exists only as conversational handoff, so it is not inspectable or
-machine-verifiable. Adding a separate Cook status would duplicate Plan and phase
+machine-verifiable. Adding a separate Cook status would duplicate Plan and Work Item
 state. A universal human Report approval gate would add another ambiguous state
 after verification has already established technical completion.
 
@@ -38,14 +38,14 @@ after verification has already established technical completion.
 
 Store Plan approval separately from execution. Approval uses `pending`,
 `changes_requested`, or `approved` and records the required authority and
-decision date. Plan and phase execution use `pending`, `in_progress`, `blocked`,
+decision date. Plan and Work Item execution use `pending`, `in_progress`, `blocked`,
 `completed`, or `cancelled`; blocked and cancelled states record a reason.
 
-Do not persist Cook status. Derive eligibility, current phase, blockers, and
-next action from Plan approval and execution, phase state, approved Decision
+Do not persist Cook status. Derive eligibility, current Work Item, blockers, and
+next action from Plan approval and execution, Work Item state, approved Decision
 dependencies, and Report presence.
 
-Complete a Plan when all required phase criteria have passing evidence and a
+Complete a Plan when all required Work Item criteria have passing evidence and a
 completed Delivery Report exists. When business or high-risk acceptance is
 needed, include it in the approved Plan success criteria rather than adding a
 universal post-Report approval gate.
@@ -59,7 +59,7 @@ universal post-Report approval gate.
 ## Consequences
 
 - Plan schema gains approval provenance and relationships.
-- Phase schema gains Decision dependencies and reasons for blocked or cancelled state.
+- Work Item schema gains Decision dependencies and reasons for blocked or cancelled state.
 - Material Plan changes reset approval; routine fixes inside approved scope do not.
 - Report completion is evidence-based and does not require a second universal human gate.
 - CLI status output may compute Cook eligibility but must not store a Cook lifecycle.

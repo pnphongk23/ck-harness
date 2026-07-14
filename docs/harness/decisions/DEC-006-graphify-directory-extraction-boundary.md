@@ -27,7 +27,7 @@ relationships:
 ## Context
 
 DEC-003 requires Graphify to remain optional, local, shell-free, and explicitly
-invoked. The original Phase 4 Plan additionally assumed a deterministic JSON
+invoked. The original Work Item 4 Plan additionally assumed a deterministic JSON
 stdin protocol, but installed Graphify 0.8.39 exposes directory-oriented
 `extract <path>` input and writes `graphify-out/`; it has no `--stdin` protocol.
 The Repository Maintainer requires Graphify to inspect only `docs/harness/` and

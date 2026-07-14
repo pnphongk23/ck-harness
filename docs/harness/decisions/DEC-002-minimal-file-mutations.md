@@ -27,7 +27,7 @@ approved_by: Repository Maintainer
 
 Feature creation can update a sequence and publish a new artifact, while Feature rename can replace several authored files. The filesystem provides atomic replacement for one path, not one transaction spanning every affected path. FEAT-001 requires single-writer, repository-contained changes that preserve detected user edits and never report a known partial result as success. The MVP should satisfy that boundary with the smallest implementation and does not require automatic recovery after process or machine failure.
 
-This Decision interrupts the FEAT-001 Plan before Phase 4.
+This Decision interrupts the FEAT-001 Plan before Work Item 4.
 
 ## Decision
 
@@ -53,7 +53,7 @@ Do not add a transaction manifest, durable backup ledger, automatic crash recove
 
 ## Consequences
 
-- Phase 4 can implement a small repository mutation boundary without a recovery subsystem or new public recovery commands.
+- Work Item 4 can implement a small repository mutation boundary without a recovery subsystem or new public recovery commands.
 - Each target replacement is atomic, but a batch spanning several paths is not atomic as a whole.
 - Validation occurs before publication, and detected external changes block the mutation instead of being overwritten.
 - Handled failures receive a best-effort in-process rollback; rollback failure is reported with every path whose outcome needs inspection.

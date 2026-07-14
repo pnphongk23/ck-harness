@@ -11,7 +11,7 @@ intentional. Dates use `YYYY-MM-DD`; timestamps use ISO 8601.
 | Decision | `decisions/` | `DEC-XXX-kebab-name.md` | common ID fields, `created`, conditional approval or rejection provenance, `relationships` |
 | Report | `reports/` | `REP-XXX-kebab-name.md` | common ID fields plus `delivered` and `relationships` |
 | Rule | `rules/` | `RULE-XXX-kebab-name.md` | common ID fields plus `approved`, `scope`, and `relationships` |
-| Plan | `plans/YYMMDD-HHmm-slug/` | `plan.md`, `phase-XX-name.md` | CK-compatible plan or phase fields |
+| Plan | `plans/YYMMDD-HHmm-slug/` | `plan.md`, optional plain `design.md`, `work-item-XX-name.md` | Harness Plan or Work Item fields; design has no lifecycle frontmatter |
 
 Artifact statuses are `draft`, `proposed`, `approved`, `rejected`, `active`,
 `deprecated`, `superseded`, or `completed`; each artifact schema accepts only
@@ -39,15 +39,29 @@ created timestamp, and creator. Approval status is `pending`,
 `required_by` names the responsible authority role. A Plan may not be
 `in_progress` or `completed` without approved execution authority.
 
-Plan and phase execution statuses are `pending`, `in_progress`, `blocked`,
+Plan and Work Item execution statuses are `pending`, `in_progress`, `blocked`,
 `completed`, or `cancelled`. Compatibility accepts CK's `in-progress` spelling
 when reading; new Harness workflows write `in_progress`. Blocked or cancelled
 state requires `status_reason`.
 
-Phase frontmatter requires numeric phase, title, status, priority, effort,
+Work Item frontmatter requires numeric `work_item`, title, status, priority, effort,
 numeric `dependencies`, and `decision_dependencies`. Each Decision dependency
 uses a canonical wikilink and must resolve to an approved Decision before the
-phase becomes eligible.
+Work Item becomes eligible.
+
+For workflow semantics, each `work-item-XX-*.md` file persists one Work
+Item. Optional Work Item kind, inline Tasks, requirement or technical-objective
+coverage, and evidence notes remain Markdown body content; they are not new
+frontmatter fields. The Plan body owns the aggregate coverage map. This
+interpretation preserves the strict v1 executable schema and does not introduce
+a Story artifact or Task-level Plan.
+
+An implementation `design.md` is optional supporting evidence stored beside the
+owning `plan.md` and linked through that Plan's `relationships.source_paths`.
+It is not a v1 lifecycle artifact and has no Harness frontmatter. Discovery
+recognizes only this exact sibling filename as supporting Markdown; every other
+Markdown file in a Plan directory must parse as Plan or Work Item. Reusable
+technical contracts belong in semantic Specs or approved Decisions.
 
 Feature Markdown has exactly five H2 sections: Introduction, Business
 Understanding, Requirements, Acceptance, and Relationships. Optional material

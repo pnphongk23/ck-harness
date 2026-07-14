@@ -8,8 +8,12 @@ relationships:
   decisions:
     - "[[DEC-004-classified-intake-and-interruptible-decisions|DEC-004]]"
     - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
+    - "[[DEC-007-separate-document-authority-from-coding-execution|DEC-007]]"
+    - "[[DEC-008-use-work-item-as-the-only-plan-execution-unit|DEC-008]]"
+    - "[[DEC-009-co-locate-implementation-design-with-its-plan|DEC-009]]"
   plans:
     - "[[260714-0033-file-based-agent-harness/plan|Plan]]"
+    - "[[260714-2354-co-locate-plan-design/plan|Plan]]"
   reports: []
   rules: []
   features:
@@ -33,6 +37,21 @@ Humans and coding agents perform discovery, planning, implementation, and
 verification. Harness workflows define required behavior; repository tooling
 scaffolds and validates artifacts and rejects invalid transitions.
 
+## Workflow families
+
+- **Document workflow:** creates or revises Features, Specs, Decisions, Reports,
+  Rules, and other durable knowledge under the lifecycle appropriate to
+  each document. Document work may complete without a Coding Plan.
+- **Coding workflow:** grounds authority and current code, writes or links
+  implementation design, plans, executes, verifies, and reports repository
+  changes. Document work may precede or overlap coding, but active coding may
+  implement only approved governing behavior.
+
+Feature is an authority document, not a mandatory workflow stage. A
+technical-only change that preserves observable behavior may enter the Coding
+workflow without a new Feature when an active Spec, approved Decision, or
+explicit design objective provides sufficient technical authority.
+
 ## Request classification
 
 Classify the requested outcome before mutating durable Harness state:
@@ -41,13 +60,16 @@ Classify the requested outcome before mutating durable Harness state:
 | --- | --- |
 | Answer, explanation, review, diagnosis, plan, or status | Read only; inspect the smallest relevant context and create no durable artifact unless explicitly requested |
 | Existing behavior already satisfies the request | Return evidence and stop without Plan or Cook |
-| Maintenance within approved behavior | Link the governing Feature or Spec and create the smallest appropriate Plan |
-| New or changed observable behavior | Run Feature discovery and obtain Product Authority approval |
+| Document-only change | Run the applicable Feature, Decision, Spec, Report, Rule, or guidance procedure and stop without coding |
+| Maintenance within approved behavior | Link the governing Feature or Spec and create the smallest appropriate Coding Plan |
+| Technical-only change with no governing Feature | Scout current code, define technical objectives, optionally write Plan-local design, and create a Plan |
+| New or changed observable behavior | Run Feature discovery and obtain Product Authority approval before Plan approval |
 | Durable product or technical trade-off | Run Decision at the affected workflow boundary |
 | Harness guidance improvement | Run Self Improve from verified Report or approved Decision evidence |
 
 All implementation work still requires an approved Plan. Request classification
-only determines whether a new Feature or Decision is necessary before planning.
+only determines whether a new Feature or Decision is necessary before planning;
+it does not force document work into a universal Feature-to-Plan-to-Cook chain.
 
 ## Authority
 
@@ -107,15 +129,29 @@ Approval states:
 - `pending`: not yet approved or resubmitted after revision.
 - `changes_requested`: the required authority rejected the current Plan shape;
   execution is not eligible.
-- `approved`: the required authority approved the Plan boundary, phases, and
+- `approved`: the required authority approved the Plan boundary, Work Items, and
   success criteria. Record `decided` and `required_by`.
+
+Before approval, the Plan must demonstrate:
+
+- every governing Feature is approved and no blocking Decision is unresolved;
+- Graphify document grounding, when available within DEC-006, plus direct
+  inspection of affected source, dependencies, and tests;
+- when useful, one optional `design.md` beside `plan.md`, linked through the
+  owning Plan's `relationships.source_paths`;
+- ordered Work Items with inline Tasks, risks, and required evidence; and
+- coverage from every in-scope Feature requirement, or every explicit technical
+  objective when no Feature governs the change, to at least one Work Item.
+
+These are inputs to the existing Plan approval. They do not create an
+Implementation Readiness artifact, Change Design artifact, or additional gate.
 
 Execution states:
 
-- `pending`: no phase has started.
-- `in_progress`: authorized phase work has started and meaningful progress remains possible.
+- `pending`: no Work Item has started.
+- `in_progress`: authorized Work Item work has started and meaningful progress remains possible.
 - `blocked`: a concrete condition prevents meaningful progress; record `status_reason`.
-- `completed`: every required phase is completed and a completed Delivery Report exists.
+- `completed`: every required Work Item is completed and a completed Delivery Report exists.
 - `cancelled`: a human ended the Plan before completion; record `status_reason`.
 
 Waiting for initial Plan approval is `pending`, not `blocked`. A material change
@@ -123,32 +159,35 @@ to Plan scope or success criteria resets approval to `pending` and prevents new
 implementation until reapproval. Routine revision within approved scope does not
 reset approval.
 
-## Phase execution and Cook eligibility
+## Work Item execution and Cook eligibility
 
-Phase states are `pending`, `in_progress`, `blocked`, `completed`, and
-`cancelled`. New Harness documents write `in_progress`; readers also accept the
-ClaudeKit spelling `in-progress`.
+Each persisted `work-item-XX-*.md` is one Work Item. Its optional kind (`story`,
+`technical`, `migration`, `docs`, or `verification`), inline Tasks, and coverage
+remain Markdown body content rather than new frontmatter fields. Work Item states
+are `pending`, `in_progress`, `blocked`, `completed`, and `cancelled`. New
+Harness documents write `in_progress`; readers also accept the ClaudeKit
+spelling `in-progress`.
 
-- At most one phase is `in_progress`.
-- A phase is eligible only when Plan approval is `approved`, predecessor phases
+- At most one Work Item is `in_progress`.
+- A Work Item is eligible only when Plan approval is `approved`, predecessor Work Items
   are `completed`, and every `decision_dependencies` entry is an approved Decision.
-- A known unresolved dependency before phase start leaves the phase `pending`.
-- A durable trade-off discovered during execution blocks the active phase only
+- A known unresolved dependency before Work Item start leaves the Work Item `pending`.
+- A durable trade-off discovered during execution blocks the active Work Item only
   when no further work remains valid within the approved scope.
 - A failed check that can still be investigated within approved scope leaves the
-  phase `in_progress`.
+  Work Item `in_progress`.
 - `blocked` and `cancelled` require `status_reason`.
 - `completed` requires passing evidence for every required success criterion.
-- A cancelled phase is not counted as completed unless an approved Plan revision
+- A cancelled Work Item is not counted as completed unless an approved Plan revision
   removes it from the required scope and updates acceptance accordingly.
 
-Cook has no durable status. Tools may display eligibility, current phase,
+Cook has no durable status. Tools may display eligibility, current Work Item,
 blocking reasons, and next action derived from Plan approval and execution,
-phase state, Decision dependencies, and Report presence.
+Work Item state, Decision dependencies, and Report presence.
 
 ## Completion and improvement
 
-After all required phases pass, Cook writes a completed Delivery Report and the
+After all required Work Items pass, Cook writes a completed Delivery Report and the
 Plan becomes `completed`. Product or high-risk acceptance, when required, must
 be an explicit Plan success criterion and therefore pass before the Report is
 completed. There is no second universal Report approval gate.
@@ -161,9 +200,12 @@ Report or approved Decision evidence may then enter Self Improve.
 
 - Feature, Decision, Spec, Report, and Plan frontmatter carry the shared
   `relationships` object.
-- Plan relationships identify governing Features, Specs, Decisions, and Reports.
-- Phase `decision_dependencies` lists Decisions that must be approved before the
-  phase can start.
+- Plan relationships identify every governing Feature, Spec, Decision, Report,
+  and, when present, the exact sibling `design.md` source path.
+- Plan body coverage maps Feature requirements or technical objectives to Work
+  Items; Tasks remain inline within each Work Item body.
+- Work Item `decision_dependencies` records approved Decisions inherited by the
+  Work Item. A blocking unresolved Decision prevents Plan approval.
 - ID-bearing links use full-basename wikilinks with an ID alias.
 - The derived index supplies backlinks and diagnostics; it is not a substitute
   for explicit ownership links.
@@ -173,5 +215,5 @@ Report or approved Decision evidence may then enter Self Improve.
 Validation must reject unsupported statuses, missing approval provenance,
 blocked or cancelled state without a reason, duplicate relationships, invalid
 Decision dependencies, and execution that starts without approved authority.
-Cross-file validation must additionally check Decision status, phase ordering,
+Cross-file validation must additionally check Decision status, Work Item ordering,
 Plan aggregation, Report presence, and resolvable wikilinks.

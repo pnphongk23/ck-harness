@@ -1,5 +1,5 @@
 ---
-phase: 2
+work_item: 2
 title: "Deterministic Wikilink Resolution"
 status: completed
 priority: P1
@@ -8,7 +8,7 @@ dependencies: [1]
 decision_dependencies: []
 ---
 
-# Phase 2: link-resolution
+# Work Item 2: link-resolution
 
 ## Overview
 
@@ -19,7 +19,7 @@ guessed relationships.
 
 ## Implementation Steps
 
-1. Define the eligible local target namespace for artifacts, plans, and phases
+1. Define the eligible local target namespace for artifacts, plans, and Work Items
    from canonical paths; parse `[[target|label]]` as target plus display-only
    label and exclude generated output and paths outside the repository.
 2. Build a sorted candidate map that preserves all duplicate candidates rather
@@ -32,7 +32,7 @@ guessed relationships.
 5. Align shared diagnostic identifiers and messages with FEAT-003 where
    applicable without broadening `validate` or `index check` behavior.
 6. Add fixtures for exact links with and without display labels, basename
-   collisions, broken links, plan/phase targets, and shuffled file discovery
+   collisions, broken links, plan/Work Item targets, and shuffled file discovery
    in `tests/index-resolution.test.ts`.
 
 ## Success Criteria
@@ -54,11 +54,11 @@ guessed relationships.
 
 - `npm run build && node --test dist/tests/index-resolution.test.js` — passed
   on 2026-07-14: 6 tests passed, 0 failed. Fixtures cover exact and labeled
-  targets, label isolation, broken and ambiguous evidence, plan/phase targets,
+  targets, label isolation, broken and ambiguous evidence, plan/Work Item targets,
   shuffled creation order, generated output exclusion, and an outside-file
   symlink that is not followed.
 - `node --test dist/tests/index-build.test.js` — passed on 2026-07-14: 10
-  Phase 1 regression tests passed, 0 failed.
+  Work Item 1 regression tests passed, 0 failed.
 - `npm run verify` — passed on 2026-07-14: TypeScript checks passed; 59 tests
   passed, 0 failed.
 - `git diff --check -- src/core/integrity.ts tests/index-resolution.test.ts tests/index-build.test.ts`

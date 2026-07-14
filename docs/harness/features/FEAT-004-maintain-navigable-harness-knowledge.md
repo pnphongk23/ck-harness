@@ -45,7 +45,7 @@ relationships:
 ### Evidence classification
 
 - **Observed:** The approved split assigns index building, watch reconciliation, backlinks, wikilink resolution, and optional graph behavior to one navigation capability.
-- **Observed:** Phase 5 requires deterministic index generation, preservation of the last valid snapshot, and optional Graphify degradation.
+- **Observed:** Work Item 5 requires deterministic index generation, preservation of the last valid snapshot, and optional Graphify degradation.
 - **Inferred:** Index, watcher, and graph behaviors share one user outcome because each provides a view over the same authored Harness knowledge and relationships.
 - **TBD:** Watch timing and the selected local watcher mechanism are implementation details governed downstream.
 
