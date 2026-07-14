@@ -214,7 +214,7 @@ export async function cleanHarness(root: string, dryRun: boolean): Promise<{ pat
   const paths = await repositoryPaths(root);
   return withRepositoryLock(paths.root, async () => {
     const targets: string[] = [];
-    for (const candidate of [join(paths.root, "graphify-out"), join(paths.harness, ".harness-tmp"), join(paths.harness, ".cache")]) {
+    for (const candidate of [join(paths.harness, "graphify-out"), join(paths.harness, ".harness-tmp"), join(paths.harness, ".cache")]) {
       if (await exists(candidate)) targets.push(candidate);
     }
     await collectTemporarySiblings(paths.harness, targets);

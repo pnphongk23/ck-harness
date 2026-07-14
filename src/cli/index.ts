@@ -12,6 +12,8 @@ import {
 } from "../core/lifecycle.js";
 import { checkIndex, diagnoseHarness, scanHarness, type IntegrityArtifactScope, type IntegrityResult } from "../core/integrity.js";
 import { findRepositoryRoot, HarnessError } from "../fs/repository.js";
+import { buildIndex } from "../index/index.js";
+import { checkGraphify, buildGraph, type GraphProcessDependencies } from "../adapters/index.js";
 
 export const EXIT_CODES = {
   success: 0,
@@ -25,6 +27,7 @@ export interface CliIo {
   cwd: string;
   stdout: (value: string) => void;
   stderr: (value: string) => void;
+  graph?: GraphProcessDependencies;
 }
 
 type OptionValue = string | boolean | string[] | undefined;
@@ -63,6 +66,96 @@ const commands: readonly CommandSpec[] = [
     if (result.outcome === "failure") throw new HarnessError("Harness index check failed", "invalid", result.findings.map((entry) => `${entry.path} [${entry.checkId}] ${entry.message}`));
     return result;
   }, integrityHuman),
+  command(["index", "build"], "harness index build [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 0);
+    const result = await buildIndex(await findRepositoryRoot(workspace(values, io), true));
+    if (result.outcome === "failure") throw new HarnessError("Harness index build failed", "invalid", result.findings?.map((entry) => `${entry.path} [${entry.checkId}] ${entry.message}`));
+    return result;
+  }, (data) => {
+    const result = data as Awaited<ReturnType<typeof buildIndex>>;
+    return result.unchanged ? "Harness index unchanged" : "Harness index built";
+  }),
+  command(["graph", "check"], "harness graph check [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ io, positionals }) => {
+    exactPositionals(positionals, 0);
+    return checkGraphify(io.graph);
+  }, (data) => {
+    const result = data as Awaited<ReturnType<typeof checkGraphify>>;
+    if (result.available) return `Graphify version: ${result.version}`;
+    return `Warning: ${result.warning}\nRemediation: ${result.remediation}`;
+  }),
+  command(["graph", "build"], "harness graph build --allow-external [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    "allow-external": { type: "boolean" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 0);
+    const root = await rootFor(values, io);
+    return buildGraph(root, { ...io.graph, allowExternal: values["allow-external"] === true });
+  }, () => "Harness graph built"),
+  command(["index", "watch"], "harness index watch [--poll] [--debounce MS] [--rebind-attempts N] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    poll: { type: "boolean" },
+    debounce: { type: "string" },
+    "rebind-attempts": { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 0);
+    const workspacePath = await rootFor(values, io);
+
+    const debounceStr = optionalString(values, "debounce");
+    const debounceMs = debounceStr !== undefined ? Number(debounceStr) : undefined;
+    if (debounceMs !== undefined && (!Number.isSafeInteger(debounceMs) || debounceMs < 0)) {
+      throw new HarnessError("--debounce must be a non-negative integer", "usage");
+    }
+
+    const rebindAttemptsStr = optionalString(values, "rebind-attempts");
+    const rebindAttempts = rebindAttemptsStr !== undefined ? Number(rebindAttemptsStr) : undefined;
+    if (rebindAttempts !== undefined && (!Number.isSafeInteger(rebindAttempts) || rebindAttempts <= 0)) {
+      throw new HarnessError("--rebind-attempts must be a positive integer", "usage");
+    }
+
+    const abortController = new AbortController();
+
+    const onSigInt = () => abortController.abort();
+    process.once("SIGINT", onSigInt);
+    process.once("SIGTERM", onSigInt);
+
+    const { watchHarness } = await import("../watcher/index.js");
+
+    try {
+      return await watchHarness({
+        workspace: workspacePath,
+        ...(values.poll === true && { poll: true }),
+        ...(debounceMs !== undefined && { debounceMs }),
+        ...(rebindAttempts !== undefined && { rebindAttempts }),
+        signal: abortController.signal,
+        onEvent: (event) => {
+          if (values.json === true) {
+            io.stderr(`${JSON.stringify({ event })}\n`);
+          } else if (event.type === "ready") {
+            io.stdout(event.result.outcome === "success" ? "Harness watcher ready\n" : "Harness watcher ready (degraded)\n");
+          } else if (event.type === "reconciled") {
+            io.stdout(event.result.unchanged ? "Harness index unchanged\n" : "Harness index built\n");
+          } else if (event.type === "degraded") {
+            io.stderr(`Degraded: ${event.reason}\n`);
+            for (const finding of event.findings ?? []) {
+              io.stderr(`  ${finding.path} [${finding.checkId}] ${finding.message}\n`);
+            }
+          } else if (event.type === "rebind") {
+            io.stderr(`Rebinding watcher (attempt ${event.attempt}/${event.max})\n`);
+          } else if (event.type === "exhausted") {
+            io.stderr(`Exhausted: ${event.reason}\n`);
+          } else if (event.type === "shutdown") {
+            io.stdout("Harness watcher shut down\n");
+          }
+        },
+      });
+    } finally {
+      process.removeListener("SIGINT", onSigInt);
+      process.removeListener("SIGTERM", onSigInt);
+    }
+  }, (data) => {
+    const res = data as import("../watcher/index.js").WatcherResult;
+    return res.outcome === "exhausted" ? "Watcher exhausted" : "Watcher gracefully stopped";
+  }),
   command(["validate"], "harness validate [PATH] [--kind KIND] [--all] [--workspace PATH] [--json]", {
     ...COMMON_OPTIONS, kind: { type: "string" }, all: { type: "boolean" },
   }, async ({ values, io, positionals }) => {
@@ -146,6 +239,7 @@ export async function runCli(argv: readonly string[], partialIo: Partial<CliIo> 
     cwd: partialIo.cwd ?? process.cwd(),
     stdout: partialIo.stdout ?? ((value) => process.stdout.write(value)),
     stderr: partialIo.stderr ?? ((value) => process.stderr.write(value)),
+    ...(partialIo.graph === undefined ? {} : { graph: partialIo.graph }),
   };
   const args = [...argv];
   const jsonRequested = args.includes("--json");

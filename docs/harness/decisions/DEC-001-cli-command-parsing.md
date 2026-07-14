@@ -10,20 +10,25 @@ relationships:
   rules: []
   features:
     - "[[FEAT-001-harness-cli|FEAT-001]]"
+    - "[[FEAT-003-verify-harness-integrity|FEAT-003]]"
+    - "[[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]"
+    - "[[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]]"
   source_paths:
     - package.json
     - src/cli/index.ts
 type: decision
 id: DEC-001
-status: proposed
+status: approved
 created: 2026-07-14
+approved: 2026-07-14
+approved_by: Repository Maintainer
 ---
 
 # DEC-001: Choose the CLI command parsing architecture
 
 ## Context
 
-FEAT-001 defines a nested but finite command surface with deterministic human and JSON output. The package supports Node.js 20 or newer, currently has no CLI framework dependency, and must not launch agents or perform hidden external actions.
+The Harness CLI Features define a nested but finite command surface with deterministic human and JSON output. The package supports Node.js 20 or newer, currently has no CLI framework dependency, and must not launch agents or perform hidden external actions.
 
 ## Decision
 
@@ -44,12 +49,15 @@ Do not add a third-party CLI framework unless the command contract later require
 - Command definitions, option schemas, help text, and dispatch behavior have one deterministic source.
 - `harness --workspace <path> feature list` is intentionally invalid; the unambiguous form is `harness feature list --workspace <path>` when that command supports the option.
 - Tests must cover command-path extraction, strict unknown-option failures, missing values, positionals, `--json`, `--dry-run`, and stable exit codes.
-- Adding a command remains explicit; unsupported Phase 6 commands are not silently implemented as part of FEAT-001.
+- Adding a command remains explicit; a command is implemented only for the Feature boundary that authorizes its observable behavior.
 - If the command surface later exceeds the local registry, a new superseding Decision is required before adding a framework.
 
 ## Evidence
 
 - [[FEAT-001-harness-cli|FEAT-001]]
+- [[FEAT-003-verify-harness-integrity|FEAT-003]]
+- [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]
+- [[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]]
 - [[260714-0033-file-based-agent-harness/plan|Plan]]
 - `package.json` requires Node.js 20 or newer and has no CLI framework dependency.
 - `src/cli/index.ts` is currently a routing-only stub.

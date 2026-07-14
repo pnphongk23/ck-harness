@@ -25,6 +25,7 @@
     "verify": "npm run check && npm test"
   },
   "dependencies": {
+    "chokidar": "^5.0.0",
     "yaml": "^2.8.0",
     "zod": "^4.0.0"
   },

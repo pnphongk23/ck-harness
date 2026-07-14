@@ -7,12 +7,11 @@ artifact sequences.
 
 ## Product boundary
 
-The approved FEAT-001 CLI initializes the Harness, scaffolds supported
-artifacts, lists and shows Features, safely changes Feature lifecycle state,
-and cleans allowlisted disposable output. Public validation, index generation,
-watching, graphs, runtime adapters, and doctor diagnostics belong to proposed
-Features and are not delivered by this command surface. Repository tooling
-never invokes Claude, Codex, Cursor, Antigravity, or another AI agent.
+The CLI initializes the Harness, scaffolds supported artifacts, safely changes
+Feature lifecycle state, validates canonical knowledge, builds and checks the
+derived index, optionally reconciles it while explicitly watching, and offers
+an explicit local Graphify adapter. Repository tooling never invokes Claude,
+Codex, Cursor, Antigravity, or another AI agent.
 
 The MVP has one CLI writer. Writes stay under repository-contained allowlists,
 use flushed temporary sibling files, validate the staged result, recheck input
@@ -53,7 +52,11 @@ harness feature rename TARGET --title TITLE
 harness feature deprecate TARGET
 harness feature delete TARGET [--force]
 harness validate PATH | --kind KIND | --all
+harness index build
 harness index check
+harness index watch [--poll] [--debounce MS] [--rebind-attempts N]
+harness graph check
+harness graph build --allow-external
 harness doctor
 harness new spec --title TITLE
 harness new decision --title TITLE [--created YYYY-MM-DD]
@@ -65,6 +68,16 @@ harness clean [--dry-run]
 `TARGET` is an immutable `FEAT-XXX` ID or an exact Feature basename. Options
 belong after the command path. Unknown commands and options fail rather than
 being reinterpreted. `--json` returns a stable success or error envelope.
+
+`index build` publishes one complete deterministic Markdown snapshot. `index
+check` is the independent read-only CI gate. `index watch` is an explicit local
+convenience that performs full debounced reconciliation and preserves the last
+valid index during invalid edits or degraded coverage. `graph check` treats a
+missing optional executable as a warning; only explicit `graph build` starts
+the local process, with a validated relationship view sent on stdin and output
+contained in disposable `docs/harness/graphify-out/`. Because Graphify may use
+a configured semantic backend for Markdown, build requires the informed
+`--allow-external` permission flag.
 
 `feature create` and `new decision` create non-approved drafts/proposals.
 Reports require an explicit delivery date. Rules require an explicit approval
@@ -108,7 +121,7 @@ command. Do not introduce a database or hidden trace store as recovery state.
 ## Cleanup ownership
 
 `harness clean --dry-run` is the required preview. Confirmed cleanup can remove
-only `graphify-out/`, `docs/harness/.harness-tmp/`,
+only `docs/harness/graphify-out/`, `docs/harness/.harness-tmp/`,
 `docs/harness/.cache/`, and stale temporary sibling or rollback files carrying
 the Harness-owned marker. It never removes canonical authored Markdown,
 Features, Specs, Decisions, Plans, Reports, Rules, templates, or workflows.
@@ -133,5 +146,5 @@ hosted service, event or trace ledger, multi-writer transaction guarantee,
 agent orchestration, automatic recovery, commit, push, deployment, or required
 Graphify runtime. `validate`, `index check`, and `doctor` are read-only: index
 checks never build or watch the index, while doctor reports a missing optional
-Graphify executable as a warning. Index build/watch and runtime adapters remain
-separately planned work.
+Graphify executable as a warning. Watch mode is not a CI correctness gate, and
+Graphify remains optional local tooling invoked only by explicit graph commands.

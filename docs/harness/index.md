@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-next_feature_sequence: 3
+next_feature_sequence: 6
 generated: true
 ---
 

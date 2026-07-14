@@ -4,20 +4,22 @@ title: Choose the index watcher and graph process runtime
 relationships:
   specs: []
   decisions:
-    - "[[DEC-002-crash-recoverable-file-mutations|DEC-002]]"
+    - "[[DEC-002-minimal-file-mutations|DEC-002]]"
   plans:
     - "[[260714-0033-file-based-agent-harness/plan|Plan]]"
   reports: []
   rules: []
   features:
-    - "[[FEAT-001-harness-cli|FEAT-001]]"
+    - "[[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]"
   source_paths:
     - src/index/index.ts
     - src/watcher/index.ts
 type: decision
 id: DEC-003
-status: proposed
+status: approved
 created: 2026-07-14
+approved: 2026-07-14
+approved_by: Repository Maintainer
 ---
 
 # DEC-003: Choose the index watcher and graph process runtime
@@ -44,7 +46,7 @@ Implement Graphify behind a separate process adapter. `graph check` reports loca
 
 ## Consequences
 
-- Chokidar becomes the only new runtime dependency justified by FEAT-001; the CLI parser remains on Node built-ins.
+- Chokidar becomes the only new runtime dependency justified by FEAT-004; the CLI parser remains on Node built-ins.
 - Watch code remains small because it schedules full reconciliation rather than maintaining a complex incremental cache or normalizing raw platform events.
 - Debounce timing is configurable and tested; correctness does not depend on one exact millisecond value.
 - Startup rebuild, self-write suppression, invalid-edit preservation, graceful shutdown, and rapid-burst behavior require integration tests.
@@ -54,8 +56,8 @@ Implement Graphify behind a separate process adapter. `graph check` reports loca
 
 ## Evidence
 
-- [[FEAT-001-harness-cli|FEAT-001]]
-- [[DEC-002-crash-recoverable-file-mutations|DEC-002]]
+- [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]]
+- [[DEC-002-minimal-file-mutations|DEC-002]]
 - [[260714-0033-file-based-agent-harness/plan|Plan]]
 - `src/index/index.ts` and `src/watcher/index.ts` are currently boundary stubs.
 - Node.js documents recursive `fs.watch` support on Linux, AIX, and IBM i from Node 19.1 and documents platform/filesystem caveats: https://nodejs.org/download/release/latest-v22.x/docs/api/fs.html#fswatchfilename-options-listener

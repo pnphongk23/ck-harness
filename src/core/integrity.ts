@@ -28,7 +28,7 @@ export interface IndexCheckResult extends IntegrityResult {
   expected: string;
 }
 
-interface IndexCounters {
+export interface IndexCounters {
   next_feature_sequence: number;
   next_decision_sequence: number;
   next_report_sequence: number;
@@ -40,6 +40,7 @@ export interface DoctorOptions { path?: string; }
 
 export type IntegrityArtifactScope = "feature" | "spec" | "decision" | "report" | "rule" | "plan";
 export interface IntegrityScope { path?: string; kind?: IntegrityArtifactScope; }
+export interface IntegrityScanOptions { requireIndex?: boolean; }
 
 interface ScannedDocument {
   path: string;
@@ -48,6 +49,11 @@ interface ScannedDocument {
   frontmatter: HarnessFrontmatter;
   body: string;
 }
+
+type LinkResolution =
+  | { kind: "resolved"; target: ScannedDocument }
+  | { kind: "broken" }
+  | { kind: "ambiguous"; candidates: readonly ScannedDocument[] };
 
 type PlanFrontmatter = HarnessFrontmatter & {
   approval: { status: "pending" | "changes_requested" | "approved" };
@@ -66,11 +72,15 @@ const artifactDirectories = ["features", "specs", "decisions", "reports", "rules
  * state. The result is deliberately independent from lifecycle mutations so it
  * can be reused by later CLI, index, and health commands.
  */
-export async function scanHarness(root: string, scope: IntegrityScope = {}): Promise<IntegrityResult> {
+export async function scanHarness(
+  root: string,
+  scope: IntegrityScope = {},
+  options: IntegrityScanOptions = {},
+): Promise<IntegrityResult> {
   const paths = await repositoryPaths(root);
   const findings: IntegrityFinding[] = [];
 
-  if (!(await exists(paths.index))) {
+  if (options.requireIndex !== false && !(await exists(paths.index))) {
     return result([finding("repository.index.missing", "docs/harness/index.md", "Harness index is missing", "Repository Contract", "run `harness init` in the intended repository")]);
   }
 
@@ -122,11 +132,73 @@ export async function scanHarness(root: string, scope: IntegrityScope = {}): Pro
 export async function renderExpectedIndex(root: string, counters: IndexCounters = defaultIndexCounters()): Promise<string> {
   const paths = await repositoryPaths(root);
   const files = await canonicalFiles(paths.harness);
-  const entries = await Promise.all(files.map(async (path) => {
+  const documents = await Promise.all(files.map(async (path): Promise<ScannedDocument> => {
+    const content = await readFile(path, "utf8");
+    const parsed = parseMarkdownDocument(content);
+    return {
+      path,
+      relativePath: toRepositoryPath(paths.root, path),
+      linkTargets: targetsFor(paths.harness, path),
+      frontmatter: parsed.frontmatter,
+      body: parsed.body,
+    };
+  }));
+  const destinations = relationshipCandidates(documents);
+
+  const catalog = documents.map((document) => indexLink(paths.harness, document));
+  const forward: string[] = [];
+  const backlinks: string[] = [];
+  const unresolved: string[] = [];
+  for (const source of documents) {
+    if (!hasRelationships(source.frontmatter)) continue;
+    for (const link of relationshipLinks(source.frontmatter)) {
+      const resolution = resolveRelationship(destinations, link);
+      if (resolution.kind === "resolved") {
+        forward.push(`${indexLink(paths.harness, source)} → ${indexLink(paths.harness, resolution.target)}`);
+        backlinks.push(`${indexLink(paths.harness, resolution.target)} ← ${indexLink(paths.harness, source)}`);
+      } else if (resolution.kind === "broken") {
+        unresolved.push(`${source.relativePath} → \`${link}\` broken`);
+      } else {
+        const pathsList = resolution.candidates.map((candidate) => candidate.relativePath).join(", ");
+        unresolved.push(`${source.relativePath} → \`${link}\` ambiguous: ${pathsList}`);
+      }
+    }
+  }
+  const digests = await Promise.all(files.map(async (path) => {
     const content = await readFile(path, "utf8");
     return `${toRepositoryPath(paths.root, path)} ${createHash("sha256").update(content).digest("hex")}`;
   }));
-  return `---\nschema_version: 1\nnext_feature_sequence: ${counters.next_feature_sequence}\nnext_decision_sequence: ${counters.next_decision_sequence}\nnext_report_sequence: ${counters.next_report_sequence}\nnext_rule_sequence: ${counters.next_rule_sequence}\ngenerated: true\n---\n\n# Harness Index\n\n## Canonical document digests\n${entries.map((entry) => `- ${entry}`).join("\n")}\n`;
+
+  const section = (heading: string, entries: readonly string[]): string =>
+    `## ${heading}\n${entries.length ? [...entries].sort((left, right) => left.localeCompare(right)).map((entry) => `- ${entry}`).join("\n") : "- None."}`;
+  return [
+    "---",
+    "schema_version: 1",
+    `next_feature_sequence: ${counters.next_feature_sequence}`,
+    `next_decision_sequence: ${counters.next_decision_sequence}`,
+    `next_report_sequence: ${counters.next_report_sequence}`,
+    `next_rule_sequence: ${counters.next_rule_sequence}`,
+    "generated: true",
+    "---",
+    "",
+    "# Harness Index",
+    "",
+    section("Catalog", catalog),
+    "",
+    section("Forward relationships", forward),
+    "",
+    section("Backlinks", backlinks),
+    "",
+    section("Unresolved relationships", unresolved),
+    "",
+    section("Canonical document digests", digests),
+    "",
+  ].join("\n");
+}
+
+function indexLink(harness: string, document: ScannedDocument): string {
+  const destination = relative(harness, document.path).replace(/\\/g, "/");
+  return `[${document.relativePath}](${destination})`;
 }
 
 /** Read-only CI gate for the persisted, CLI-owned index. */
@@ -184,7 +256,7 @@ async function canonicalFiles(harness: string): Promise<string[]> {
   ].sort((left, right) => left.localeCompare(right));
 }
 
-function indexFrontmatter(source: string): Record<string, unknown> {
+export function indexFrontmatter(source: string): Record<string, unknown> {
   const lines = source.replaceAll("\r\n", "\n").split("\n");
   if (lines[0] !== "---") throw new Error("missing opening frontmatter delimiter");
   const closing = lines.indexOf("---", 1);
@@ -194,11 +266,31 @@ function indexFrontmatter(source: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function defaultIndexCounters(): IndexCounters {
+export function defaultIndexCounters(): IndexCounters {
   return { next_feature_sequence: 1, next_decision_sequence: 1, next_report_sequence: 1, next_rule_sequence: 1 };
 }
 
-function indexCounters(frontmatter: Record<string, unknown>): IndexCounters {
+export async function derivedIndexCounters(root: string): Promise<IndexCounters> {
+  const paths = await repositoryPaths(root);
+  const counters = defaultIndexCounters();
+  const files = await Promise.all(artifactDirectories.map((directory) => listMarkdown(join(paths.harness, directory))));
+  for (const path of files.flat()) {
+    try {
+      const { frontmatter } = parseMarkdownDocument(await readFile(path, "utf8"));
+      if (!isArtifact(frontmatter) || !("id" in frontmatter)) continue;
+      const sequence = Number.parseInt(frontmatter.id.slice(frontmatter.id.indexOf("-") + 1), 10) + 1;
+      if (frontmatter.type === "feature") counters.next_feature_sequence = Math.max(counters.next_feature_sequence, sequence);
+      if (frontmatter.type === "decision") counters.next_decision_sequence = Math.max(counters.next_decision_sequence, sequence);
+      if (frontmatter.type === "report") counters.next_report_sequence = Math.max(counters.next_report_sequence, sequence);
+      if (frontmatter.type === "rule") counters.next_rule_sequence = Math.max(counters.next_rule_sequence, sequence);
+    } catch {
+      // The canonical scan reports invalid documents before callers use these counters.
+    }
+  }
+  return counters;
+}
+
+export function indexCounters(frontmatter: Record<string, unknown>): IndexCounters {
   const counters = defaultIndexCounters();
   for (const key of Object.keys(counters) as (keyof IndexCounters)[]) {
     const value = frontmatter[key];
@@ -215,7 +307,7 @@ function indexResult(findings: readonly IntegrityFinding[], expected: string): I
 }
 
 async function graphifyAvailable(pathValue = process.env.PATH ?? ""): Promise<boolean> {
-  const names = process.platform === "win32" ? ["graphify.exe", "graphify.cmd", "graphify"] : ["graphify"];
+  const names = process.platform === "win32" ? ["graphify.exe", "graphify"] : ["graphify"];
   const directories = pathValue.split(process.platform === "win32" ? ";" : ":").filter(Boolean);
   for (const directory of directories) {
     for (const name of names) if (await exists(join(directory, name))) return true;
@@ -270,21 +362,44 @@ async function documentFindings(root: string, document: ScannedDocument): Promis
 
 function relationshipFindings(documents: readonly ScannedDocument[]): IntegrityFinding[] {
   const findings: IntegrityFinding[] = [];
-  const targets = new Map<string, string>();
-  for (const document of documents) {
-    for (const target of document.linkTargets) targets.set(target, document.relativePath);
-  }
+  const targets = relationshipCandidates(documents);
 
   for (const document of documents) {
     if (!hasRelationships(document.frontmatter)) continue;
     for (const link of relationshipLinks(document.frontmatter)) {
-      const target = link.slice(2, -2).split("|", 1)[0]!;
-      if (!targets.has(target)) {
+      const resolution = resolveRelationship(targets, link);
+      if (resolution.kind === "broken") {
         findings.push(finding("relationships.wikilink", document.relativePath, `unresolved wikilink: ${link}`, "R-011", "create the target or correct the wikilink"));
+      } else if (resolution.kind === "ambiguous") {
+        const candidates = resolution.candidates.map((candidate) => candidate.relativePath).join(", ");
+        findings.push(finding("relationships.wikilink.ambiguous", document.relativePath, `ambiguous wikilink: ${link} resolves to ${candidates}`, "R-011", "rename or remove duplicate targets so the exact target is unique"));
       }
     }
   }
   return findings;
+}
+
+function relationshipCandidates(documents: readonly ScannedDocument[]): Map<string, ScannedDocument[]> {
+  const targets = new Map<string, ScannedDocument[]>();
+  for (const document of documents) {
+    for (const target of document.linkTargets) {
+      const existing = targets.get(target);
+      if (existing) existing.push(document);
+      else targets.set(target, [document]);
+    }
+  }
+  for (const candidates of targets.values()) {
+    candidates.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+  }
+  return targets;
+}
+
+function resolveRelationship(candidates: ReadonlyMap<string, readonly ScannedDocument[]>, link: string): LinkResolution {
+  const target = link.slice(2, -2).split("|", 1)[0]!;
+  const matches = candidates.get(target) ?? [];
+  if (matches.length === 0) return { kind: "broken" };
+  if (matches.length === 1) return { kind: "resolved", target: matches[0]! };
+  return { kind: "ambiguous", candidates: matches };
 }
 
 function identityFindings(documents: readonly ScannedDocument[]): IntegrityFinding[] {
@@ -401,7 +516,7 @@ function targetsFor(harness: string, path: string): readonly string[] {
   const pathWithinHarness = relative(harness, path).replace(/\\/g, "/").replace(/\.md$/, "");
   const filename = basename(path, ".md");
   return pathWithinHarness.startsWith("plans/")
-    ? [pathWithinHarness.slice("plans/".length), filename]
+    ? [pathWithinHarness.slice("plans/".length)]
     : [filename];
 }
 
