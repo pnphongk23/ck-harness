@@ -1,13 +1,16 @@
 # Skill Provenance and Licensing
 
-The `harness-*` skills are clean, repository-specific adaptations informed by
-the behavior inventory in the approved plan. No upstream skill text is copied
-verbatim. Before any future copy or close adaptation, contributors must record
+The Harness workflow and focused utility skills are clean, repository-specific
+adaptations informed by the behavior inventory in approved Plans. No upstream
+skill text is copied verbatim. Before any future copy or close adaptation, contributors must record
 the source repository, file, version or commit, license, copyright notice,
 adaptation date, and material changes here.
 
 | Canonical skill | Sources considered | Version | License | Adapted | Removed dependencies |
 | --- | --- | --- | --- | --- | --- |
+| ask | ClaudeKit ask | 1.0.0 | No upstream license field found; behavior reimplemented without copying source prose | 2026-07-15 | home-directory rules, advisor orchestration, hidden context |
+| brainstorm | ClaudeKit brainstorm | 2.2.1 | MIT in upstream metadata; repository-specific adaptation | 2026-07-15 | Claude commands, global rules, delegated research, automatic handoffs |
+| scout | ClaudeKit scout and scouting references | 1.0.0 | No upstream license field found; research behavior reimplemented without copying source prose | 2026-07-16 | delegated and external discovery, task orchestration, global configuration |
 | harness-feature | ClaudeKit brainstorm 2.2.1, ask 1.0.0, scout 1.0.0 | CLI 4.4.0 | Upstream metadata says MIT for brainstorm; no source text copied; repository MIT implementation | 2026-07-14 | global rules, mandatory delegation, global paths |
 | harness-decision | ClaudeKit ask 1.0.0 | CLI 4.4.0 | No upstream license field found; no source text copied; repository MIT implementation | 2026-07-14 | home-directory rules, hidden context |
 | harness-plan | ClaudeKit ck-plan 1.1.0 | CLI 4.4.0 | Upstream metadata says MIT; no source text copied; repository MIT implementation | 2026-07-14 | task hydration, global plan roots |

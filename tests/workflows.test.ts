@@ -41,6 +41,7 @@ test("each of the five workflows has the exact nine required sections", async ()
 test("workflows enforce key architectural boundaries and behaviors", async () => {
   const featureContent = await readFile(join(docsRoot, "workflows", "feature.md"), "utf8");
   assert.match(featureContent, /scout/i, "Feature workflow must mention scouting repository");
+  assert.match(featureContent, /project purpose[\s\S]*stack[\s\S]*entry points[\s\S]*architecture[\s\S]*execution flows/i, "Feature workflow must require project and codebase research");
   assert.match(featureContent, /Observed/i, "Feature workflow must mention Observed evidence");
   assert.match(featureContent, /Inferred/i, "Feature workflow must mention Inferred evidence");
   assert.match(featureContent, /TBD/i, "Feature workflow must mention TBD evidence");
@@ -48,6 +49,16 @@ test("workflows enforce key architectural boundaries and behaviors", async () =>
   assert.match(featureContent, /do not create a Feature for every repository task/i, "Feature workflow must avoid universal Feature creation");
   assert.match(featureContent, /Product Authority/i, "Feature workflow must name its approval authority");
   assert.match(featureContent, /do not create.*plan/i, "Feature workflow must prohibit planning");
+  assert.ok(
+    featureContent.indexOf("Research project and codebase first") < featureContent.indexOf("Clarify exact requirements"),
+    "Feature workflow must research the project and codebase before asking material questions"
+  );
+  for (const field of ["expected output", "acceptance criteria", "explicit exclusions", "non-negotiable constraints", "affected touchpoints"]) {
+    assert.match(featureContent, new RegExp(field, "i"), `Feature workflow must require concrete ${field}`);
+  }
+  assert.match(featureContent, /two or three[\s\S]*behavior variants/i, "Feature workflow must compare grounded behavior variants");
+  assert.match(featureContent, /Do not infer a selection/i, "Feature workflow must not choose for Product Authority");
+  assert.match(featureContent, /Failed[\s\S]*Unresolved \(TBD\)/i, "Feature workflow must preserve failed and unresolved evidence");
 
   const decisionContent = await readFile(join(docsRoot, "workflows", "decision.md"), "utf8");
   assert.match(decisionContent, /return boundary/i, "Decision must return to the workflow that raised it");
@@ -70,6 +81,15 @@ test("workflows enforce key architectural boundaries and behaviors", async () =>
   assert.match(planContent, /work_item/i, "Plan workflow must use Work Item frontmatter");
   assert.match(planContent, /design\.md.*beside `plan\.md`/is, "Plan workflow must co-locate optional design with its Plan");
   assert.doesNotMatch(planContent, /design\.md`? outside (?:the )?(?:canonical )?Plan/i, "Plan workflow must not place design outside its Plan");
+  assert.match(planContent, /verification ledger/i, "Plan workflow must record claim verification");
+  assert.match(planContent, /path[\s\S]*symbol[\s\S]*interface[\s\S]*dependency[\s\S]*command[\s\S]*test assumption[\s\S]*compatibility claim/i, "Plan workflow must verify execution-affecting claims");
+  assert.match(planContent, /Repository Maintainer decides every unresolved\s+material/i, "Plan workflow must ask before material decisions");
+  assert.match(planContent, /security and privacy[\s\S]*assumption[\s\S]*failure-mode[\s\S]*scope-complexity/i, "Plan workflow must apply adversarial lenses");
+  assert.match(planContent, /whole-Plan consistency/i, "Plan workflow must sweep the complete plan");
+  assert.match(planContent, /zero unresolved contradictions/i, "Plan workflow must block Cook on contradictions");
+  assert.match(planContent, /Do not invent a material choice/i, "Plan workflow must prohibit guessed decisions");
+  assert.match(planContent, /project purpose[\s\S]*stack[\s\S]*entry points[\s\S]*architecture[\s\S]*(?:control|data)[\s\S]*flows/i, "Plan workflow must require project and codebase research");
+  assert.match(planContent, /file list alone is insufficient grounding/i, "Plan workflow must reject file-list-only scouting");
 
   const selfImproveContent = await readFile(join(docsRoot, "workflows", "self-improve.md"), "utf8");
   assert.match(selfImproveContent, /classify the signal/i, "Self Improve must classify evidence before acting");
@@ -89,10 +109,12 @@ test("cook.md contains the exact Vietnamese block disclosure", async () => {
   );
 });
 
-test("index.md contains local workflow router and rules links", async () => {
+test("index.md exposes public workflow and repository documentation only", async () => {
   const content = await readFile(join(docsRoot, "index.md"), "utf8");
-  assert.ok(content.includes("RULES.md"), "index.md must link to RULES.md");
   assert.ok(content.includes("workflows/README.md"), "index.md must link to the workflow router");
+  assert.ok(content.includes("README.md"), "index.md must link to the repository contract");
+  assert.equal(content.includes("RULES.md"), false, "index.md must not expose internal project rules as initialized documentation");
+  assert.equal(content.includes("schema-v1.md"), false, "index.md must not reference the retired schema file");
 });
 
 test("workflows/README.md references all five workflow files", async () => {
@@ -106,4 +128,16 @@ test("workflows/README.md references all five workflow files", async () => {
   assert.match(content, /Request Classification/, "workflow router must classify requests before Feature creation");
   assert.match(content, /Decision Workflow.*Interruptible/i, "workflow router must model Decision as interruptible");
   assert.doesNotMatch(content, /ReportGate/, "workflow router must not require a universal Report approval gate");
+  assert.match(content, /## Artifact Contract/, "workflow router must own the shared artifact contract");
+  for (const contract of [
+    "FEAT-XXX-kebab-name.md",
+    "Relationship keys",
+    "Sequences are monotonic",
+    "Plan frontmatter requires",
+    "Work Item frontmatter requires",
+    "design.md",
+    "exactly five H2 sections",
+  ]) {
+    assert.ok(content.includes(contract), `workflow router must preserve schema contract: ${contract}`);
+  }
 });

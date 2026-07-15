@@ -110,7 +110,7 @@ export async function scanHarness(
         "document.parse",
         relativePath,
         error instanceof Error ? error.message : String(error),
-        "Schema Specification",
+        "Workflow Artifact Contract",
         "repair the Markdown frontmatter and its required lifecycle provenance",
       ));
     }
@@ -187,10 +187,8 @@ export async function renderExpectedIndex(root: string, counters: IndexCounters 
     "# Harness Index",
     "",
     "## Core Documentation",
-    "- [Project Rules](RULES.md)",
     "- [Workflow Router](workflows/README.md)",
     "- [Repository Contract](README.md)",
-    "- [Schema Specification](schema-v1.md)",
     "",
     section("Catalog", catalog),
     "",
@@ -246,7 +244,7 @@ export async function diagnoseHarness(root: string, options: DoctorOptions = {})
   if (!Number.isFinite(nodeMajor) || nodeMajor < 20) {
     findings.push(finding("doctor.node.unsupported", "package.json", `Node ${process.versions.node} is unsupported; Node 20 or newer is required`, "package.json", "install a supported Node.js version before running Harness commands"));
   }
-  for (const path of ["docs/harness/schema-v1.md", "docs/harness/workflows/README.md", "docs/harness/workflows/cook.md"]) {
+  for (const path of ["docs/harness/workflows/README.md", "docs/harness/workflows/cook.md"]) {
     if (!(await exists(join(paths.root, path)))) {
       findings.push(finding("doctor.workflow.missing", path, "required canonical Harness source is missing", "FR-004", "restore the canonical Harness source from the repository contract"));
     }

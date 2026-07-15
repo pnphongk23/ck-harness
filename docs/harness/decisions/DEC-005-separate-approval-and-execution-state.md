@@ -19,7 +19,7 @@ relationships:
   features:
     - "[[FEAT-002-govern-traceable-work-lifecycle|FEAT-002]]"
   source_paths:
-    - docs/harness/schema-v1.md
+    - docs/harness/workflows/README.md
     - docs/harness/workflows/plan.md
     - docs/harness/workflows/cook.md
 ---

@@ -8,5 +8,7 @@ description: Discover, clarify, or reverse-engineer business behavior into a fiv
 Follow `docs/harness/workflows/feature.md` and
 `docs/harness/templates/feature.md`. Read `docs/harness/index.md` first.
 
-Stop at an approved Feature document. Keep observations, inferences, and TBDs
-distinct. Do not modify application code or proceed into planning.
+Apply local `scout`, `ask`, and `brainstorm` behavior in that order where the
+workflow requires it. Stop at an approved Feature document. Keep observations,
+inferences, failures, and unresolved TBDs distinct; never choose a material
+variant for Product Authority. Do not modify application code or proceed into planning.

@@ -1,8 +1,8 @@
 ---
 schema_version: 1
-next_feature_sequence: 7
+next_feature_sequence: 8
 next_decision_sequence: 10
-next_report_sequence: 6
+next_report_sequence: 9
 next_rule_sequence: 1
 generated: true
 ---
@@ -10,10 +10,8 @@ generated: true
 # Harness Index
 
 ## Core Documentation
-- [Project Rules](RULES.md)
 - [Workflow Router](workflows/README.md)
 - [Repository Contract](README.md)
-- [Schema Specification](schema-v1.md)
 
 ## Catalog
 - [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
@@ -31,6 +29,7 @@ generated: true
 - [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/work-item-01-foundation-and-contracts.md](plans/260714-0033-file-based-agent-harness/work-item-01-foundation-and-contracts.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/work-item-02-document-model-and-templates.md](plans/260714-0033-file-based-agent-harness/work-item-02-document-model-and-templates.md)
@@ -57,11 +56,21 @@ generated: true
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/work-item-01-adopt-plan-local-design.md](plans/260714-2354-co-locate-plan-design/work-item-01-adopt-plan-local-design.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/work-item-02-migrate-and-verify-design-traces.md](plans/260714-2354-co-locate-plan-design/work-item-02-migrate-and-verify-design-traces.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/work-item-01-add-focused-utility-skills.md](plans/260715-2324-verified-skill-workflows/work-item-01-add-focused-utility-skills.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/work-item-02-harden-feature-and-plan-verification.md](plans/260715-2324-verified-skill-workflows/work-item-02-harden-feature-and-plan-verification.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
+- [docs/harness/plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md](plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md](plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md)
 - [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
 - [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
 - [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md)
 - [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 
 ## Forward relationships
@@ -137,6 +146,13 @@ generated: true
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) → [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) → [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) → [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
@@ -178,6 +194,21 @@ generated: true
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) → [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) → [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) → [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) → [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) → [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
@@ -205,6 +236,19 @@ generated: true
 - [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md) → [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
 - [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) → [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) → [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
@@ -229,7 +273,9 @@ generated: true
 - [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
 - [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
+- [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
+- [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md](decisions/DEC-003-index-watch-and-graph-runtime.md) ← [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md)
 - [docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md](decisions/DEC-003-index-watch-and-graph-runtime.md) ← [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md)
 - [docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md](decisions/DEC-003-index-watch-and-graph-runtime.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
@@ -268,7 +314,9 @@ generated: true
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
+- [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md)
+- [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
@@ -276,9 +324,11 @@ generated: true
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
+- [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md) ← [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
@@ -288,15 +338,19 @@ generated: true
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260714-1230-repair-integrity-contracts/plan.md](plans/260714-1230-repair-integrity-contracts/plan.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
+- [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
+- [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md) ← [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md) ← [docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md](decisions/DEC-003-index-watch-and-graph-runtime.md)
 - [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md) ← [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md)
@@ -309,6 +363,12 @@ generated: true
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
+- [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) ← [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) ← [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
 - [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md) ← [docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md](decisions/DEC-003-index-watch-and-graph-runtime.md)
@@ -335,6 +395,12 @@ generated: true
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) ← [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) ← [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
 - [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md) ← [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md) ← [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/plans/260714-1230-repair-integrity-contracts/plan.md](plans/260714-1230-repair-integrity-contracts/plan.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
@@ -343,6 +409,12 @@ generated: true
 - [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
 - [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md) ← [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
 - [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md) ← [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
+- [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
@@ -352,17 +424,24 @@ generated: true
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-1230-repair-integrity-contracts/plan.md](plans/260714-1230-repair-integrity-contracts/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-2331-use-work-item-terminology/plan.md](plans/260714-2331-use-work-item-terminology/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md](reports/REP-004-use-work-item-terminology-throughout-harness.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
 
 ## Unresolved relationships
 - None.
@@ -372,7 +451,7 @@ generated: true
 - docs/harness/decisions/DEC-002-minimal-file-mutations.md 45d3cfc78c768975fbdf2355ea3326b43959ff3759a3ebfeb116b14e275c1151
 - docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md df97846548fe30bf09d5d45a672d9d239d4fe1b1b85a6594669d8c1951eb5ce6
 - docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md 9dc5faabbe096d77464a70ae5cdfc730bb9a991ac5ded532638750956f676bab
-- docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md c8a21ae2f527a91f0b10e4ee2bcd16e283238027dcf2acfd633c8dbde51e6001
+- docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md 877f41aba007b25c90d1996ced209d6833f3a7bd7558129b66122a1ed461c3f4
 - docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md 4f0ebebf6cc89698e3cf6631f03cfc83693ecf619596a12fc132401158bbd142
 - docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md 7a2b17f05397466c98f4cc426dd470497f95145dd217dfc62b0aa4b420ce2fa3
 - docs/harness/decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md c892262f86f5fadf897e797bf1ac12be5ad4664db462727f01b000fad9121a73
@@ -383,6 +462,7 @@ generated: true
 - docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md 171afd0315599773e4142dd5a63beff081063d23d1b2e79ec884e971c8332573
 - docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md 740198ddeea05ae45199689c2af41f5fdca12a76a5519a6320b1ec3ee91b05e8
 - docs/harness/features/FEAT-006-configure-harness-document-folders.md 0b2865ec4ee99c9e950666dc26f372916014457554a1caf59c01985352288e09
+- docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md d42d04738c584049b1e77eb07ee2fda6f79468da1974f6b12c5152b8ec7ec5b7
 - docs/harness/plans/260714-0033-file-based-agent-harness/plan.md f76e0aa7c8108a14a2ed5d73dea95d91dfb00b95af8f58597106fda5a92d0ba4
 - docs/harness/plans/260714-0033-file-based-agent-harness/work-item-01-foundation-and-contracts.md a5663e24dd2a2a3eb872fae22536fbac2895fd8e03d5c0ac3e1c126913269651
 - docs/harness/plans/260714-0033-file-based-agent-harness/work-item-02-document-model-and-templates.md a06a160b77e25a4c1c82069168e6b1d5c407f95a43c61947fc3d0b0840eb39a2
@@ -409,9 +489,19 @@ generated: true
 - docs/harness/plans/260714-2354-co-locate-plan-design/plan.md ea41e17880604b97aed18aa97a92e1b24dc8ff903eaaeb51e4ed78a4b1c01468
 - docs/harness/plans/260714-2354-co-locate-plan-design/work-item-01-adopt-plan-local-design.md 3d3352a0ccb9963825a18cc9d061d9fab80fa284166b7cf969d38b099c4d9c01
 - docs/harness/plans/260714-2354-co-locate-plan-design/work-item-02-migrate-and-verify-design-traces.md 9dad743f2a379ec4e220a061c698ff66c70661d3475d369e6e31423495c029cb
+- docs/harness/plans/260715-2324-verified-skill-workflows/plan.md 7bdbc6dab2232ad7a8e6aff81ccfef7976691028c318d0dc8eee6b61154f3c42
+- docs/harness/plans/260715-2324-verified-skill-workflows/work-item-01-add-focused-utility-skills.md 90379e9c2299f2a01bba575234b584e3d71234eb0f7329868a4a1a07ce735c10
+- docs/harness/plans/260715-2324-verified-skill-workflows/work-item-02-harden-feature-and-plan-verification.md 2ab6af3bd43543a9da319888ce4190f049b9867450ed5132fdb0661db5185c31
+- docs/harness/plans/260715-2341-init-skill-files/plan.md f29de4ee9b05b2ce637e7a8ca0c0781bd725501ce8fb554cab184a12673b0826
+- docs/harness/plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md b6d823c3efefcde2c3d484fcb437f04248f040eedb052b7282bb752fb9a67b50
+- docs/harness/plans/260715-2343-research-codebase-and-project/plan.md 58b9115c02bfc8643716d9c703db8c191da237d5b452cbf808d2b67da75080e5
+- docs/harness/plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md d6de875d423b3f7f15ac0f6bbe9dbfd5511f04a1da92da036da72b505fc833d7
 - docs/harness/reports/REP-001-verify-harness-integrity.md 2f6ab398122750896e84a4bf48d922be0efd896b479316a8595cbc820183b91f
 - docs/harness/reports/REP-002-repair-integrity-contracts.md b3b5342d4a8f2417ffc196297b8349d0250eaa4f1d6ec2df0a5c17e470e6a76a
 - docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md 7b5ec31815fecfd00f85f0976a30909cf330be83afed223ae35f7793acb047c1
 - docs/harness/reports/REP-004-use-work-item-terminology-throughout-harness.md b2ef560f14e8ac76dad8669b1596a713857321a58b2f0c3cea44f3e4a17a34d3
 - docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md a339d4dcbb6b49e3450f86b165678883526d59b6e00bf98d31e99494f40fcc04
+- docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md 034e7979786b6adf7e46c9f435f64c5c5be84fb0529ccd033d194c4fa006ba97
+- docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md f712540a78633dda853fedef0007a4c5e28011dbf59a9b0d110fba814db8a02e
+- docs/harness/reports/REP-008-deliver-research-oriented-scout.md c57a406d132f0bff1a52f323425561531f3ec3594aaaf207a752e074ea257911
 - docs/harness/specs/workflow-lifecycle.md 13eb2531f0c7df0847f64006dc6ae94dd1878ed13b120339e897a9287f0c7cfe

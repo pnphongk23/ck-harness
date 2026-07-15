@@ -122,6 +122,82 @@ flowchart TD
    - Gate: every canonical change requires evidence and human approval; Rule
      promotion still requires two independent occurrences with one recurrence key.
 
+## Artifact Contract
+
+All canonical artifacts use strict YAML frontmatter parsed by the executable
+schema. Unknown fields are rejected. Dates use `YYYY-MM-DD`; timestamps use ISO
+8601 with an offset.
+
+| Artifact | Location | Filename | Required frontmatter |
+| --- | --- | --- | --- |
+| Feature | `features/` | `FEAT-XXX-kebab-name.md` | Common fields, `id`, `created`, conditional approval provenance, and `relationships` |
+| Spec | `specs/` | `semantic-name.md` | `schema_version`, `type`, `title`, `status`, and `relationships` |
+| Decision | `decisions/` | `DEC-XXX-kebab-name.md` | Common fields, `id`, `created`, conditional approval or rejection provenance, and `relationships` |
+| Report | `reports/` | `REP-XXX-kebab-name.md` | Common fields, `id`, `delivered`, and `relationships` |
+| Rule | `rules/` | `RULE-XXX-kebab-name.md` | Common fields, `id`, `approved`, `scope`, and `relationships` |
+| Plan | `plans/YYMMDD-HHmm-slug/` | `plan.md`, optional `design.md`, and `work-item-XX-name.md` | Plan or Work Item fields; `design.md` has no lifecycle frontmatter |
+
+Common artifact fields are `schema_version: 1`, `type`, `title`, `status`, and
+`relationships`. Relationship keys are `specs`, `decisions`, `plans`, `reports`,
+`rules`, `features`, and `source_paths`; every key contains unique strings.
+Wikilinks use `[[full-basename|ID]]` for ID-bearing artifacts and
+`[[semantic-basename]]` for Specs. Source paths are repository-relative POSIX
+paths without absolute roots, backslashes, or `..` segments.
+
+IDs match `^FEAT-[0-9]{3}$`, `^DEC-[0-9]{3}$`, `^REP-[0-9]{3}$`, or
+`^RULE-[0-9]{3}$`. Sequences are monotonic, IDs are immutable and never reused,
+and the filename ID must equal the frontmatter ID.
+
+Artifact lifecycle contracts are:
+
+- Features use `draft`, `proposed`, `approved`, `active`, or `deprecated`.
+  Approved, active, and deprecated Features require `approved` and
+  `approved_by`; draft and proposed Features must not retain that provenance.
+- Specs use `draft`, `active`, or `deprecated`.
+- Decisions use `proposed`, `approved`, `rejected`, or `superseded`. Approved
+  and superseded Decisions require `approved` and `approved_by`; rejected
+  Decisions require `rejected`; incompatible provenance must not be retained.
+  Optional `supersedes` is a wikilink, and optional `recurrence_key` is non-empty.
+- Reports are `completed`, require `delivered`, and may carry non-empty
+  `recurrence_key` and boolean `rule_candidate` evidence.
+- Rules use `active`, `deprecated`, or `superseded`, require `approved`, and
+  require at least one non-empty `scope` entry.
+
+Plan frontmatter requires `title`, `description`, execution `status`, nested
+`approval`, `priority`, `effort`, `branch`, `tags`, `blockedBy`, `blocks`,
+`relationships`, an offset timestamp in `created`, and `createdBy`; `source` is
+optional. Approval status is `pending`, `changes_requested`, or `approved` and
+always names `required_by`. Non-pending approval requires `decided`; pending
+approval must not retain a decision date.
+
+Plan and Work Item execution status is `pending`, `in_progress`, `blocked`,
+`completed`, or `cancelled`. Readers accept the legacy `in-progress` spelling,
+but workflows write `in_progress`. Blocked and cancelled state requires
+`status_reason`. A Plan cannot be `in_progress` or `completed` without approved
+execution authority.
+
+Work Item frontmatter requires positive numeric `work_item`, `title`, status,
+priority, effort, positive numeric `dependencies`, and `decision_dependencies`.
+Each Decision dependency is a canonical wikilink and must resolve to an approved
+Decision before eligibility. Optional Work Item kind, inline Tasks, coverage,
+and evidence remain in the Markdown body rather than frontmatter. The Plan body
+owns aggregate coverage; there is no Story artifact or Task-level Plan.
+
+Optional implementation `design.md` is plain supporting Markdown stored beside
+its owning `plan.md` and linked by the Plan's `relationships.source_paths`. It is
+not a lifecycle artifact. Every other Markdown file in a Plan directory must
+parse as a Plan or Work Item. Reusable technical contracts belong in semantic
+Specs or approved Decisions.
+
+Feature Markdown has exactly five H2 sections: Introduction, Business
+Understanding, Requirements, Acceptance, and Relationships. Omit optional
+material instead of emitting empty headings. Actors are people, business roles,
+or external systems—not classes, services, packages, or modules.
+
+Executable schemas and validators remain authoritative for parsing details;
+[[workflow-lifecycle]] defines cross-artifact authority, transition,
+aggregation, eligibility, and completion semantics.
+
 ## Revision and Terminal Outcomes
 
 - **No change:** Return evidence and end without Plan, Cook, or Report.

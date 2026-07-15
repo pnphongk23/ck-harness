@@ -7,6 +7,7 @@ import { artifactSchema } from "../src/core/schemas/artifacts.js";
 import { parseMarkdownDocument, serializeMarkdownDocument } from "../src/core/schemas/frontmatter.js";
 import { runCli, EXIT_CODES } from "../src/cli/index.js";
 import { renderExpectedIndex } from "../src/core/integrity.js";
+import { skillNames } from "../src/core/skill-routing.js";
 
 const temporaryRoots: string[] = [];
 
@@ -17,16 +18,34 @@ afterEach(async () => {
 test("init is idempotent, allowlisted, and preserves existing content", async () => {
   const root = await temporaryRoot();
   const readme = join(root, "docs", "harness", "README.md");
+  const preservedSkill = join(root, ".agents", "skills", "harness-feature", "SKILL.md");
   const sentinel = join(root, "outside.txt");
   await mkdir(join(root, "docs", "harness"), { recursive: true });
+  await mkdir(join(root, ".agents", "skills", "harness-feature"), { recursive: true });
   await writeFile(readme, "user content\n", "utf8");
+  await writeFile(preservedSkill, "user skill\n", "utf8");
   await writeFile(sentinel, "preserve\n", "utf8");
 
   const first = await invoke(["init", "--workspace", root, "--json"], root);
   assert.equal(first.code, EXIT_CODES.success);
   assert.equal((JSON.parse(first.stdout) as { ok: boolean }).ok, true);
   assert.equal(await readFile(readme, "utf8"), "user content\n");
+  assert.equal(await readFile(preservedSkill, "utf8"), "user skill\n");
   assert.equal(await readFile(sentinel, "utf8"), "preserve\n");
+  for (const name of skillNames) {
+    const target = join(root, ".agents", "skills", name, "SKILL.md");
+    assert.equal(await fileExists(target), true, `missing initialized skill: ${name}`);
+    if (name !== "harness-feature") {
+      assert.equal(
+        await readFile(target, "utf8"),
+        await readFile(join(process.cwd(), ".agents", "skills", name, "SKILL.md"), "utf8"),
+        `initialized skill differs from package source: ${name}`,
+      );
+    }
+  }
+  for (const internal of ["RULES.md", "schema-v1.md", "SKILL-PORTS.md"]) {
+    assert.equal(await fileExists(join(root, "docs", "harness", internal)), false, `init must not publish ${internal}`);
+  }
   const before = await snapshot(root);
 
   const second = await invoke(["init", "--workspace", root, "--json"], root);
@@ -220,7 +239,6 @@ test("index check accepts a current rendering with lifecycle-managed sequence co
 test("doctor is read-only and never invokes a process", async () => {
   const root = await initializedRoot();
   await mkdir(join(root, "docs", "harness", "workflows"), { recursive: true });
-  await writeFile(join(root, "docs", "harness", "schema-v1.md"), "schema\n");
   await writeFile(join(root, "docs", "harness", "workflows", "README.md"), "router\n");
   await writeFile(join(root, "docs", "harness", "workflows", "cook.md"), "cook\n");
   await writeFile(join(root, "docs", "harness", "index.md"), await renderExpectedIndex(root));

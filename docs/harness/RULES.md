@@ -141,10 +141,13 @@ missing, the system must warn and degrade gracefully instead of failing
 verification. Repository content must never be transmitted to external servers
 without explicit user permission.
 
-### R-022: Canonical Skills and Thin Adapters
+### R-022: Canonical Skills and Focused Utilities
 The `.agents/skills/harness-*` skills are thin routers to the repository
-workflow guides and templates. They must remain local and free of dependencies
-on personal or home-directory configuration.
+workflow guides and templates. Focused repository-local utility skills may
+provide reusable consultation, brainstorming, or scouting behavior, but must
+not duplicate or override canonical artifact lifecycle authority. Every skill
+must remain local and free of dependencies on personal or home-directory
+configuration, delegated agents, or external AI services.
 
 ### R-023: Local-Reference and Provenance Checks
 No skill, workflow, or script may depend on files or directories outside this repository's workspace. All adaptations of ClaudeKit behavior must be credited and detailed in `docs/harness/PROVENANCE.md`.

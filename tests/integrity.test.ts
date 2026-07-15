@@ -213,7 +213,6 @@ test("doctor reports optional Graphify as a warning and preserves the workspace"
   const root = await harnessFixture();
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(join(root, "docs", "harness", "workflows"), { recursive: true });
-  await writeFile(join(root, "docs", "harness", "schema-v1.md"), "schema\n");
   await writeFile(join(root, "docs", "harness", "workflows", "README.md"), "router\n");
   await writeFile(join(root, "docs", "harness", "workflows", "cook.md"), "cook\n");
   await writeFile(join(root, "docs", "harness", "index.md"), await renderExpectedIndex(root));

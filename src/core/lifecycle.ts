@@ -8,6 +8,7 @@ import { exists, HarnessError, listMarkdown, repositoryPaths } from "../fs/repos
 import { artifactSchema, type ArtifactFrontmatter, validateArtifactFilename } from "./schemas/artifacts.js";
 import { validateFeatureContent } from "./schemas/content.js";
 import { parseMarkdownDocument, serializeMarkdownDocument } from "./schemas/frontmatter.js";
+import { skillNames } from "./skill-routing.js";
 
 export type ArtifactKind = "feature" | "spec" | "decision" | "report" | "rule";
 
@@ -46,7 +47,7 @@ const COUNTERS = {
 const INIT_DIRECTORIES = [
   "features", "specs", "decisions", "plans", "reports", "rules", "templates", "workflows",
 ] as const;
-const INIT_ROOT_FILES = ["README.md", "RULES.md", "schema-v1.md"] as const;
+const INIT_ROOT_FILES = ["README.md"] as const;
 
 export async function initializeHarness(root: string): Promise<{ created: string[]; preserved: string[] }> {
   const paths = await repositoryPaths(root);
@@ -72,6 +73,15 @@ export async function initializeHarness(root: string): Promise<{ created: string
       for (const name of (await readdir(join(sourceHarness, directory))).filter((entry) => entry.endsWith(".md")).sort()) {
         await copyIfMissing(join(sourceHarness, directory, name), join(paths.harness, directory, name), paths.root, created, preserved);
       }
+    }
+    for (const name of skillNames) {
+      await copyIfMissing(
+        join(packageRoot, ".agents", "skills", name, "SKILL.md"),
+        join(paths.root, ".agents", "skills", name, "SKILL.md"),
+        paths.root,
+        created,
+        preserved,
+      );
     }
     if (await exists(paths.index)) preserved.push(relative(paths.root, paths.index));
     else {
