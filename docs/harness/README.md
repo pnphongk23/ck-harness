@@ -1,8 +1,9 @@
 # Repository Harness Contract
 
 The harness is a deterministic, file-first convention for preserving product
-and engineering knowledge as readable Markdown. Durable artifacts live below
-`docs/harness/`; `index.md` is derived except for its CLI-owned monotonic
+and engineering knowledge as readable Markdown. By default, durable artifacts live below
+`docs/harness/`, but a repository-root `harness.yaml` file may customize the document root
+and collection subfolders. The resolved `index.md` is derived except for its CLI-owned monotonic
 artifact sequences.
 
 ## Product boundary
@@ -83,7 +84,7 @@ convenience that performs full debounced reconciliation and preserves the last
 valid index during invalid edits or degraded coverage. `graph check` treats a
 missing optional executable as a warning; only explicit `graph build` starts
 the local process, with a validated relationship view sent on stdin and output
-contained in disposable `docs/harness/graphify-out/`. Because Graphify may use
+contained in the disposable resolved graph output directory (default: `docs/harness/graphify-out/`). Because Graphify may use
 a configured semantic backend for Markdown, build requires the informed
 `--allow-external` permission flag.
 
@@ -130,8 +131,8 @@ command. Do not introduce a database or hidden trace store as recovery state.
 ## Cleanup ownership
 
 `harness clean --dry-run` is the required preview. Confirmed cleanup can remove
-only `docs/harness/graphify-out/`, `docs/harness/.harness-tmp/`,
-`docs/harness/.cache/`, and stale temporary sibling or rollback files carrying
+only the resolved `graphify-out/`, `.harness-tmp/`, and `.cache/` directories under the
+resolved Harness root, and stale temporary sibling or rollback files carrying
 the Harness-owned marker. It never removes canonical authored Markdown,
 Features, Specs, Decisions, Plans, Reports, Rules, templates, or workflows.
 

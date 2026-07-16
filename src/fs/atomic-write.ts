@@ -1,6 +1,6 @@
 import { open, mkdir, readFile, rename, rm, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
-import { assertContained, exists, HarnessError } from "./repository.js";
+import { assertContained, exists, HarnessError, repositoryPaths } from "./repository.js";
 
 export interface FileMutation {
   path: string;
@@ -18,8 +18,8 @@ interface Snapshot {
   content?: string;
 }
 
-export async function withRepositoryLock<T>(root: string, action: () => Promise<T>): Promise<T> {
-  const harness = await assertContained(root, join(root, "docs", "harness"));
+export async function withRepositoryLock<T>(root: string, lockDirectory: string, action: () => Promise<T>): Promise<T> {
+  const harness = await assertContained(root, lockDirectory);
   await mkdir(harness, { recursive: true });
   const lockPath = join(harness, ".harness.lock");
   let handle;
@@ -48,7 +48,8 @@ export async function applyMutation(
   validate?: (overlay: ReadonlyMap<string, string | undefined>) => void | Promise<void>,
   hooks: MutationHooks = {},
 ): Promise<void> {
-  await withRepositoryLock(root, () => applyMutationUnlocked(root, changes, validate, hooks));
+  const paths = await repositoryPaths(root);
+  await withRepositoryLock(root, paths.harness, () => applyMutationUnlocked(root, changes, validate, hooks));
 }
 
 async function applyMutationUnlocked(

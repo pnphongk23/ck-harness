@@ -3,14 +3,19 @@ schema_version: 1
 type: feature
 id: FEAT-006
 title: Configure Harness document folders
-status: proposed
+status: approved
 created: 2026-07-14
+approved: 2026-07-16
+approved_by: Product Authority
 relationships:
   specs:
     - "[[workflow-lifecycle]]"
-  decisions: []
-  plans: []
-  reports: []
+  decisions:
+    - "[[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]]"
+  plans:
+    - "[[260716-1356-configure-harness-document-folders/plan|Plan]]"
+  reports:
+    - "[[REP-009-deliver-configurable-harness-document-folders|REP-009]]"
   rules: []
   features:
     - "[[FEAT-001-harness-cli|FEAT-001]]"
@@ -26,7 +31,6 @@ relationships:
     - src/core/integrity.ts
     - src/index/index.ts
     - src/watcher/index.ts
-    - src/adapters/index.ts
 ---
 
 # FEAT-006: Configure Harness document folders
@@ -40,7 +44,7 @@ relationships:
 - Configure one repository-contained Harness document root.
 - Configure a distinct folder under that root for each logical document collection: Features, Specs, Decisions, Plans, Reports, Rules, templates, and workflows.
 - Use `docs/harness/` and its current canonical subfolders when no folder configuration exists.
-- Apply the resolved folders consistently to initialization, artifact lifecycle operations, workflow discovery, validation, health checks, indexing, watching, graph generation, cleanup, and supported AI-platform access.
+- Apply the resolved folders consistently to initialization, artifact lifecycle operations, workflow discovery, validation, health checks, indexing, watching, cleanup, and supported AI-platform access.
 - Report the resolved repository-relative paths and actionable folder-configuration errors.
 
 **Out of scope:**
@@ -49,6 +53,9 @@ relationships:
 - Placing a configured document collection outside the Harness document root or repository.
 - Automatically moving existing documents, renaming artifacts, or rewriting relationships when folder configuration changes.
 - Configuring runtime adapter locations owned by [[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]].
+- Configuring, invoking, migrating, or choosing a replacement for Graphify; a
+  future repository-owned graph capability requires separate authority under
+  [[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]].
 - Choosing the configuration file format, parser, or source layout.
 
 ### Evidence classification
@@ -118,14 +125,14 @@ A Repository Maintainer initializes Harness with a folder configuration or a Har
 - **FR-001 — Configurable document root [Observed]:** The system shall let a Repository Maintainer configure one repository-contained Harness document root.
 - **FR-002 — Configurable collection folders [Observed]:** The system shall let the Maintainer configure distinct folders for Features, Specs, Decisions, Plans, Reports, Rules, templates, and workflows under the document root.
 - **FR-003 — Default compatibility [Observed]:** When no folder configuration exists, the effective layout shall remain `docs/harness/` with the current canonical collection folders.
-- **FR-004 — Consistent resolution [Inferred]:** Initialization, lifecycle, workflow, integrity, index, watch, graph, cleanup, and runtime-access behavior shall use the same effective folder layout.
+- **FR-004 — Consistent resolution [Inferred]:** Initialization, lifecycle, workflow, integrity, index, watch, cleanup, and runtime-access behavior shall use the same effective folder layout.
 - **FR-005 — Effective-path evidence [Inferred]:** Results and failures shall identify affected paths relative to the repository using the effective layout.
 - **FR-006 — Explicit invalid configuration [Inferred]:** Invalid, escaping, duplicate, overlapping, or missing configured paths shall produce actionable failures without silent default fallback.
 - **BR-001 — Folder-only customization [Observed]:** Folder configuration shall not change `FEAT-XXX-kebab-name.md`, semantic Spec names, `DEC-XXX-kebab-name.md`, `YYMMDD-HHmm-slug/` Plan directories, `work-item-XX-name.md`, `REP-XXX-kebab-name.md`, or `RULE-XXX-kebab-name.md` rules.
 - **BR-002 — Stable identity [Observed]:** IDs, monotonic allocation, filename/frontmatter agreement, wikilink semantics, and slug-rename behavior shall remain unchanged in every configured layout.
 - **BR-003 — One contained layout [Inferred]:** Every configured collection folder shall be distinct and contained under one repository-contained document root.
 - **BR-004 — No implicit migration [Inferred]:** Changing folder configuration shall not move documents, rename files, rewrite relationships, or merge old and new layouts implicitly.
-- **BR-005 — Derived views only [Observed]:** Index and graph outputs shall remain derived and replaceable; folder configuration shall not make them canonical authored state.
+- **BR-005 — Derived views only [Observed]:** Index output shall remain derived and replaceable; folder configuration shall not make it canonical authored state.
 - **NFR-001 — Backward compatibility [Observed]:** Existing zero-configuration `docs/harness/` repositories shall retain the same observable paths and behavior.
 - **NFR-002 — Determinism [Inferred]:** Equivalent documents and equivalent effective folder configuration shall produce byte-stable validation and derived navigation outcomes.
 - **NFR-003 — Portability [Inferred]:** Folder discovery, containment, and reported repository-relative paths shall behave consistently on supported macOS, Linux, and Windows environments.
@@ -140,7 +147,7 @@ A Repository Maintainer initializes Harness with a folder configuration or a Har
 - [ ] An attempt to configure a different filename pattern or use a nonconforming filename is rejected.
 - [ ] Absolute, escaping, duplicate, and overlapping folder mappings fail before any Harness mutation.
 - [ ] Changing an existing repository's folder configuration does not move or rename documents implicitly and reports documents missing from the effective layout.
-- [ ] Validation, index checks, watch reconciliation, graph generation, cleanup, and runtime-access checks contain their work to the effective layout.
+- [ ] Validation, index checks, watch reconciliation, cleanup, and runtime-access checks contain their work to the effective layout.
 - [ ] The Harness relationship graph resolves FEAT-006 links to FEAT-001 through FEAT-005 and exposes corresponding backlinks without unresolved relationships.
 
 **Scenario: preserve the default layout**
@@ -174,7 +181,8 @@ And neither the configured layout nor `docs/harness/` is mutated.
 - Related Feature: [[FEAT-001-harness-cli|FEAT-001]] — initialization, lifecycle operations, allocation, cleanup, and reported paths use the effective layout.
 - Related Feature: [[FEAT-002-govern-traceable-work-lifecycle|FEAT-002]] — workflow artifacts and approval relationships remain traceable after physical folders change.
 - Related Feature: [[FEAT-003-verify-harness-integrity|FEAT-003]] — validation, index correctness, and health diagnostics validate the effective layout while preserving filename rules.
-- Related Feature: [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]] — index, backlinks, watch scope, graph input, and disposable graph output follow the effective layout.
+- Related Feature: [[FEAT-004-maintain-navigable-harness-knowledge|FEAT-004]] — index, backlinks, and watch scope follow the effective layout; graph technology is deferred under [[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]].
+- Decision: [[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]] — Graphify and any replacement graph technology are outside this Feature.
 - Related Feature: [[FEAT-005-provide-harness-access-across-runtimes|FEAT-005]] — supported AI platforms and adapters resolve canonical workflows after document folders change; runtime adapter locations remain outside this Feature.
 - Source: `docs/harness/RULES.md`
 - Source: `docs/harness/SKILL-PORTS.md`

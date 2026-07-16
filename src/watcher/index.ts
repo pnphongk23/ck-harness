@@ -1,7 +1,7 @@
 import { watch, type ChokidarOptions, type FSWatcher } from "chokidar";
-import { basename, resolve, sep } from "node:path";
+import { basename, resolve, sep, relative, isAbsolute, join } from "node:path";
 import { buildIndex, type IndexBuildResult } from "../index/index.js";
-import { exists, HarnessError, repositoryPaths } from "../fs/repository.js";
+import { exists, HarnessError, repositoryPaths, type RepositoryPaths } from "../fs/repository.js";
 import type { IntegrityFinding } from "../core/integrity.js";
 
 export const WATCHER_BOUNDARY = "reconciliation-only" as const;
@@ -14,7 +14,7 @@ export interface WatcherOptions {
   rebindBaseDelayMs?: number;
   signal?: AbortSignal;
   onEvent?: (event: WatcherEvent) => void;
-  createWatcher?: (path: string, options: ChokidarOptions) => FSWatcher;
+  createWatcher?: (path: string | readonly string[], options: ChokidarOptions) => FSWatcher;
 }
 
 export type WatcherEvent =
@@ -40,7 +40,7 @@ export async function watchHarness(options: WatcherOptions): Promise<WatcherResu
   validateInteger(rebindAttempts, "rebindAttempts", false);
   validateInteger(rebindBaseDelayMs, "rebindBaseDelayMs", true);
 
-  const paths = await repositoryPaths(options.workspace);
+  let paths = await repositoryPaths(options.workspace);
   let watcher: FSWatcher | undefined;
   let debounceTimer: NodeJS.Timeout | undefined;
   let rebindTimer: NodeJS.Timeout | undefined;
@@ -139,6 +139,12 @@ export async function watchHarness(options: WatcherOptions): Promise<WatcherResu
         const delay = rebindBaseDelayMs * (2 ** (rebindAttempt - 1));
         await abortableDelay(delay, options.signal, (timer) => { rebindTimer = timer; });
         if (stopped) return;
+        try {
+          paths = await repositoryPaths(options.workspace);
+        } catch (error) {
+          degraded(`Watcher rebind attempt ${rebindAttempt} failed to load config: ${errorMessage(error)}.`);
+          continue;
+        }
         if (!(await exists(paths.harness))) continue;
         try {
           await bindWatcher();
@@ -164,17 +170,23 @@ export async function watchHarness(options: WatcherOptions): Promise<WatcherResu
 
     const bindWatcher = async (): Promise<void> => {
       if (stopped) return;
-      const next = (options.createWatcher ?? watch)(paths.harness, {
+      const next = (options.createWatcher ?? watch)([paths.harness, join(paths.root, "harness.yaml")], {
         ignoreInitial: true,
         ...(options.poll === undefined ? {} : { usePolling: options.poll }),
-        ignored: (testPath: string) => ignoredPath(testPath, paths.harness),
+        ignored: (testPath: string) => ignoredPath(testPath, paths),
       });
       watcher = next;
       next.on("all", (eventName, eventPath) => {
         if (stopped || watcher !== next) return;
-        if (eventName === "unlinkDir" && resolve(eventPath) === resolve(paths.harness)) {
+        const resolvedPath = resolve(eventPath);
+        if (eventName === "unlinkDir" && resolvedPath === resolve(paths.harness)) {
           degraded("Watched Harness root was removed or replaced; coverage is degraded.");
           queueMicrotask(() => void rebind("Watched Harness root is unavailable."));
+          return;
+        }
+        if (resolvedPath === resolve(paths.root, "harness.yaml")) {
+          degraded("Harness configuration changed; rebuilding watcher.");
+          queueMicrotask(() => void rebind("Harness configuration changed."));
           return;
         }
         scheduleReconciliation();
@@ -226,14 +238,38 @@ export async function watchHarness(options: WatcherOptions): Promise<WatcherResu
   });
 }
 
-function ignoredPath(testPath: string, harnessRoot: string): boolean {
+function ignoredPath(testPath: string, paths: RepositoryPaths): boolean {
   const absolute = resolve(testPath);
   const name = basename(absolute);
-  if (absolute === resolve(harnessRoot, "index.md")) return true;
-  const graphOutput = resolve(harnessRoot, "graphify-out");
+  if (absolute === resolve(paths.index)) return true;
+  const graphOutput = resolve(paths.harness, "graphify-out");
   if (absolute === graphOutput || absolute.startsWith(`${graphOutput}${sep}`)) return true;
   if (name === ".harness-tmp" || name === ".harness.lock") return true;
-  return /^.*\.harness-(?:tmp|rollback)-.*$/.test(name);
+  if (/^.*\.harness-(?:tmp|rollback)-.*$/.test(name)) return true;
+
+  const allowedRoots = [
+    join(paths.root, "harness.yaml"),
+    paths.index,
+    paths.features,
+    paths.specs,
+    paths.decisions,
+    paths.plans,
+    paths.reports,
+    paths.rules,
+    paths.templates,
+    paths.workflows,
+  ];
+
+  const isParentOrPrefix = (parent: string, child: string): boolean => {
+    const rel = relative(parent, child);
+    return rel === "" || (!rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+  };
+
+  const shouldWatch = allowedRoots.some((allowed) =>
+    isParentOrPrefix(absolute, allowed) || isParentOrPrefix(allowed, absolute)
+  );
+
+  return !shouldWatch;
 }
 
 function validateInteger(value: number, name: string, allowZero: boolean): void {

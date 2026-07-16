@@ -10,8 +10,8 @@ behavior without becoming a second artifact authority.
 | brainstorm | scout-first exact requirements, two or three approaches, approval gate | Claude commands with local Feature, Decision, and Plan handoffs | focused utility skill | global rules and orchestration |
 | ask | evidence-backed alternative and trade-off analysis | personal context with index and linked specs | focused utility skill and Decision handoff | hidden home-directory assumptions |
 | scout | project baseline, architecture and flow research, targeted code tracing, evidence labels, risks, and unknowns | delegated or external discovery with read-only local inspection | focused utility skill | task orchestration and external AI tools |
-| ck-plan 4.4.0 | Work Item files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with `docs/harness/plans/` | external CK validation when installed | unrelated task hydration |
-| cook | approved-plan gate, Work Item order, tests, review | global reports with `docs/harness/reports/` | unavailable-check disclosure | automated source-control and delivery actions |
+| ck-plan 4.4.0 | Work Item files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with the resolved plans folder (default: `docs/harness/plans/`) | external CK validation when installed | unrelated task hydration |
+| cook | approved-plan gate, Work Item order, tests, review | global reports with the resolved reports folder (default: `docs/harness/reports/`) | unavailable-check disclosure | automated source-control and delivery actions |
 | ck-graphify | relationship visualization | trace roots with canonical Markdown roots | `graphify` executable | trace ledger and required executable |
 
 All local references used by a skill are listed in its `SKILL.md`. No entrypoint
@@ -36,8 +36,8 @@ all files in the six source skill directories that inform this port:
 | Source reference family | Disposition in harness |
 | --- | --- |
 | Relative `references/*.md` and shared workflow artifact schema | Replaced by the five canonical workflow documents and templates |
-| `./plans/`, global plan roots, active-plan script | Replaced by `docs/harness/plans/`; no hidden active pointer |
-| Generic `./docs/*`, global rules, `.ck.json`, personal skill paths | Replaced by `docs/harness/index.md` and its linked specs |
+| `./plans/`, global plan roots, active-plan script | Replaced by the resolved plans folder (default: `docs/harness/plans/`); no hidden active pointer |
+| Generic `./docs/*`, global rules, `.ck.json`, personal skill paths | Replaced by the resolved index (default: `docs/harness/index.md`) and its linked specs |
 | CK `plan create/check/uncheck/status` | Not retained; Harness validation owns the Work Item contract |
 | Requirements, business behavior variants, durable alternative analysis, approval, plan-before-code, validation | Retained across focused utilities and separated across Feature, Decision, Plan, and Cook authority |
 | Task hydration and delegated research/testing/review/finalization | Removed; direct work with recorded evidence is sufficient |

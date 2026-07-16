@@ -274,6 +274,81 @@ test("nested working directories, spaces, non-ASCII titles, and inconsistent sta
   assert.equal(await fileExists(join(root, "docs", "harness", "features", "FEAT-002-must-not-publish.md")), false);
 });
 
+test("custom layout: init, create, rename, delete, clean, and errors", async () => {
+  const root = await temporaryRoot();
+  // Write custom harness.yaml
+  await writeFile(
+    join(root, "harness.yaml"),
+    "root: custom-docs\nfeatures: product-features\nspecs: eng-specs\ndecisions: choices\nplans: roadmap\nreports: outcomes\nrules: guidelines\ntemplates: blueprints\nworkflows: procedures\n",
+    "utf8"
+  );
+
+  // 1. Verify that running any command before init fails and references the custom index path, not docs/harness
+  const failedShow = await invoke(["feature", "show", "FEAT-001", "--workspace", root, "--json"], root);
+  assert.equal(failedShow.code, EXIT_CODES.rejected);
+  const errPayload = JSON.parse(failedShow.stderr);
+  assert.equal(errPayload.ok, false);
+  assert.match(errPayload.error.message, /Harness is not initialized/);
+
+  // 2. Initialize the custom layout
+  const initResult = await invoke(["init", "--workspace", root, "--json"], root);
+  assert.equal(initResult.code, EXIT_CODES.success, initResult.stderr);
+
+  // Assert directories and files created under custom-docs/
+  const customIndex = join(root, "custom-docs", "index.md");
+  assert.equal(await fileExists(customIndex), true);
+  assert.equal(await fileExists(join(root, "custom-docs", "README.md")), true);
+  assert.equal(await fileExists(join(root, "custom-docs", "product-features")), true);
+  assert.equal(await fileExists(join(root, "custom-docs", "blueprints", "feature.md")), true);
+  assert.equal(await fileExists(join(root, "custom-docs", "procedures", "cook.md")), true);
+  // Assert .agents/skills remains at root
+  assert.equal(await fileExists(join(root, ".agents", "skills", "harness-feature", "SKILL.md")), true);
+
+  // Assert docs/harness does NOT exist
+  assert.equal(await fileExists(join(root, "docs", "harness")), false);
+
+  // 3. Create a feature in custom layout
+  const featureResult = await invoke(["feature", "create", "--title", "Configured Feature", "--created", "2026-07-14", "--workspace", root, "--json"], root);
+  assert.equal(featureResult.code, EXIT_CODES.success, featureResult.stderr);
+  const featurePath = join(root, "custom-docs", "product-features", "FEAT-001-configured-feature.md");
+  assert.equal(await fileExists(featurePath), true);
+
+  // 4. Rename feature in custom layout
+  const renameResult = await invoke(["feature", "rename", "FEAT-001", "--title", "Renamed Configured Feature", "--workspace", root, "--json"], root);
+  assert.equal(renameResult.code, EXIT_CODES.success, renameResult.stderr);
+  const renamedPath = join(root, "custom-docs", "product-features", "FEAT-001-renamed-configured-feature.md");
+  assert.equal(await fileExists(renamedPath), true);
+  assert.equal(await fileExists(featurePath), false);
+
+  // 5. Clean in custom layout
+  // Create temporary/stale sibling under a custom collection directory
+  const tempPath = join(root, "custom-docs", "product-features", ".stale.md.harness-tmp-99-0");
+  await writeFile(tempPath, "temporary", "utf8");
+  const cleanResult = await invoke(["clean", "--workspace", root, "--json"], root);
+  assert.equal(cleanResult.code, EXIT_CODES.success);
+  assert.equal(await fileExists(tempPath), false);
+
+  // 6. Delete feature in custom layout
+  const deleteResult = await invoke(["feature", "delete", "FEAT-001", "--workspace", root, "--json"], root);
+  assert.equal(deleteResult.code, EXIT_CODES.success, deleteResult.stderr);
+  assert.equal(await fileExists(renamedPath), false);
+});
+
+test("custom layout: init preserves existing custom files", async () => {
+  const root = await temporaryRoot();
+  await writeFile(
+    join(root, "harness.yaml"),
+    "root: custom-docs\nfeatures: product-features\ntemplates: blueprints\n",
+    "utf8"
+  );
+  await mkdir(join(root, "custom-docs", "blueprints"), { recursive: true });
+  await writeFile(join(root, "custom-docs", "blueprints", "feature.md"), "user template", "utf8");
+
+  const initResult = await invoke(["init", "--workspace", root, "--json"], root);
+  assert.equal(initResult.code, EXIT_CODES.success);
+  assert.equal(await readFile(join(root, "custom-docs", "blueprints", "feature.md"), "utf8"), "user template");
+});
+
 async function initializedRoot(): Promise<string> {
   const root = await temporaryRoot();
   const result = await invoke(["init", "--workspace", root], root);

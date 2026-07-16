@@ -258,6 +258,41 @@ test("index build CLI rejects a workspace that has not been initialized", async 
   assert.equal((JSON.parse(result.stderr) as { error: { code: string } }).error.code, "precondition");
 });
 
+test("buildIndex generates deterministic index for custom layout fixtures", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "harness-index-build-custom-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  await writeFile(
+    join(root, "harness.yaml"),
+    `root: my-harness-root\nfeatures: feats\nplans: my-plans\n`
+  );
+
+  const harness = join(root, "my-harness-root");
+  const features = join(harness, "feats");
+  const plans = join(harness, "my-plans");
+  await mkdir(features, { recursive: true });
+  await mkdir(plans, { recursive: true });
+  await writeFile(join(harness, "index.md"), "---\nschema_version: 1\ngenerated: true\n---\n\n# Harness Index\n");
+
+  await writeFile(join(features, "FEAT-001-test.md"), featureDocument("FEAT-001"));
+
+  // Build index first time
+  const result1 = await buildIndex(root);
+  assert.equal(result1.outcome, "success");
+  assert.equal(result1.unchanged, false);
+
+  const index1 = await readFile(join(harness, "index.md"), "utf8");
+  assert.match(index1, /- \[my-harness-root\/feats\/FEAT-001-test\.md\]\(feats\/FEAT-001-test\.md\)/);
+
+  // Build index second time - should be unchanged
+  const result2 = await buildIndex(root);
+  assert.equal(result2.outcome, "success");
+  assert.equal(result2.unchanged, true);
+
+  const index2 = await readFile(join(harness, "index.md"), "utf8");
+  assert.equal(index1, index2); // Deterministic index byte comparison
+});
+
 async function invoke(args: string[], cwd: string): Promise<{ code: number; stdout: string; stderr: string }> {
   let stdout = "";
   let stderr = "";

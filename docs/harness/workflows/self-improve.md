@@ -90,7 +90,7 @@ Exactly one of these evidence-backed outcomes:
 - a retained candidate awaiting more evidence;
 - an approved update to a Spec, template, workflow, or `RULES.md`;
 - an approved Decision; or
-- an active `docs/harness/rules/RULE-XXX-kebab-name.md` linked to at least two
+- an active Rule artifact (resolved from the configuration, by default `docs/harness/rules/RULE-XXX-kebab-name.md`) linked to at least two
   independent occurrences.
 
 ## Completion Criteria

@@ -136,7 +136,6 @@ test("watcher performs one initial reconciliation and shuts down gracefully", as
   const shutdown = events.find(e => e.type === "shutdown");
   assert.ok(shutdown);
 });
-
 test("watcher coalesces bursts of add/change/unlink/rename", async (t) => {
   const root = await harnessFixture();
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -370,4 +369,59 @@ test("index check remains independent", async (t) => {
   assert.equal(built.code, EXIT_CODES.success);
   const chk = await invoke(["index", "check", "--workspace", root], root);
   assert.equal(chk.code, EXIT_CODES.success);
+});
+
+test("watcher handles custom layout reconciliation, invalid config failure, and config change rebinds", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "harness-index-watch-custom-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  // Test invalid configuration failure-before-operation
+  await writeFile(
+    join(root, "harness.yaml"),
+    "invalid: config: structure\n"
+  );
+  await assert.rejects(async () => {
+    await watchHarness({ workspace: root });
+  }, /HarnessError/);
+
+  // Setup valid custom configuration
+  await writeFile(
+    join(root, "harness.yaml"),
+    `root: custom-docs\nfeatures: my-features\nplans: my-plans\n`
+  );
+
+  const harness = join(root, "custom-docs");
+  const features = join(harness, "my-features");
+  const plans = join(harness, "my-plans");
+  await mkdir(features, { recursive: true });
+  await mkdir(plans, { recursive: true });
+  await writeFile(join(harness, "index.md"), "---\nschema_version: 1\ngenerated: true\n---\n\n# Harness Index\n");
+
+  const events: WatcherEvent[] = [];
+  const ac = new AbortController();
+
+  const promise = watchHarness({
+    workspace: root,
+    debounceMs: 50,
+    signal: ac.signal,
+    onEvent: (e) => {
+      events.push(e);
+    }
+  });
+
+  await waitFor(() => events.some((event) => event.type === "ready"), "watcher ready");
+
+  // Modify harness.yaml to trigger config changed rebind
+  await writeFile(
+    join(root, "harness.yaml"),
+    `root: custom-docs\nfeatures: my-features-new\nplans: my-plans\n`
+  );
+
+  // Wait for rebind attempt
+  await waitFor(() => events.some((event) => event.type === "rebind"), "watcher configuration rebind");
+
+  ac.abort();
+  await promise;
+
+  assert.ok(events.some((e) => e.type === "degraded" && /Harness configuration changed/.test(e.reason)));
 });

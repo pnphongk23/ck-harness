@@ -93,4 +93,8 @@ warning-only and never extracts content.
 ## Supersession
 
 This decision refines the Graphify process portion of DEC-003 and does not
-supersede its watcher runtime decision.
+supersede its watcher runtime decision. Its approved status is retained as
+historical dependency evidence for completed Work Items. Its Graphify boundary
+is no longer current authority: [[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]]
+defers Graphify rather than extending this fixed directory boundary to a
+configurable document layout.

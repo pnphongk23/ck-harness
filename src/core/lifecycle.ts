@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { basename, dirname, join, relative } from "node:path";
 import { parse, stringify } from "yaml";
 import { applyMutation, type FileMutation, withRepositoryLock } from "../fs/atomic-write.js";
-import { exists, HarnessError, listMarkdown, repositoryPaths } from "../fs/repository.js";
+import { exists, HarnessError, listMarkdown, repositoryPaths, type RepositoryPaths } from "../fs/repository.js";
 import { artifactSchema, type ArtifactFrontmatter, validateArtifactFilename } from "./schemas/artifacts.js";
 import { validateFeatureContent } from "./schemas/content.js";
 import { parseMarkdownDocument, serializeMarkdownDocument } from "./schemas/frontmatter.js";
@@ -44,9 +44,7 @@ const COUNTERS = {
   rule: { key: "next_rule_sequence", prefix: "RULE", directory: "rules", template: "rule.md" },
 } as const;
 
-const INIT_DIRECTORIES = [
-  "features", "specs", "decisions", "plans", "reports", "rules", "templates", "workflows",
-] as const;
+const INIT_DIRECTORIES = ["features", "specs", "decisions", "plans", "reports", "rules", "templates", "workflows"] as const;
 const INIT_ROOT_FILES = ["README.md"] as const;
 
 export async function initializeHarness(root: string): Promise<{ created: string[]; preserved: string[] }> {
@@ -56,9 +54,9 @@ export async function initializeHarness(root: string): Promise<{ created: string
   const created: string[] = [];
   const preserved: string[] = [];
 
-  await withRepositoryLock(paths.root, async () => {
+  await withRepositoryLock(paths.root, paths.harness, async () => {
     for (const directory of INIT_DIRECTORIES) {
-      const target = join(paths.harness, directory);
+      const target = paths[directory];
       if (await exists(target)) preserved.push(relative(paths.root, target));
       else {
         await mkdir(target, { recursive: true });
@@ -71,7 +69,7 @@ export async function initializeHarness(root: string): Promise<{ created: string
     }
     for (const directory of ["templates", "workflows"] as const) {
       for (const name of (await readdir(join(sourceHarness, directory))).filter((entry) => entry.endsWith(".md")).sort()) {
-        await copyIfMissing(join(sourceHarness, directory, name), join(paths.harness, directory, name), paths.root, created, preserved);
+        await copyIfMissing(join(sourceHarness, directory, name), join(paths[directory], name), paths.root, created, preserved);
       }
     }
     for (const name of skillNames) {
@@ -114,7 +112,7 @@ export async function createArtifact(root: string, input: CreateArtifactInput): 
     throw new HarnessError("Harness index is missing; run `harness init`", "precondition");
   });
   const index = parseIndex(indexSource);
-  const directory = join(paths.harness, counter.directory);
+  const directory = paths[counter.directory];
   if (input.kind === "feature") await loadFeatures(paths.root, directory);
   else await validateArtifactDirectory(paths.root, directory, input.kind);
   const next = Math.max(readCounter(index.frontmatter, counter.key), await nextExistingSequence(directory, counter.prefix));
@@ -175,7 +173,7 @@ export async function renameFeature(root: string, target: string, titleInput: st
   const changes: FileMutation[] = [{ path: destination, content: renamedContent }];
   const affected: string[] = [];
   const linkPattern = new RegExp(`\\[\\[${escapeRegExp(oldBase)}(?=\\]|\\|)`, "g");
-  for (const path of await listMarkdown(paths.harness)) {
+  for (const path of await listConfiguredMarkdown(paths)) {
     if (path === entry.path || path === paths.index) continue;
     const source = await readFile(path, "utf8");
     if (!linkPattern.test(source)) continue;
@@ -212,7 +210,7 @@ export async function deleteFeature(root: string, target: string, force = false)
   const paths = await repositoryPaths(root);
   const entry = await resolveFeature(paths.root, paths.features, target);
   const featureBase = basename(entry.path, ".md");
-  const backlinks = await findBacklinks(paths.root, paths.harness, entry.path, featureBase);
+  const backlinks = await findBacklinks(paths.root, paths.allowlist, entry.path, featureBase);
   if (backlinks.length && !force) {
     throw new HarnessError("Feature deletion is blocked by inbound wikilinks; deprecate it or retry with explicit `--force`", "conflict", backlinks);
   }
@@ -222,12 +220,12 @@ export async function deleteFeature(root: string, target: string, force = false)
 
 export async function cleanHarness(root: string, dryRun: boolean): Promise<{ paths: string[]; removed: boolean }> {
   const paths = await repositoryPaths(root);
-  return withRepositoryLock(paths.root, async () => {
+  return withRepositoryLock(paths.root, paths.harness, async () => {
     const targets: string[] = [];
-    for (const candidate of [join(paths.harness, "graphify-out"), join(paths.harness, ".harness-tmp"), join(paths.harness, ".cache")]) {
+    for (const candidate of paths.allowlist.slice(-3)) {
       if (await exists(candidate)) targets.push(candidate);
     }
-    await collectTemporarySiblings(paths.harness, targets);
+    await Promise.all(paths.allowlist.slice(1, -3).map((directory) => collectTemporarySiblings(directory, targets)));
     const unique = [...new Set(targets)].sort();
     if (!dryRun) await Promise.all(unique.map((target) => rm(target, { recursive: true, force: true })));
     return { paths: unique.map((target) => relative(paths.root, target)), removed: !dryRun };
@@ -482,10 +480,15 @@ function validateArtifactOverlay(path: string, content: string | undefined): voi
   if (errors.length) throw new HarnessError(`staged artifact is invalid: ${errors.join("; ")}`, "invalid", [path]);
 }
 
-async function findBacklinks(root: string, harness: string, targetPath: string, featureBase: string): Promise<string[]> {
+async function listConfiguredMarkdown(paths: RepositoryPaths): Promise<string[]> {
+  const directories = [paths.features, paths.specs, paths.decisions, paths.plans, paths.reports, paths.rules, paths.templates, paths.workflows];
+  return (await Promise.all(directories.map((directory) => listMarkdown(directory)))).flat().sort();
+}
+
+async function findBacklinks(root: string, directories: readonly string[], targetPath: string, featureBase: string): Promise<string[]> {
   const pattern = new RegExp(`\\[\\[${escapeRegExp(featureBase)}(?=\\]|\\|)`);
   const matches: string[] = [];
-  for (const path of await listMarkdown(harness)) {
+  for (const path of await Promise.all(directories.slice(1, -3).map((directory) => listMarkdown(directory))).then((groups) => groups.flat().sort())) {
     if (path === targetPath) continue;
     if (pattern.test(await readFile(path, "utf8"))) matches.push(relative(root, path));
   }

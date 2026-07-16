@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, test } from "node:test";
 import { applyMutation } from "../src/fs/atomic-write.js";
-import { assertContained, HarnessError } from "../src/fs/repository.js";
+import { assertContained, HarnessError, exists, repositoryPaths } from "../src/fs/repository.js";
 
 const roots: string[] = [];
 
@@ -116,4 +116,36 @@ async function repository(): Promise<string> {
   roots.push(root);
   await mkdir(join(root, "docs", "harness", "features"), { recursive: true });
   return root;
+}
+
+test("lock acquisition occurs in the effective layout and does not create docs/harness", async () => {
+  const { root, paths } = await customRepository("root: custom-docs\nfeatures: product-features\n");
+  const target = join(paths.features, "one.md");
+  await writeFile(target, "before", "utf8");
+
+  // Let's acquire a lock manually in the custom layout to block mutation
+  const lock = join(paths.harness, ".harness.lock");
+  await mkdir(paths.harness, { recursive: true });
+  await writeFile(lock, "other", "utf8");
+
+  await assert.rejects(
+    applyMutation(root, [{ path: target, content: "value" }]),
+    (error: unknown) => error instanceof HarnessError && error.code === "conflict"
+  );
+
+  // Assert that docs/harness was not created
+  assert.equal(await exists(join(root, "docs", "harness")), false);
+
+  // Clean the manual lock
+  await rm(lock);
+});
+
+async function customRepository(configContent: string): Promise<{ root: string; paths: any }> {
+  const root = await mkdtemp(join(tmpdir(), "harness-mutation-custom-"));
+  roots.push(root);
+  await writeFile(join(root, "harness.yaml"), configContent, "utf8");
+  const paths = await repositoryPaths(root);
+  await mkdir(paths.features, { recursive: true });
+  await mkdir(paths.harness, { recursive: true });
+  return { root, paths };
 }

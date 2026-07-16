@@ -1,8 +1,8 @@
 ---
 schema_version: 1
 next_feature_sequence: 8
-next_decision_sequence: 10
-next_report_sequence: 9
+next_decision_sequence: 11
+next_report_sequence: 10
 next_rule_sequence: 1
 generated: true
 ---
@@ -23,6 +23,7 @@ generated: true
 - [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
 - [docs/harness/decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md](decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md)
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
 - [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
 - [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
@@ -63,6 +64,11 @@ generated: true
 - [docs/harness/plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md](plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md](plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-01-layout-configuration-and-discovery.md](plans/260716-1356-configure-harness-document-folders/work-item-01-layout-configuration-and-discovery.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-02-lifecycle-and-command-integration.md](plans/260716-1356-configure-harness-document-folders/work-item-02-lifecycle-and-command-integration.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-03-derived-consumer-integration.md](plans/260716-1356-configure-harness-document-folders/work-item-03-derived-consumer-integration.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-04-documentation-and-compatibility-verification.md](plans/260716-1356-configure-harness-document-folders/work-item-04-documentation-and-compatibility-verification.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md)
 - [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
 - [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
@@ -71,6 +77,7 @@ generated: true
 - [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
 - [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 
 ## Forward relationships
@@ -108,6 +115,9 @@ generated: true
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) → [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) → [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) → [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) → [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) → [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) → [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
@@ -140,11 +150,14 @@ generated: true
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) → [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md](features/FEAT-004-maintain-navigable-harness-knowledge.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 - [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
 - [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
@@ -209,6 +222,10 @@ generated: true
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) → [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) → [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) → [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/features/FEAT-003-verify-harness-integrity.md](features/FEAT-003-verify-harness-integrity.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) → [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
@@ -249,6 +266,10 @@ generated: true
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) → [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) → [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) → [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) → [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) → [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
@@ -290,6 +311,7 @@ generated: true
 - [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md) ← [docs/harness/plans/260714-0033-file-based-agent-harness/plan.md](plans/260714-0033-file-based-agent-harness/plan.md)
 - [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md) ← [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
 - [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md) ← [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
+- [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md) ← [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
 - [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md) ← [docs/harness/plans/260714-1147-maintain-navigable-harness-knowledge/plan.md](plans/260714-1147-maintain-navigable-harness-knowledge/plan.md)
 - [docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md](decisions/DEC-006-graphify-directory-extraction-boundary.md) ← [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
 - [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md) ← [docs/harness/decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md](decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md)
@@ -305,6 +327,9 @@ generated: true
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) ← [docs/harness/plans/260714-2354-co-locate-plan-design/plan.md](plans/260714-2354-co-locate-plan-design/plan.md)
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) ← [docs/harness/reports/REP-005-co-locate-implementation-design-with-its-plan.md](reports/REP-005-co-locate-implementation-design-with-its-plan.md)
 - [docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md](decisions/DEC-009-co-locate-implementation-design-with-its-plan.md) ← [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) ← [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
+- [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md) ← [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/decisions/DEC-001-cli-command-parsing.md](decisions/DEC-001-cli-command-parsing.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/decisions/DEC-002-minimal-file-mutations.md](decisions/DEC-002-minimal-file-mutations.md)
 - [docs/harness/features/FEAT-001-harness-cli.md](features/FEAT-001-harness-cli.md) ← [docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md](features/FEAT-002-govern-traceable-work-lifecycle.md)
@@ -365,6 +390,9 @@ generated: true
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md](features/FEAT-005-provide-harness-access-across-runtimes.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) ← [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) ← [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
+- [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md) ← [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 - [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
 - [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
 - [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md) ← [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
@@ -401,6 +429,9 @@ generated: true
 - [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) ← [docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md](decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md) ← [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/plans/260714-1128-verify-harness-integrity/plan.md](plans/260714-1128-verify-harness-integrity/plan.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/plans/260714-1230-repair-integrity-contracts/plan.md](plans/260714-1230-repair-integrity-contracts/plan.md)
 - [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md) ← [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
@@ -415,6 +446,8 @@ generated: true
 - [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) ← [docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md](features/FEAT-007-require-verified-discovery-and-planning.md)
 - [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) ← [docs/harness/features/FEAT-006-configure-harness-document-folders.md](features/FEAT-006-configure-harness-document-folders.md)
+- [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md) ← [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md](decisions/DEC-004-classified-intake-and-interruptible-decisions.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md](decisions/DEC-005-separate-approval-and-execution-state.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md](decisions/DEC-007-separate-document-authority-from-coding-execution.md)
@@ -434,6 +467,7 @@ generated: true
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2324-verified-skill-workflows/plan.md](plans/260715-2324-verified-skill-workflows/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2341-init-skill-files/plan.md](plans/260715-2341-init-skill-files/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260715-2343-research-codebase-and-project/plan.md](plans/260715-2343-research-codebase-and-project/plan.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md](plans/260716-1356-configure-harness-document-folders/plan.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-001-verify-harness-integrity.md](reports/REP-001-verify-harness-integrity.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-002-repair-integrity-contracts.md](reports/REP-002-repair-integrity-contracts.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md](reports/REP-003-maintain-navigable-harness-knowledge.md)
@@ -442,6 +476,7 @@ generated: true
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md](reports/REP-006-deliver-verified-discovery-and-planning-skills.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md](reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md)
 - [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-008-deliver-research-oriented-scout.md](reports/REP-008-deliver-research-oriented-scout.md)
+- [docs/harness/specs/workflow-lifecycle.md](specs/workflow-lifecycle.md) ← [docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md](reports/REP-009-deliver-configurable-harness-document-folders.md)
 
 ## Unresolved relationships
 - None.
@@ -452,16 +487,17 @@ generated: true
 - docs/harness/decisions/DEC-003-index-watch-and-graph-runtime.md df97846548fe30bf09d5d45a672d9d239d4fe1b1b85a6594669d8c1951eb5ce6
 - docs/harness/decisions/DEC-004-classified-intake-and-interruptible-decisions.md 9dc5faabbe096d77464a70ae5cdfc730bb9a991ac5ded532638750956f676bab
 - docs/harness/decisions/DEC-005-separate-approval-and-execution-state.md 877f41aba007b25c90d1996ced209d6833f3a7bd7558129b66122a1ed461c3f4
-- docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md 4f0ebebf6cc89698e3cf6631f03cfc83693ecf619596a12fc132401158bbd142
+- docs/harness/decisions/DEC-006-graphify-directory-extraction-boundary.md d7bd5288068a0f1c3fee75f21aa56bad8dc58cacc7c7f8f6149096ce0f8f4ae9
 - docs/harness/decisions/DEC-007-separate-document-authority-from-coding-execution.md 7a2b17f05397466c98f4cc426dd470497f95145dd217dfc62b0aa4b420ce2fa3
 - docs/harness/decisions/DEC-008-use-work-item-as-the-only-plan-execution-unit.md c892262f86f5fadf897e797bf1ac12be5ad4664db462727f01b000fad9121a73
 - docs/harness/decisions/DEC-009-co-locate-implementation-design-with-its-plan.md 445467c02a51c01b93f0edd89fc7a61e2ff7dc8bb2c793c6f1e7815bd31d0fd6
+- docs/harness/decisions/DEC-010-defer-graphify-and-select-future-graph-technology.md edb3ec8b6a2f66fd190fae67697f0c98139ca9db6faa394549bc8b015e37b3a8
 - docs/harness/features/FEAT-001-harness-cli.md 0408974553702435bae79adce403fb8f7396d6330ebe0fcd25197e0f92a8b421
 - docs/harness/features/FEAT-002-govern-traceable-work-lifecycle.md 9af9b357ffc553b5ce4f8901ae532f0887b8706c9274d23b3bee2399df60f57f
 - docs/harness/features/FEAT-003-verify-harness-integrity.md 1a9e368f6cebfdf3b93eee7c7eabbf42457718751bb365cc8c916acf7d581b96
 - docs/harness/features/FEAT-004-maintain-navigable-harness-knowledge.md 171afd0315599773e4142dd5a63beff081063d23d1b2e79ec884e971c8332573
 - docs/harness/features/FEAT-005-provide-harness-access-across-runtimes.md 740198ddeea05ae45199689c2af41f5fdca12a76a5519a6320b1ec3ee91b05e8
-- docs/harness/features/FEAT-006-configure-harness-document-folders.md 0b2865ec4ee99c9e950666dc26f372916014457554a1caf59c01985352288e09
+- docs/harness/features/FEAT-006-configure-harness-document-folders.md c77f9dba4816727aafa51ec541bbc27412d380de147ab305acb47eaba970899f
 - docs/harness/features/FEAT-007-require-verified-discovery-and-planning.md d42d04738c584049b1e77eb07ee2fda6f79468da1974f6b12c5152b8ec7ec5b7
 - docs/harness/plans/260714-0033-file-based-agent-harness/plan.md f76e0aa7c8108a14a2ed5d73dea95d91dfb00b95af8f58597106fda5a92d0ba4
 - docs/harness/plans/260714-0033-file-based-agent-harness/work-item-01-foundation-and-contracts.md a5663e24dd2a2a3eb872fae22536fbac2895fd8e03d5c0ac3e1c126913269651
@@ -496,6 +532,11 @@ generated: true
 - docs/harness/plans/260715-2341-init-skill-files/work-item-01-init-skills-and-schema-guidance.md b6d823c3efefcde2c3d484fcb437f04248f040eedb052b7282bb752fb9a67b50
 - docs/harness/plans/260715-2343-research-codebase-and-project/plan.md 58b9115c02bfc8643716d9c703db8c191da237d5b452cbf808d2b67da75080e5
 - docs/harness/plans/260715-2343-research-codebase-and-project/work-item-01-restore-research-oriented-scout.md d6de875d423b3f7f15ac0f6bbe9dbfd5511f04a1da92da036da72b505fc833d7
+- docs/harness/plans/260716-1356-configure-harness-document-folders/plan.md a60f2e0b0c89ce0bfa406e3a30348e23088b6f9edbfc3683f06f19a9a2d8ffa2
+- docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-01-layout-configuration-and-discovery.md 33d30817f853aad349c2b45886f1819d41255ba65ecd1b1c69cd10080ee73ee4
+- docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-02-lifecycle-and-command-integration.md f8270c07aff8b258f64094ea5d4585495ad46fffe2efeb35be7883ac8ae3d6e1
+- docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-03-derived-consumer-integration.md 1c3448559f6a52729eab804ab920b9918f463b43ff012192cda1a0b0dedf4b50
+- docs/harness/plans/260716-1356-configure-harness-document-folders/work-item-04-documentation-and-compatibility-verification.md 558458cc3603deb304253517cb48ef14415b612a9b1dca82e4d2872837ab3345
 - docs/harness/reports/REP-001-verify-harness-integrity.md 2f6ab398122750896e84a4bf48d922be0efd896b479316a8595cbc820183b91f
 - docs/harness/reports/REP-002-repair-integrity-contracts.md b3b5342d4a8f2417ffc196297b8349d0250eaa4f1d6ec2df0a5c17e470e6a76a
 - docs/harness/reports/REP-003-maintain-navigable-harness-knowledge.md 7b5ec31815fecfd00f85f0976a30909cf330be83afed223ae35f7793acb047c1
@@ -504,4 +545,5 @@ generated: true
 - docs/harness/reports/REP-006-deliver-verified-discovery-and-planning-skills.md 034e7979786b6adf7e46c9f435f64c5c5be84fb0529ccd033d194c4fa006ba97
 - docs/harness/reports/REP-007-initialize-skill-files-and-consolidate-schema-guidance.md f712540a78633dda853fedef0007a4c5e28011dbf59a9b0d110fba814db8a02e
 - docs/harness/reports/REP-008-deliver-research-oriented-scout.md c57a406d132f0bff1a52f323425561531f3ec3594aaaf207a752e074ea257911
+- docs/harness/reports/REP-009-deliver-configurable-harness-document-folders.md dcdb435d66d17505e3ff633ba1eee6f239bd46d95ea774ddfbcc3671139b3a65
 - docs/harness/specs/workflow-lifecycle.md 13eb2531f0c7df0847f64006dc6ae94dd1878ed13b120339e897a9287f0c7cfe

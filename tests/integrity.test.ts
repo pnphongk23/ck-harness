@@ -224,6 +224,60 @@ test("doctor reports optional Graphify as a warning and preserves the workspace"
   assert.deepEqual(await snapshot(root), before);
 });
 
+test("integrity scanner, index check, and doctor consume custom layouts", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "harness-integrity-custom-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+
+  // Create custom layout configuration
+  await writeFile(
+    join(root, "harness.yaml"),
+    `root: custom-docs/custom-harness\nfeatures: my-features\nplans: my-plans\nworkflows: my-workflows\n`
+  );
+
+  const paths = join(root, "custom-docs", "custom-harness");
+  const features = join(paths, "my-features");
+  const plans = join(paths, "my-plans");
+  const workflows = join(paths, "my-workflows");
+
+  await mkdir(features, { recursive: true });
+  await mkdir(plans, { recursive: true });
+  await mkdir(workflows, { recursive: true });
+
+  // Init default files
+  await writeFile(join(paths, "index.md"), "---\nschema_version: 1\ngenerated: true\n---\n\n# Harness Index\n");
+  await writeFile(join(workflows, "README.md"), "router\n");
+  await writeFile(join(workflows, "cook.md"), "cook\n");
+
+  // Write a feature
+  await writeFeature(features, "FEAT-001-valid.md", "FEAT-001");
+
+  // Render and write expected index
+  const indexContent = await renderExpectedIndex(root);
+  await writeFile(join(paths, "index.md"), indexContent);
+
+  // Scan harness - should pass!
+  const scanResult = await scanHarness(root);
+  assert.equal(scanResult.outcome, "success");
+
+  // Check doctor - should pass!
+  const doctorResult = await diagnoseHarness(root, { path: "" });
+  assert.equal(doctorResult.outcome, "success");
+
+  // Check expected index contents
+  assert.match(indexContent, /- \[Workflow Router\]\(my-workflows\/README\.md\)/);
+  assert.match(indexContent, /- \[custom-docs\/custom-harness\/my-features\/FEAT-001-valid\.md\]\(my-features\/FEAT-001-valid\.md\)/);
+
+  // Check index check passes when correct
+  const checkResult = await checkIndex(root);
+  assert.equal(checkResult.outcome, "success");
+
+  // Test invalid configuration error fails before operation
+  await writeFile(join(root, "harness.yaml"), "invalid: yaml: structure\n");
+  await assert.rejects(async () => {
+    await scanHarness(root);
+  }, /HarnessError/);
+});
+
 async function harnessFixture(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "harness-integrity-"));
   const harness = join(root, "docs", "harness");

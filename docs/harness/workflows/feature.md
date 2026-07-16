@@ -80,7 +80,7 @@ approved Feature or active Spec.
    procedure. Write exactly the five canonical H2 sections and approval provenance.
 
 ## Output
-An approved `docs/harness/features/FEAT-XXX-*.md` artifact, or a documented
+An approved Feature artifact (resolved from the configuration, by default `docs/harness/features/FEAT-XXX-*.md`), or a documented
 no-change/existing-contract outcome that creates no duplicate Feature. Feature
 completion does not require a Coding Plan.
 

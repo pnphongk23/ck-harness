@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve } from "node:path";
-import { assertContained, listMarkdown, repositoryPaths } from "../fs/repository.js";
+import { assertContained, listMarkdown, repositoryPaths, type RepositoryPaths } from "../fs/repository.js";
 import { validateArtifactFilename, type ArtifactFrontmatter, type HarnessFrontmatter } from "./schemas/artifacts.js";
 import { validateFeatureContent } from "./schemas/content.js";
 import { parseMarkdownDocument } from "./schemas/frontmatter.js";
@@ -81,15 +81,15 @@ export async function scanHarness(
   const findings: IntegrityFinding[] = [];
 
   if (options.requireIndex !== false && !(await exists(paths.index))) {
-    return result([finding("repository.index.missing", "docs/harness/index.md", "Harness index is missing", "Repository Contract", "run `harness init` in the intended repository")]);
+    return result([finding("repository.index.missing", paths.relative.index, "Harness index is missing", "Repository Contract", "run `harness init` in the intended repository")]);
   }
 
   const documents: ScannedDocument[] = [];
-  const planMarkdown = await listMarkdown(join(paths.harness, "plans"));
-  const planDesigns = planMarkdown.filter((path) => isPlanLocalDesign(paths.harness, path));
+  const planMarkdown = await listMarkdown(paths.plans);
+  const planDesigns = planMarkdown.filter((path) => isPlanLocalDesign(paths, path));
   const files = [
-    ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(join(paths.harness, directory)))).then((groups) => groups.flat())),
-    ...planMarkdown.filter((path) => !isPlanLocalDesign(paths.harness, path)),
+    ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(paths[directory]))).then((groups) => groups.flat())),
+    ...planMarkdown.filter((path) => !isPlanLocalDesign(paths, path)),
   ].sort((left, right) => left.localeCompare(right));
 
   for (const path of files) {
@@ -99,7 +99,7 @@ export async function scanHarness(
       const document: ScannedDocument = {
         path,
         relativePath,
-        linkTargets: targetsFor(paths.harness, path),
+        linkTargets: targetsFor(paths, path),
         frontmatter: parsed.frontmatter,
         body: parsed.body,
       };
@@ -119,10 +119,10 @@ export async function scanHarness(
   findings.push(...relationshipFindings(documents));
   findings.push(...identityFindings(documents));
   findings.push(...workItemDecisionFindings(documents));
-  findings.push(...planLifecycleFindings(documents));
-  findings.push(...planDesignFindings(paths.root, documents, planDesigns));
+  findings.push(...planLifecycleFindings(documents, paths));
+  findings.push(...planDesignFindings(paths, documents, planDesigns));
   if (scope.path === undefined && scope.kind === undefined) return result(findings);
-  const selected = await selectScope(paths.root, documents, scope);
+  const selected = await selectScope(paths, documents, scope);
   if (selected instanceof Set) return result(findings.filter((entry) => selected.has(entry.path)));
   return result([selected]);
 }
@@ -134,14 +134,14 @@ export async function scanHarness(
  */
 export async function renderExpectedIndex(root: string, counters: IndexCounters = defaultIndexCounters()): Promise<string> {
   const paths = await repositoryPaths(root);
-  const files = await canonicalFiles(paths.harness);
+  const files = await canonicalFiles(paths);
   const documents = await Promise.all(files.map(async (path): Promise<ScannedDocument> => {
     const content = await readFile(path, "utf8");
     const parsed = parseMarkdownDocument(content);
     return {
       path,
       relativePath: toRepositoryPath(paths.root, path),
-      linkTargets: targetsFor(paths.harness, path),
+      linkTargets: targetsFor(paths, path),
       frontmatter: parsed.frontmatter,
       body: parsed.body,
     };
@@ -187,7 +187,7 @@ export async function renderExpectedIndex(root: string, counters: IndexCounters 
     "# Harness Index",
     "",
     "## Core Documentation",
-    "- [Workflow Router](workflows/README.md)",
+    `- [Workflow Router](${relative(paths.harness, paths.workflows).replace(/\\/g, "/")}/README.md)`,
     "- [Repository Contract](README.md)",
     "",
     section("Catalog", catalog),
@@ -212,7 +212,7 @@ function indexLink(harness: string, document: ScannedDocument): string {
 export async function checkIndex(root: string): Promise<IndexCheckResult> {
   const paths = await repositoryPaths(root);
   if (!(await exists(paths.index))) {
-    return indexResult([finding("index.missing", "docs/harness/index.md", "persisted Harness index is missing", "FR-003", "run `harness init` in the intended repository")], "");
+    return indexResult([finding("index.missing", paths.relative.index, "persisted Harness index is missing", "FR-003", "run `harness init` in the intended repository")], "");
   }
 
   const canonical = await scanHarness(paths.root);
@@ -226,12 +226,12 @@ export async function checkIndex(root: string): Promise<IndexCheckResult> {
     if (frontmatter.schema_version !== 1 || frontmatter.generated !== true) throw new Error("index frontmatter must declare schema_version: 1 and generated: true");
     counters = indexCounters(frontmatter);
   } catch (error) {
-    return indexResult([finding("index.malformed", "docs/harness/index.md", error instanceof Error ? error.message : String(error), "R-020", "restore a CLI-generated index before running this correctness gate")], "");
+    return indexResult([finding("index.malformed", paths.relative.index, error instanceof Error ? error.message : String(error), "R-020", "restore a CLI-generated index before running this correctness gate")], "");
   }
 
   const expected = await renderExpectedIndex(paths.root, counters);
   if (persisted !== expected) {
-    return indexResult([finding("index.stale", "docs/harness/index.md", "persisted index differs from the deterministic canonical rendering", "FR-003", "repair the index through the documented index-publication workflow; `index check` never repairs it")], expected);
+    return indexResult([finding("index.stale", paths.relative.index, "persisted index differs from the deterministic canonical rendering", "FR-003", "repair the index through the documented index-publication workflow; `index check` never repairs it")], expected);
   }
   return indexResult([], expected);
 }
@@ -244,9 +244,12 @@ export async function diagnoseHarness(root: string, options: DoctorOptions = {})
   if (!Number.isFinite(nodeMajor) || nodeMajor < 20) {
     findings.push(finding("doctor.node.unsupported", "package.json", `Node ${process.versions.node} is unsupported; Node 20 or newer is required`, "package.json", "install a supported Node.js version before running Harness commands"));
   }
-  for (const path of ["docs/harness/workflows/README.md", "docs/harness/workflows/cook.md"]) {
-    if (!(await exists(join(paths.root, path)))) {
-      findings.push(finding("doctor.workflow.missing", path, "required canonical Harness source is missing", "FR-004", "restore the canonical Harness source from the repository contract"));
+  const workflowsRelative = paths.relative.workflows;
+  for (const filename of ["README.md", "cook.md"]) {
+    const absPath = join(paths.workflows, filename);
+    const relPath = `${workflowsRelative}/${filename}`;
+    if (!(await exists(absPath))) {
+      findings.push(finding("doctor.workflow.missing", relPath, "required canonical Harness source is missing", "FR-004", "restore the canonical Harness source from the repository contract"));
     }
   }
   findings.push(...(await checkIndex(paths.root)).findings);
@@ -256,11 +259,11 @@ export async function diagnoseHarness(root: string, options: DoctorOptions = {})
   return result(findings);
 }
 
-async function canonicalFiles(harness: string): Promise<string[]> {
-  const planMarkdown = await listMarkdown(join(harness, "plans"));
+async function canonicalFiles(paths: RepositoryPaths): Promise<string[]> {
+  const planMarkdown = await listMarkdown(paths.plans);
   return [
-    ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(join(harness, directory)))).then((groups) => groups.flat())),
-    ...planMarkdown.filter((path) => !isPlanLocalDesign(harness, path)),
+    ...(await Promise.all(artifactDirectories.map((directory) => listMarkdown(paths[directory]))).then((groups) => groups.flat())),
+    ...planMarkdown.filter((path) => !isPlanLocalDesign(paths, path)),
   ].sort((left, right) => left.localeCompare(right));
 }
 
@@ -323,7 +326,8 @@ async function graphifyAvailable(pathValue = process.env.PATH ?? ""): Promise<bo
   return false;
 }
 
-async function selectScope(root: string, documents: readonly ScannedDocument[], scope: IntegrityScope): Promise<Set<string> | IntegrityFinding> {
+async function selectScope(paths: RepositoryPaths, documents: readonly ScannedDocument[], scope: IntegrityScope): Promise<Set<string> | IntegrityFinding> {
+  const root = paths.root;
   if (scope.path !== undefined) {
     let target: string;
     try {
@@ -333,11 +337,11 @@ async function selectScope(root: string, documents: readonly ScannedDocument[], 
     }
     if (!(await exists(target))) return finding("scope.path.missing", toRepositoryPath(root, target), "requested validation path does not exist", "FR-001", "provide an existing supported Harness document");
     const document = documents.find((entry) => entry.path === target);
-    return document ? new Set([document.relativePath]) : finding("scope.path.unsupported", toRepositoryPath(root, target), "requested path is not a supported Harness document", "FR-001", "select an artifact or Plan document under docs/harness");
+    return document ? new Set([document.relativePath]) : finding("scope.path.unsupported", toRepositoryPath(root, target), "requested path is not a supported Harness document", "FR-001", `select an artifact or Plan document under ${paths.relative.harness}`);
   }
   if (scope.kind !== undefined) {
     const selected = documents.filter((document) => scope.kind === "plan"
-      ? document.relativePath.includes("/plans/")
+      ? document.relativePath.startsWith(paths.relative.plans + "/")
       : isArtifact(document.frontmatter) && document.frontmatter.type === scope.kind,
     );
     return new Set(selected.map((document) => document.relativePath));
@@ -450,7 +454,7 @@ function workItemDecisionFindings(documents: readonly ScannedDocument[]): Integr
   return findings;
 }
 
-function planLifecycleFindings(documents: readonly ScannedDocument[]): IntegrityFinding[] {
+function planLifecycleFindings(documents: readonly ScannedDocument[], paths: RepositoryPaths): IntegrityFinding[] {
   const findings: IntegrityFinding[] = [];
   const plans = documents.filter((document) => isPlan(document.frontmatter)) as (ScannedDocument & { frontmatter: PlanFrontmatter })[];
   const reports = new Map<string, ArtifactFrontmatter>();
@@ -459,7 +463,7 @@ function planLifecycleFindings(documents: readonly ScannedDocument[]): Integrity
   }
   const activeWorkItems: ScannedDocument[] = [];
 
-  for (const document of documents) findings.push(...planLayoutFindings(document));
+  for (const document of documents) findings.push(...planLayoutFindings(document, paths));
   const planDirectories = new Set(plans.map((plan) => dirname(plan.path)));
   for (const workItem of documents.filter((document) => isWorkItem(document.frontmatter))) {
     if (!planDirectories.has(dirname(workItem.path))) {
@@ -504,13 +508,13 @@ function planLifecycleFindings(documents: readonly ScannedDocument[]): Integrity
   return findings;
 }
 
-function planDesignFindings(root: string, documents: readonly ScannedDocument[], designPaths: readonly string[]): IntegrityFinding[] {
+function planDesignFindings(paths: RepositoryPaths, documents: readonly ScannedDocument[], designPaths: readonly string[]): IntegrityFinding[] {
   const findings: IntegrityFinding[] = [];
   const plans = documents.filter((document) => isPlan(document.frontmatter)) as (ScannedDocument & { frontmatter: PlanFrontmatter })[];
   const plansByDirectory = new Map(plans.map((plan) => [dirname(plan.path), plan]));
 
   for (const designPath of designPaths) {
-    const relativePath = toRepositoryPath(root, designPath);
+    const relativePath = toRepositoryPath(paths.root, designPath);
     const plan = plansByDirectory.get(dirname(designPath));
     if (!plan) {
       findings.push(finding("plan.design.root.missing", relativePath, "Plan-local design has no sibling plan.md root", "R-007", "add the owning plan.md or remove the orphaned design.md"));
@@ -522,7 +526,7 @@ function planDesignFindings(root: string, documents: readonly ScannedDocument[],
   }
 
   for (const plan of plans) {
-    const expected = toRepositoryPath(root, join(dirname(plan.path), "design.md"));
+    const expected = toRepositoryPath(paths.root, join(dirname(plan.path), "design.md"));
     for (const sourcePath of plan.frontmatter.relationships.source_paths.filter((path) => basename(path) === "design.md")) {
       if (sourcePath !== expected) {
         findings.push(finding("plan.design.location", plan.relativePath, `Plan references design outside its own directory: ${sourcePath}`, "DEC-009", `move the design to ${expected} and link that exact path`));
@@ -532,16 +536,33 @@ function planDesignFindings(root: string, documents: readonly ScannedDocument[],
   return findings;
 }
 
-function isPlanLocalDesign(harness: string, path: string): boolean {
-  const relativePath = relative(harness, path).replace(/\\/g, "/");
-  return /^plans\/\d{6}-\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\/design\.md$/.test(relativePath);
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function planLayoutFindings(document: ScannedDocument): IntegrityFinding[] {
-  const relativePath = document.relativePath.replace(/^docs\/harness\//, "");
-  if (!relativePath.startsWith("plans/")) return [];
-  const match = /^plans\/(\d{6}-\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*)\/([^/]+)$/.exec(relativePath);
-  if (!match) return [finding("plan.layout", document.relativePath, "plan file is outside the required YYMMDD-HHmm-slug directory layout", "R-007", "move it under docs/harness/plans/YYMMDD-HHmm-slug")];
+function isPlanLocalDesign(paths: RepositoryPaths, path: string): boolean {
+  const plansRelToHarness = relative(paths.harness, paths.plans).replace(/\\/g, "/");
+  const relativePath = relative(paths.harness, path).replace(/\\/g, "/");
+  const escapedPlans = escapeRegExp(plansRelToHarness);
+  return new RegExp(`^${escapedPlans}/\\d{6}-\\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*/design\\.md$`).test(relativePath);
+}
+
+function planLayoutFindings(document: ScannedDocument, paths: RepositoryPaths): IntegrityFinding[] {
+  const plansRelToHarness = relative(paths.harness, paths.plans).replace(/\\/g, "/");
+  const relativePathWithinHarness = relative(paths.harness, document.path).replace(/\\/g, "/");
+  if (!relativePathWithinHarness.startsWith(plansRelToHarness + "/")) return [];
+  const escapedPlans = escapeRegExp(plansRelToHarness);
+  const regex = new RegExp(`^${escapedPlans}/(\\d{6}-\\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*)/([^/]+)$`);
+  const match = regex.exec(relativePathWithinHarness);
+  if (!match) {
+    return [finding(
+      "plan.layout",
+      document.relativePath,
+      "plan file is outside the required YYMMDD-HHmm-slug directory layout",
+      "R-007",
+      `move it under ${paths.relative.plans}/YYMMDD-HHmm-slug`
+    )];
+  }
   const filename = match[2]!;
   if (isPlan(document.frontmatter) && filename !== "plan.md") return [finding("plan.filename", document.relativePath, "Plan document must be named plan.md", "R-007", "rename the Plan document to plan.md")];
   if (isWorkItem(document.frontmatter) && !/^work-item-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/.test(filename)) return [finding("work-item.filename", document.relativePath, "Work Item filename must match work-item-XX-kebab-name.md", "R-007", "rename the Work Item document")];
@@ -553,11 +574,12 @@ function relationshipLinks(frontmatter: HarnessFrontmatter & { relationships: Ar
   return Object.values(links).flat() as string[];
 }
 
-function targetsFor(harness: string, path: string): readonly string[] {
-  const pathWithinHarness = relative(harness, path).replace(/\\/g, "/").replace(/\.md$/, "");
+function targetsFor(paths: RepositoryPaths, path: string): readonly string[] {
+  const pathWithinHarness = relative(paths.harness, path).replace(/\\/g, "/").replace(/\.md$/, "");
   const filename = basename(path, ".md");
-  return pathWithinHarness.startsWith("plans/")
-    ? [pathWithinHarness.slice("plans/".length)]
+  const plansRelToHarness = relative(paths.harness, paths.plans).replace(/\\/g, "/");
+  return pathWithinHarness.startsWith(plansRelToHarness + "/")
+    ? [pathWithinHarness.slice((plansRelToHarness + "/").length)]
     : [filename];
 }
 

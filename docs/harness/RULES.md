@@ -8,21 +8,21 @@ project-specific engineering guidance derived from recurring friction.
 ## Repository Rules
 
 ### R-001: Canonical Docs Root and Artifact Ownership
-All durable harness documents must reside under the `docs/harness/` directory. Artifacts are owned by their respective roles and must be stored in their canonical paths:
-- Features: `docs/harness/features/FEAT-XXX-*.md`
-- Specs: `docs/harness/specs/*.md`
-- Decisions: `docs/harness/decisions/DEC-XXX-*.md`
-- Plans: `docs/harness/plans/YYMMDD-HHmm-*/`
-- Reports: `docs/harness/reports/REP-XXX-*.md`
-- Rules: `docs/harness/rules/RULE-XXX-*.md`
-- The index `docs/harness/index.md` is derived and owned exclusively by CLI tooling;
+All durable harness documents reside under a single document root. By default, this is the `docs/harness/` directory. Alternatively, a repository-root `harness.yaml` file may configure the root and individual collection folders. The resolved effective directories must be strictly contained, distinct, and unambiguous. Artifacts are owned by their respective roles and must be stored in their resolved canonical folders:
+- Features: `<features-folder>/FEAT-XXX-*.md` (default: `docs/harness/features/`)
+- Specs: `<specs-folder>/*.md` (default: `docs/harness/specs/`)
+- Decisions: `<decisions-folder>/DEC-XXX-*.md` (default: `docs/harness/decisions/`)
+- Plans: `<plans-folder>/YYMMDD-HHmm-*/` (default: `docs/harness/plans/`)
+- Reports: `<reports-folder>/REP-XXX-*.md` (default: `docs/harness/reports/`)
+- Rules: `<rules-folder>/RULE-XXX-*.md` (default: `docs/harness/rules/`)
+- The index `index.md` is resolved under the effective Harness root, is derived, and is owned exclusively by CLI tooling;
   humans must not edit its catalog or backlinks. Before the allocator exists in
   bootstrap development, a human-approved repository change may advance only a
   monotonic sequence counter and must never decrease or reuse it.
 
 ### R-002: No Trace Store
 Durable harness business and engineering state is represented by readable
-Markdown under `docs/harness/`. Introducing a hidden trace ledger, database
+Markdown under the effective Harness directory. Introducing a hidden trace ledger, database
 (such as SQLite), or parallel out-of-band state store is prohibited.
 
 ### R-003: Feature and Spec Distinction
@@ -48,7 +48,7 @@ The ID embedded in an artifact's filename must match the `id` field in its YAML 
 Technical specifications must use semantic kebab-case filenames (e.g., `security-audit.md` or `database-guidelines.md`) and must never be prefixed with a numeric ID or a `SPEC-` prefix.
 
 ### R-007: Plan and Work Item Naming and Layout
-Implementation plans must follow the YYMMDD-HHmm-slug directory layout under `docs/harness/plans/` using local time (e.g., `docs/harness/plans/260714-0100-implement-checkout/`). Each plan must contain a `plan.md` root and ordered `work-item-XX-*.md` children. It may contain one plain `design.md` sibling. When present, the Plan must link that exact path through `relationships.source_paths`; a Plan must not claim another Plan's design.
+Implementation plans must follow the YYMMDD-HHmm-slug directory layout under the resolved plans directory using local time (e.g., `<plans-folder>/260714-0100-implement-checkout/`). Each plan must contain a `plan.md` root and ordered `work-item-XX-*.md` children. It may contain one plain `design.md` sibling. When present, the Plan must link that exact path through `relationships.source_paths`; a Plan must not claim another Plan's design.
 Each Work Item child is the persisted representation of one reviewable Work Item;
 its kind, inline Tasks, and success evidence remain Markdown body content so the
 current schema stays compatible. The Plan body must map every in-scope Feature
@@ -102,7 +102,7 @@ have concrete passing evidence. Recording confidence-based assumptions without
 concrete logs or outputs is prohibited.
 
 ### R-016: Required Delivery Reports
-Every successful implementation plan must conclude by generating a Delivery Report (`REP-XXX`) in `docs/harness/reports/` using `templates/report.md`. The report must record changed files, verification commands, plan variance, and repeated friction.
+Every successful implementation plan must conclude by generating a Delivery Report (`REP-XXX`) in the resolved reports directory using `templates/report.md`. The report must record changed files, verification commands, plan variance, and repeated friction.
 Plan completion is evidence-based and requires this Report. Product or high-risk
 acceptance, when material, must be an approved Plan success criterion rather
 than a second universal post-Report approval gate.
@@ -110,15 +110,16 @@ than a second universal post-Report approval gate.
 ### R-017: Self-Improvement and Rule Promotion Requirements
 Self Improve starts from verified Report or Decision evidence, classifies the
 signal, and proposes the smallest change. It must never rewrite canonical
-guidance automatically. A reusable rule (`RULE-XXX` in `docs/harness/rules/`)
+guidance automatically. A reusable rule (`RULE-XXX` in the resolved rules directory)
 can only be promoted when:
 1. At least two independent reports or decisions have recorded repeated friction under the same `recurrence_key`.
 2. The evidence demonstrates a common reusable lesson (not just symptoms of a single incident).
 3. A human explicitly reviews and approves the promotion.
 This repository policy document (`RULES.md`) is distinct from these dynamically promoted `RULE-XXX` artifacts.
 
-### R-018: CLI Never Launches Agents
-The repository CLI tooling must remain completely deterministic. Tooling is prohibited from spawning, invoking, or interacting with external LLMs or AI agents (such as Claude, Codex, or Antigravity).
+### R-018: CLI Deterministic Boundaries
+The repository CLI tooling must preserve its documented command grammar,
+repository-local artifact contracts, and reproducible outputs.
 
 ### R-019: Single-Writer and Atomic Writes
 The harness MVP operates under a single-writer constraint. CLI-managed writes
@@ -126,7 +127,7 @@ must use a validated target, temporary sibling file, best-effort `fsync` or
 equivalent flush, and atomic rename to the target path.
 
 ### R-020: Derived Index Ownership
-`docs/harness/index.md` is owned and managed exclusively by the harness CLI tooling. Humans must not manually edit the index's catalog, backlinks, or relationships.
+The resolved `index.md` is owned and managed exclusively by the harness CLI tooling. Humans must not manually edit the index's catalog, backlinks, or relationships.
 The sole bootstrap exception is advancing a monotonic sequence counter in an
 explicitly human-approved repository change before the allocator command exists.
 The generated body remains tooling-owned, and the exception expires once the
@@ -147,10 +148,10 @@ workflow guides and templates. Focused repository-local utility skills may
 provide reusable consultation, brainstorming, or scouting behavior, but must
 not duplicate or override canonical artifact lifecycle authority. Every skill
 must remain local and free of dependencies on personal or home-directory
-configuration, delegated agents, or external AI services.
+configuration.
 
 ### R-023: Local-Reference and Provenance Checks
-No skill, workflow, or script may depend on files or directories outside this repository's workspace. All adaptations of ClaudeKit behavior must be credited and detailed in `docs/harness/PROVENANCE.md`.
+No skill, workflow, or script may depend on files or directories outside this repository's workspace. All adaptations of ClaudeKit behavior must be credited and detailed in `<harness-root>/PROVENANCE.md`.
 
 ### R-024: No Automatic Commit, Push, Release, or Deployment
 Harness tools and workflows must never automatically commit changes, push to remote repositories, tag releases, or trigger production deployments. All delivery actions must remain manual and controlled by the human operator.
