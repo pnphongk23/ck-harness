@@ -72,11 +72,44 @@ ckh new decision --title TITLE [--created YYYY-MM-DD]
 ckh new report --title TITLE --delivered YYYY-MM-DD
 ckh new rule --title TITLE --approved YYYY-MM-DD --scope SCOPE
 ckh clean [--dry-run]
+ckh plan create --title TITLE --work-item TITLE [--work-item TITLE ...] [--created ISO-8601]
+ckh workflow status TARGET
+ckh workflow check TARGET
+ckh feature approve TARGET --approved YYYY-MM-DD --approved-by AUTHORITY
+ckh feature request-changes TARGET
+ckh plan approve TARGET --decided YYYY-MM-DD
+ckh plan request-changes TARGET --decided YYYY-MM-DD
+ckh plan set-status TARGET --status STATUS [--reason TEXT]
+ckh work-item set-status TARGET --status STATUS [--reason TEXT]
 ```
 
-`TARGET` is an immutable `FEAT-XXX` ID or an exact Feature basename. Options
-belong after the command path. Unknown commands and options fail rather than
-being reinterpreted. `--json` returns a stable success or error envelope.
+`TARGET` depends on the command context:
+
+- For Features: an exact Feature ID or basename (e.g., `FEAT-001` or `FEAT-001-harness-cli`).
+- For Plans: a Plan directory path or repository-relative `plan.md` path.
+- For Work Items: a repository-relative Work Item markdown file path.
+
+Options belong after the command path. Unknown commands and options fail rather than being reinterpreted. The `--json` flag enables stable JSON consumption, returning a structured JSON success or error envelope.
+
+### Review and Approval Semantics
+
+- Feature `request-changes` sets the Feature status to `proposed` (or keeps it as `proposed` if it already was) and clears approval provenance; it does not produce a terminal rejected state.
+- Plan `request-changes` sets Plan approval to `changes_requested`, preserves the
+  independent execution status, prevents new execution until reapproval, and does
+  not produce a terminal rejected state.
+- Agents may record declared human approval provenance but must never grant, infer, or invent human approval authority.
+
+### Recovery Boundary and Manual Fallback
+
+The harness preserves a strict recovery boundary: agents do not automatically
+start Cook, mutate Git, access the network, start a watcher or daemon, create a
+database, or persist hidden state.
+
+If a command is unsupported or fails, agents must use the named manual fallback path:
+
+1. Manually edit the affected markdown or frontmatter files to repair the state in accordance with the canonical schema contracts.
+2. Run `ckh validate` against the changed path or the whole repository to verify that the repair is mechanically valid.
+3. Never claim that the failed command itself succeeded.
 
 `index build` publishes one complete deterministic Markdown snapshot. `index
 check` is the independent read-only CI gate. `index watch` is an explicit local

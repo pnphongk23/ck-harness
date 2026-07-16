@@ -50,6 +50,8 @@ it preserves observable behavior and instead defines explicit technical design o
 - **Mechanical Validation Gate:** Plan and Work Item contracts pass before human review.
 - **Human Approval Gate:** Repository Maintainer approves the current Plan
   template, Work Item sequence, risks, coverage, and success criteria before Cook.
+- **CLI Automation Gate:** Invoke and consume the corresponding CLI result at every supported boundary before manually reasoning about or mutating mechanical state.
+- **Authority Provenance Gate:** Record declared approval provenance but never grant or invent human approval authority.
 
 These conditions are inputs to one Plan approval. They do not create an
 Implementation Readiness artifact, a named readiness gate, or a Plan per Task.
@@ -77,8 +79,11 @@ Implementation Readiness artifact, a named readiness gate, or a Plan per Task.
    write plain `design.md` beside `plan.md` and link its exact path from the
    owning Plan. Promote reusable constraints to a Spec or Decision.
 6. **Scan Plans:** Identify unfinished overlapping work and record `blockedBy` or `blocks`.
-7. **Setup directory:** Use the `YYMMDD-HHmm-slug` directory with `plan.md`,
-   optional `design.md`, and ordered `work-item-XX-*.md` files.
+7. **Setup directory:** Invoke and consume
+   `ckh plan create --title TITLE --work-item TITLE [--work-item TITLE ...] [--created ISO-8601]`
+   to scaffold the `YYMMDD-HHmm-slug` directory with `plan.md`, optional
+   `design.md`, and ordered `work-item-XX-*.md` files. Read every returned Plan
+   and Work Item path before manually replacing generated content.
 8. **Draft Plan root:** Use the current Plan template and write execution
    `status: pending`, approval metadata, relationships, priority, effort, branch,
    tags, dependencies, author metadata, the coverage map, and the verification ledger.
@@ -99,19 +104,27 @@ Implementation Readiness artifact, a named readiness gate, or a Plan per Task.
     Require a path-and-line citation or reproducible command for each finding,
     deduplicate findings, and ask Repository Maintainer before applying any
     finding that changes a material Plan choice.
-13. **Read generated stubs:** Read every generated Plan and Work Item file before replacing content.
+13. **Re-read generated artifacts:** Re-read every generated Plan and Work Item
+    file after drafting and reconcile it with the command result and intended scope.
 14. **Sweep whole-Plan consistency:** Re-read `plan.md`, optional `design.md`,
     and every Work Item after interview or adversarial revisions. Search for old
     names, rejected assumptions, renamed files, symbols, APIs, fields, duplicate
     embedded contracts, dependency conflicts, and superseded decisions. Record
     zero unresolved contradictions before continuing.
-15. **Validate mechanically:** Run Harness validation against the Plan, every
-    Work Item, their links, dependencies, lifecycle state, and coverage evidence.
+15. **Validate mechanically:** Invoke and consume `ckh workflow status TARGET`
+    (where `TARGET` is the Plan directory name or repository-relative `plan.md`
+    path) to inspect review/execution state and blockers. Then invoke and consume
+    `ckh workflow check TARGET` to aggregate mechanical preflight findings for
+    the Plan, every Work Item, links, dependencies, lifecycle state, and coverage.
 16. **Submit for approval:** Provide the verification totals, failed and
     unresolved claims, consistency result, risks, coverage, and exact evidence
     commands. Repository Maintainer approves or requests changes.
-17. **Record outcome:** Approval `approved` records date and required authority;
-    changes requested remain non-executable and return to drafting.
+17. **Record outcome:** If the Repository Maintainer approves, invoke and consume
+    `ckh plan approve TARGET --decided YYYY-MM-DD`. If the Repository Maintainer
+    requests changes, invoke and consume
+    `ckh plan request-changes TARGET --decided YYYY-MM-DD`, which sets approval to
+    `changes_requested`, preserves the independent execution status, and prevents
+    new execution until reapproval.
 
 ## Output
 An approved current-shape Plan directory with closed authority, linked grounding
@@ -138,6 +151,8 @@ executable success criteria; or a non-executable Plan awaiting revision.
 - Do not write implementation code during Plan.
 - Do not use Plan to override approved behavior or technical authority.
 - Do not approve a Plan with an unapproved governing Feature or blocking Decision.
+- Do not grant, infer, or invent human approval authority (only record declared human approval provenance).
+- Do not manually reason about or mutate mechanical state without first invoking and consuming the corresponding CLI command.
 - Do not invent a material choice, silently replace a failed claim, or treat a
   recommendation as Repository Maintainer approval.
 - Do not present a Plan as ready while execution-affecting claims are Failed or
@@ -168,7 +183,15 @@ executable success criteria; or a non-executable Plan awaiting revision.
   requirement or technical objective is covered.
 - **Conflicting Plans:** Pause, reconcile dependency and scope with the human, then revalidate.
 - **Validation failure:** Correct the Plan contract and rerun checks before approval.
-- **Changes requested:** Revise and resubmit; execution remains pending.
+- **Changes requested:** Revise and resubmit. If Repository Maintainer requests
+  changes, invoke `ckh plan request-changes TARGET --decided YYYY-MM-DD`. This
+  sets Plan approval to `changes_requested`, preserves the independent execution
+  status, prevents new execution until reapproval, and does not create a terminal
+  rejected state.
+- **CLI failure and manual fallback:** If a CLI command is unsupported or fails, apply the named manual recovery path: manually edit the affected markdown or frontmatter files to repair the state, run `ckh validate` to verify mechanical validity, and never claim the failed command succeeded.
+- **Recovery boundary:** Preserve the strict recovery boundary: do not automatically
+  start Cook, mutate Git, access the network, start a watcher or daemon, or create
+  hidden state.
 - **Material change after approval:** Preserve completed evidence, reset approval,
   and prevent new Work Items until reapproval.
 - **Handoff:** Cook may start only the next eligible Work Item of an approved Plan.

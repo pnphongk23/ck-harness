@@ -2,13 +2,24 @@ import { parseArgs } from "node:util";
 import {
   cleanHarness,
   createArtifact,
+  createPlan,
   deleteFeature,
   deprecateFeature,
   initializeHarness,
   listFeatures,
   renameFeature,
   showFeature,
+  approveFeature,
+  requestChangesFeature,
+  approvePlan,
+  requestChangesPlan,
+  getWorkflowCheck,
+  getWorkflowStatus,
+  setWorkItemStatus,
+  setPlanStatus,
   type ArtifactKind,
+  type WorkflowState,
+  type TransitionResult,
 } from "../core/lifecycle.js";
 import { checkIndex, diagnoseHarness, scanHarness, type IntegrityArtifactScope, type IntegrityResult } from "../core/integrity.js";
 import { findRepositoryRoot, HarnessError } from "../fs/repository.js";
@@ -186,6 +197,17 @@ const commands: readonly CommandSpec[] = [
   }, async ({ values, io }) => createArtifact(await rootFor(values, io), artifactInput(
     "feature", requiredString(values, "title"), optionalString(values, "created"),
   )), humanMutation("created")),
+  command(["plan", "create"], "harness plan create --title TITLE --work-item TITLE [--work-item TITLE ...] [--created ISO-8601] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS, title: { type: "string" }, "work-item": { type: "string", multiple: true }, created: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 0);
+    const created = optionalString(values, "created");
+    return createPlan(await rootFor(values, io), {
+      title: requiredString(values, "title"),
+      workItems: stringList(values, "work-item") ?? [],
+      ...(created === undefined ? {} : { created }),
+    });
+  }, humanMutation("created")),
   command(["feature", "list"], "harness feature list [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
     exactPositionals(positionals, 0);
     return listFeatures(await rootFor(values, io));
@@ -222,6 +244,66 @@ const commands: readonly CommandSpec[] = [
     },
     humanMutation("created"),
   )),
+  command(["feature", "approve"], "harness feature approve TARGET --approved YYYY-MM-DD --approved-by AUTHORITY [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    approved: { type: "string" },
+    "approved-by": { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const approved = requiredString(values, "approved");
+    const approvedBy = requiredString(values, "approved-by");
+    return approveFeature(await rootFor(values, io), positionals[0]!, approved, approvedBy);
+  }, humanMutation("approved")),
+  command(["feature", "request-changes"], "harness feature request-changes TARGET [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    return requestChangesFeature(await rootFor(values, io), positionals[0]!);
+  }, humanMutation("proposed")),
+  command(["plan", "approve"], "harness plan approve TARGET --decided YYYY-MM-DD [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    decided: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const decided = requiredString(values, "decided");
+    return approvePlan(await rootFor(values, io), positionals[0]!, decided);
+  }, humanMutation("approved")),
+  command(["plan", "request-changes"], "harness plan request-changes TARGET --decided YYYY-MM-DD [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    decided: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const decided = requiredString(values, "decided");
+    return requestChangesPlan(await rootFor(values, io), positionals[0]!, decided);
+  }, humanMutation("changes_requested")),
+  command(["workflow", "status"], "harness workflow status TARGET [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    return getWorkflowStatus(await rootFor(values, io), positionals[0]!);
+  }, workflowStatusHuman),
+  command(["workflow", "check"], "harness workflow check TARGET [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    return getWorkflowCheck(await rootFor(values, io), positionals[0]!);
+  }, integrityHuman),
+  command(["plan", "set-status"], "harness plan set-status TARGET --status STATUS [--reason TEXT] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    status: { type: "string" },
+    reason: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const target = positionals[0]!;
+    const status = requiredString(values, "status");
+    const reason = optionalString(values, "reason");
+    return setPlanStatus(await rootFor(values, io), target, status, reason);
+  }, transitionHuman),
+  command(["work-item", "set-status"], "harness work-item set-status TARGET --status STATUS [--reason TEXT] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS,
+    status: { type: "string" },
+    reason: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const target = positionals[0]!;
+    const status = requiredString(values, "status");
+    const reason = optionalString(values, "reason");
+    return setWorkItemStatus(await rootFor(values, io), target, status, reason);
+  }, transitionHuman),
   command(["clean"], "harness clean [--dry-run] [--workspace PATH] [--json]", {
     ...COMMON_OPTIONS, "dry-run": { type: "boolean" },
   }, async ({ values, io, positionals }) => {
@@ -365,6 +447,59 @@ function integrityKind(value: string): IntegrityArtifactScope {
 function integrityHuman(data: unknown): string {
   const result = data as IntegrityResult;
   return result.findings.length === 0 ? "Harness validation passed" : result.findings.map((entry) => `${entry.severity}: ${entry.path} [${entry.checkId}] ${entry.message}`).join("\n");
+}
+
+function workflowStatusHuman(data: unknown): string {
+  const state = data as WorkflowState;
+  const lines = [
+    `Target: ${state.targetPath} (${state.targetKind})`,
+    `Title: ${state.title}`,
+  ];
+  if (state.reviewState !== undefined) {
+    lines.push(`Review State: ${state.reviewState}`);
+  }
+  if (state.executionState !== undefined) {
+    lines.push(`Execution State: ${state.executionState}`);
+  }
+  lines.push("Blockers:");
+  if (state.findings.length > 0) {
+    for (const blocker of state.findings) {
+      lines.push(`- ${blocker}`);
+    }
+  } else {
+    lines.push("- None.");
+  }
+  lines.push("Next Operations:");
+  if (state.nextOperations.length > 0) {
+    for (const op of state.nextOperations) {
+      lines.push(`- ${op}`);
+    }
+  } else {
+    lines.push("- None.");
+  }
+  return lines.join("\n");
+}
+
+function transitionHuman(data: unknown): string {
+  const result = data as TransitionResult;
+  const lines = [
+    `Transitioned ${result.targetKind === "work_item" ? "Work Item" : "Plan"} ${result.targetPath} status from ${result.oldState} to ${result.newState}`,
+  ];
+  if (result.affected.length > 0) {
+    lines.push("Affected paths:");
+    for (const path of result.affected) {
+      lines.push(`  ${path}`);
+    }
+  }
+  lines.push("Next Operations:");
+  if (result.nextOperations.length > 0) {
+    for (const op of result.nextOperations) {
+      lines.push(`- ${op}`);
+    }
+  } else {
+    lines.push("- None.");
+  }
+  return lines.join("\n");
 }
 
 function normalizeError(error: unknown): { code: string; message: string; details: readonly string[]; exitCode: number } {

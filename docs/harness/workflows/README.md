@@ -75,6 +75,46 @@ flowchart TD
     DecisionGate -->|Yes| Return[Return to the boundary that raised the Decision]
 ```
 
+## CLI Automation and State Verification
+
+At every supported mechanical boundary, the agent must invoke and consume the corresponding CLI result before manually reasoning about or mutating that state:
+
+- **Feature Workflow**:
+  - `ckh feature create --title TITLE [--created YYYY-MM-DD]` to scaffold a Feature.
+  - `ckh workflow check TARGET` to validate Feature state/integrity.
+  - `ckh feature approve TARGET --approved YYYY-MM-DD --approved-by AUTHORITY` to record Product Authority approval.
+  - `ckh feature request-changes TARGET` when Product Authority requests changes.
+- **Plan Workflow**:
+  - `ckh plan create --title TITLE --work-item TITLE [--work-item TITLE ...] [--created ISO-8601]` to scaffold a Plan and Work Items.
+  - `ckh workflow status TARGET` to inspect plan status/blockers.
+  - `ckh workflow check TARGET` to check plan mechanical integrity.
+  - `ckh plan approve TARGET --decided YYYY-MM-DD` when Repository Maintainer approves.
+  - `ckh plan request-changes TARGET --decided YYYY-MM-DD` when Repository Maintainer requests changes.
+- **Cook Workflow**:
+  - `ckh workflow status TARGET` to determine Work Item eligibility/next steps.
+  - `ckh workflow check TARGET` to verify state consistency.
+  - `ckh work-item set-status TARGET --status STATUS [--reason TEXT]` to set Work Item status.
+  - `ckh plan set-status TARGET --status STATUS [--reason TEXT]` to update aggregate Plan status.
+
+### Review and Change Semantics
+- Feature `request-changes` sets/keeps Feature status to `proposed` and clears approval provenance; it does not produce a terminal rejected state.
+- Plan `request-changes` sets Plan approval to `changes_requested`, preserves the
+  independent execution status, prevents new execution until reapproval, and does
+  not produce a terminal rejected state.
+- Agents may record declared human approval provenance but must never grant, infer, or invent human approval authority.
+
+### Recovery Boundary and Manual Fallback
+The harness CLI operations support `--json` for stable JSON consumption.
+
+If an operation is unsupported or fails, agents must use the named manual fallback path:
+1. Manually edit/repair the affected files (markdown, YAML frontmatter) according to canonical schema contracts.
+2. Run `ckh validate` (or `ckh validate PATH | --kind KIND | --all`) after manual fallback.
+3. Never claim that the failed command itself succeeded.
+
+We preserve a strict recovery boundary: agents do not automatically start Cook,
+mutate Git, access the network, start a watcher or daemon, create a database, or
+persist hidden state.
+
 ## Transition Contracts
 
 1. **Document workflows ([Feature Workflow](feature.md), [Decision Workflow](decision.md), and [Self-Improve Workflow](self-improve.md))**

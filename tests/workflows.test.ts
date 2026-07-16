@@ -5,6 +5,23 @@ import { test } from "node:test";
 
 const docsRoot = join(process.cwd(), "docs", "harness");
 
+function procedureOf(content: string): string {
+  const start = content.indexOf("## Procedure");
+  const end = content.indexOf("## Output", start);
+  assert.ok(start >= 0 && end > start, "workflow must expose an ordered Procedure section");
+  return content.slice(start, end);
+}
+
+function assertOrdered(content: string, markers: string[], message: string): void {
+  let prior = -1;
+  for (const marker of markers) {
+    const current = content.indexOf(marker);
+    assert.ok(current >= 0, `${message}: missing ${marker}`);
+    assert.ok(current > prior, `${message}: ${marker} is out of order`);
+    prior = current;
+  }
+}
+
 test("RULES.md exists and contains all stable rule labels from R-001 to R-026", async () => {
   const content = await readFile(join(docsRoot, "RULES.md"), "utf8");
   for (let i = 1; i <= 26; i++) {
@@ -139,5 +156,80 @@ test("workflows/README.md references all five workflow files", async () => {
     "exactly five H2 sections",
   ]) {
     assert.ok(content.includes(contract), `workflow router must preserve schema contract: ${contract}`);
+  }
+});
+
+test("workflows enforce CLI automation, request-changes semantics, manual fallback, and recovery boundaries", async () => {
+  const readmeContent = await readFile(join(docsRoot, "workflows", "README.md"), "utf8");
+  const featureContent = await readFile(join(docsRoot, "workflows", "feature.md"), "utf8");
+  const planContent = await readFile(join(docsRoot, "workflows", "plan.md"), "utf8");
+  const cookContent = await readFile(join(docsRoot, "workflows", "cook.md"), "utf8");
+  const mainReadmeContent = await readFile(join(docsRoot, "README.md"), "utf8");
+
+  const featureProcedure = procedureOf(featureContent);
+  const planProcedure = procedureOf(planContent);
+  const cookProcedure = procedureOf(cookContent);
+
+  // Verify command requirements at supported boundaries
+  for (const cmd of ["feature create", "workflow check", "feature approve", "feature request-changes"]) {
+    assert.match(featureContent, new RegExp(cmd, "i"), `Feature workflow must mention ${cmd}`);
+  }
+  for (const cmd of ["plan create", "workflow status", "workflow check", "plan approve", "plan request-changes"]) {
+    assert.match(planContent, new RegExp(cmd, "i"), `Plan workflow must mention ${cmd}`);
+  }
+  for (const cmd of ["workflow status", "workflow check", "work-item set-status", "plan set-status"]) {
+    assert.match(cookContent, new RegExp(cmd, "i"), `Cook workflow must mention ${cmd}`);
+  }
+
+  // Verify commands occur at the actual lifecycle boundaries, in execution order.
+  assertOrdered(
+    featureProcedure,
+    ["ckh feature create", "ckh workflow check", "ckh feature approve"],
+    "Feature create/check/approve sequence"
+  );
+  assert.ok(
+    featureProcedure.indexOf("ckh feature request-changes") > featureProcedure.indexOf("ckh workflow check"),
+    "Feature request-changes must follow mechanical readiness checking"
+  );
+  assertOrdered(
+    planProcedure,
+    ["ckh plan create", "ckh workflow status", "ckh workflow check", "ckh plan approve"],
+    "Plan create/status/check/approve sequence"
+  );
+  assert.ok(
+    planProcedure.indexOf("ckh plan request-changes") > planProcedure.indexOf("ckh workflow check"),
+    "Plan request-changes must follow mechanical readiness checking"
+  );
+  assertOrdered(
+    cookProcedure,
+    [
+      "ckh workflow status",
+      "ckh work-item set-status TARGET --status in_progress",
+      "ckh workflow check",
+      "ckh work-item set-status TARGET --status completed",
+      "ckh plan set-status TARGET --status completed",
+    ],
+    "Cook eligibility/start/check/complete/aggregate sequence"
+  );
+
+  // Verify request-changes semantics
+  assert.match(featureContent, /proposed/i, "Feature request-changes must return/keep proposed status");
+  assert.match(planContent, /changes_requested/i, "Plan request-changes must set approval status to changes_requested");
+  assert.match(planContent, /preserves? the independent execution status/i, "Plan request-changes must preserve execution state");
+  assert.match(featureContent, /does not produce a terminal rejected state/i, "Feature workflow must state request-changes does not create terminal rejected state");
+  assert.match(planContent, /does not produce a terminal rejected state/i, "Plan workflow must state request-changes does not create terminal rejected state");
+
+  // Verify approval authority prohibition
+  for (const doc of [featureContent, planContent, cookContent]) {
+    assert.match(doc, /(?:Do not|never) grant.*human approval/i, "Workflows must prohibit inventing human approval");
+  }
+
+  // Verify fallback/recovery
+  for (const doc of [featureContent, planContent, cookContent, readmeContent, mainReadmeContent]) {
+    assert.match(doc, /manual (?:fallback|recovery)/i, "Workflows and READMEs must define the manual fallback path");
+    assert.match(doc, /validate/i, "Workflows and READMEs must require validate after manual fallback");
+    assert.match(doc, /never claim.*succeeded/i, "Workflows and READMEs must state to never claim a failed command succeeded");
+    assert.match(doc, /recovery boundary/i, "Workflows and READMEs must define the recovery boundary");
+    assert.match(doc, /(?:do not automatically start|do not automatically\s+start|agents do not automatically\s+start) (?:another )?Cook/i, "Workflows and READMEs must preserve the recovery boundary");
   }
 });

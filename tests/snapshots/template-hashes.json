@@ -1,7 +1,9 @@
 {
   "decision.md": "018c1a6a615acaaa14997ad4bb5c8f3b20fe3f62e8bc7d43c4ba960d95df5aec",
   "feature.md": "97eda8b1282f2088187b4d24f0a5b7fc69393ddbb13a9833089f8ac285718838",
+  "plan.md": "f8e5d6fc4ed2ff0ef288fa68e593c5ffa88e3ad973abe8452ca3e6cad34bba90",
   "report.md": "a829eeb3529d6cd5098fdddc9f2d0bb2fe82474347e387c95bcead4f896fba8c",
   "rule.md": "53fe843ba8784f3f614a8a6edc303a8f5893e514f292a5400f06393e8828465d",
-  "shared-spec.md": "fe95b9b9358dce87e6891f75895dff78b7efe6ea4d9361b929ba6a1d3df0b5cd"
+  "shared-spec.md": "fe95b9b9358dce87e6891f75895dff78b7efe6ea4d9361b929ba6a1d3df0b5cd",
+  "work-item.md": "11fa46d5d3116898204784a3f0390cfa3b93d84d66fd4a57a7918ebe5faef043"
 }

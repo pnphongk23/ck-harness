@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os";
 import { basename, join, relative } from "node:path";
 import { afterEach, test } from "node:test";
-import { artifactSchema } from "../src/core/schemas/artifacts.js";
+import { artifactSchema, planSchema, workItemSchema } from "../src/core/schemas/artifacts.js";
 import { parseMarkdownDocument, serializeMarkdownDocument } from "../src/core/schemas/frontmatter.js";
 import { runCli, EXIT_CODES } from "../src/cli/index.js";
 import { renderExpectedIndex } from "../src/core/integrity.js";
@@ -347,6 +347,298 @@ test("custom layout: init preserves existing custom files", async () => {
   const initResult = await invoke(["init", "--workspace", root, "--json"], root);
   assert.equal(initResult.code, EXIT_CODES.success);
   assert.equal(await readFile(join(root, "custom-docs", "blueprints", "feature.md"), "utf8"), "user template");
+});
+
+
+test("plan creation, validations, custom layouts, and collisions", async () => {
+  const root = await initializedRoot();
+
+  // 1. Deterministic multi-Work-Item creation at 2026-07-16T23:35:55+07:00
+  // Cover spaces/non-ASCII slugging, JSON output
+  const title = "Thiết kế hệ thống";
+  const createdTimestamp = "2026-07-16T23:35:55+07:00";
+  const planArgs = [
+    "plan",
+    "create",
+    "--title",
+    title,
+    "--work-item",
+    "Work Item 1",
+    "--work-item",
+    "Work Item 2",
+    "--created",
+    createdTimestamp,
+    "--workspace",
+    root,
+    "--json",
+  ];
+  const jsonResult = await invoke(planArgs, root);
+  assert.equal(jsonResult.code, EXIT_CODES.success, jsonResult.stderr);
+
+  const parsedJson = JSON.parse(jsonResult.stdout) as {
+    ok: boolean;
+    data: { path: string; affected: string[] };
+  };
+  assert.equal(parsedJson.ok, true);
+  assert.ok(parsedJson.data.path.includes("260716-2335-thiet-ke-he-thong"));
+
+  // Check exact 260716-2335 directory and files
+  const planDir = join(root, "docs", "harness", "plans", "260716-2335-thiet-ke-he-thong");
+  const planFile = join(planDir, "plan.md");
+  const wi1File = join(planDir, "work-item-01-work-item-1.md");
+  const wi2File = join(planDir, "work-item-02-work-item-2.md");
+
+  assert.equal(await fileExists(planFile), true);
+  assert.equal(await fileExists(wi1File), true);
+  assert.equal(await fileExists(wi2File), true);
+
+  // Check LF and schema validation
+  const planContent = await readFile(planFile, "utf8");
+  const wi1Content = await readFile(wi1File, "utf8");
+  const wi2Content = await readFile(wi2File, "utf8");
+
+  assert.equal(planContent.includes("\r"), false, "plan.md contains CR");
+  assert.equal(wi1Content.includes("\r"), false, "work-item-01 contains CR");
+  assert.equal(wi2Content.includes("\r"), false, "work-item-02 contains CR");
+
+  // Parse via executable schemas
+  const planDoc = parseMarkdownDocument(planContent);
+  const planFM = planSchema.parse(planDoc.frontmatter);
+
+  const wi1Doc = parseMarkdownDocument(wi1Content);
+  const wi1FM = workItemSchema.parse(wi1Doc.frontmatter);
+
+  const wi2Doc = parseMarkdownDocument(wi2Content);
+  const wi2FM = workItemSchema.parse(wi2Doc.frontmatter);
+
+  // Assert pending approval/execution with no decided date
+  assert.equal(planFM.status, "pending");
+  assert.equal(planFM.approval.status, "pending");
+  assert.equal(planFM.approval.decided, undefined);
+
+  // Assert pending Work Items and ordered dependencies
+  assert.equal(wi1FM.status, "pending");
+  assert.deepEqual(wi1FM.dependencies, []);
+  assert.equal(wi2FM.status, "pending");
+  assert.deepEqual(wi2FM.dependencies, [1]);
+
+  // 2. Human output
+  const root2 = await initializedRoot();
+  const humanResult = await invoke(
+    [
+      "plan",
+      "create",
+      "--title",
+      "Human Plan",
+      "--work-item",
+      "WI 1",
+      "--created",
+      "2026-07-16T23:35:55+07:00",
+      "--workspace",
+      root2,
+    ],
+    root2,
+  );
+  assert.equal(humanResult.code, EXIT_CODES.success, humanResult.stderr);
+  assert.match(humanResult.stdout, /created/);
+
+  // 3. Validation errors / strict inputs
+  // Missing/empty title and Work Items
+  const resultNoTitle = await invoke(
+    ["plan", "create", "--work-item", "WI 1", "--workspace", root, "--json"],
+    root,
+  );
+  assert.equal(resultNoTitle.code, EXIT_CODES.usage);
+
+  const resultEmptyTitle = await invoke(
+    ["plan", "create", "--title", " ", "--work-item", "WI 1", "--workspace", root, "--json"],
+    root,
+  );
+  assert.equal(resultEmptyTitle.code, EXIT_CODES.usage);
+
+  const resultNoWI = await invoke(
+    ["plan", "create", "--title", "Title", "--workspace", root, "--json"],
+    root,
+  );
+  assert.equal(resultNoWI.code, EXIT_CODES.usage);
+
+  const resultEmptyWI = await invoke(
+    ["plan", "create", "--title", "Title", "--work-item", " ", "--workspace", root, "--json"],
+    root,
+  );
+  assert.equal(resultEmptyWI.code, EXIT_CODES.usage);
+
+  // Malformed timestamp
+  const resultBadTime = await invoke(
+    [
+      "plan",
+      "create",
+      "--title",
+      "Title",
+      "--work-item",
+      "WI 1",
+      "--created",
+      "2026-07-16",
+      "--workspace",
+      root,
+      "--json",
+    ],
+    root,
+  );
+  assert.equal(resultBadTime.code, EXIT_CODES.usage);
+
+  // Strict unknown option/extra positional rejection
+  const resultUnknownOpt = await invoke(
+    [
+      "plan",
+      "create",
+      "--title",
+      "Title",
+      "--work-item",
+      "WI 1",
+      "--unknown-opt",
+      "--workspace",
+      root,
+      "--json",
+    ],
+    root,
+  );
+  assert.equal(resultUnknownOpt.code, EXIT_CODES.usage);
+
+  const resultExtraPos = await invoke(
+    [
+      "plan",
+      "create",
+      "extra-positional",
+      "--title",
+      "Title",
+      "--work-item",
+      "WI 1",
+      "--workspace",
+      root,
+      "--json",
+    ],
+    root,
+  );
+  assert.equal(resultExtraPos.code, EXIT_CODES.usage);
+
+  // 4. Exact collision with no file changes
+  const rootCol = await initializedRoot();
+  const argsCol = [
+    "plan",
+    "create",
+    "--title",
+    "Collision Plan",
+    "--work-item",
+    "WI 1",
+    "--created",
+    "2026-07-16T23:35:55+07:00",
+    "--workspace",
+    rootCol,
+    "--json",
+  ];
+  const firstCol = await invoke(argsCol, rootCol);
+  assert.equal(firstCol.code, EXIT_CODES.success);
+  const beforeSnapshot = await snapshot(rootCol);
+  const secondCol = await invoke(argsCol, rootCol);
+  assert.equal(secondCol.code, EXIT_CODES.rejected);
+  assert.deepEqual(await snapshot(rootCol), beforeSnapshot);
+
+  // 5. Handled invalid-template/failure with no Plan publication
+  // Missing template
+  const rootTpl = await initializedRoot();
+  const planTemplatePath = join(rootTpl, "docs", "harness", "templates", "plan.md");
+  await rm(planTemplatePath);
+  const beforeTplSnapshot = await snapshot(rootTpl);
+  const resultTpl = await invoke(
+    ["plan", "create", "--title", "No Template", "--work-item", "WI 1", "--workspace", rootTpl, "--json"],
+    rootTpl,
+  );
+  assert.equal(resultTpl.code, EXIT_CODES.rejected);
+  assert.deepEqual(await snapshot(rootTpl), beforeTplSnapshot);
+
+  // Invalid template frontmatter
+  const rootInvTpl = await initializedRoot();
+  const planTemplatePathInv = join(rootInvTpl, "docs", "harness", "templates", "plan.md");
+  await writeFile(planTemplatePathInv, "invalid template content", "utf8");
+  const beforeInvTplSnapshot = await snapshot(rootInvTpl);
+  const resultInvTpl = await invoke(
+    [
+      "plan",
+      "create",
+      "--title",
+      "Invalid Template",
+      "--work-item",
+      "WI 1",
+      "--workspace",
+      rootInvTpl,
+      "--json",
+    ],
+    rootInvTpl,
+  );
+  assert.equal(resultInvTpl.code, EXIT_CODES.invalid);
+  assert.deepEqual(await snapshot(rootInvTpl), beforeInvTplSnapshot);
+
+  // 6. Custom configured plan/template directories
+  const rootCustom = await temporaryRoot();
+  await writeFile(
+    join(rootCustom, "harness.yaml"),
+    "root: custom-docs\nplans: roadmap\ntemplates: blueprints\n",
+    "utf8",
+  );
+  // Initialize custom layout
+  const initResult = await invoke(["init", "--workspace", rootCustom, "--json"], rootCustom);
+  assert.equal(initResult.code, EXIT_CODES.success);
+
+  // Verify templates exist in blueprints/
+  assert.equal(await fileExists(join(rootCustom, "custom-docs", "blueprints", "plan.md")), true);
+  assert.equal(await fileExists(join(rootCustom, "custom-docs", "blueprints", "work-item.md")), true);
+
+  // Create plan in custom layout
+  const planResult = await invoke(
+    [
+      "plan",
+      "create",
+      "--title",
+      "Custom Configured Plan",
+      "--work-item",
+      "Item 1",
+      "--created",
+      "2026-07-16T23:35:55+07:00",
+      "--workspace",
+      rootCustom,
+      "--json",
+    ],
+    rootCustom,
+  );
+  assert.equal(planResult.code, EXIT_CODES.success, planResult.stderr);
+  const customPlanPath = join(
+    rootCustom,
+    "custom-docs",
+    "roadmap",
+    "260716-2335-custom-configured-plan",
+    "plan.md",
+  );
+  assert.equal(await fileExists(customPlanPath), true);
+
+  // 7. Init publishes both templates and preserves pre-existing template bytes
+  const rootInit = await temporaryRoot();
+  await mkdir(join(rootInit, "docs", "harness", "templates"), { recursive: true });
+  await writeFile(
+    join(rootInit, "docs", "harness", "templates", "plan.md"),
+    "existing plan template bytes",
+    "utf8",
+  );
+  const initResult2 = await invoke(["init", "--workspace", rootInit, "--json"], rootInit);
+  assert.equal(initResult2.code, EXIT_CODES.success);
+  assert.equal(
+    await readFile(join(rootInit, "docs", "harness", "templates", "plan.md"), "utf8"),
+    "existing plan template bytes",
+  );
+  assert.equal(
+    await fileExists(join(rootInit, "docs", "harness", "templates", "work-item.md")),
+    true,
+  );
 });
 
 async function initializedRoot(): Promise<string> {
