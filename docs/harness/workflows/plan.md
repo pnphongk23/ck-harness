@@ -13,7 +13,8 @@ it preserves observable behavior and instead defines explicit technical design o
 ## Inputs
 - Every Feature governing the requested behavior, all approved.
 - Active Specs, approved Decisions, project Rules, and unfinished related Plans.
-- Graphify output for Harness-document relationships when available under DEC-006.
+- The built-in retrieval graph artifact and `graph check` evidence when
+  available under FEAT-009; otherwise direct canonical inspection.
 - Direct inspection of current source, dependencies, tests, and preserved user changes.
 - Optional implementation design requirements; when needed, one plain
   `design.md` beside `plan.md` and linked through Plan `relationships.source_paths`.
@@ -21,9 +22,12 @@ it preserves observable behavior and instead defines explicit technical design o
 ## Hard Gates
 - **Authority Closure Gate:** Every governing Feature is approved and no
   blocking Decision remains unresolved. Technical-only work names its technical authority and objectives.
-- **Grounding Gate:** Graphify grounds Harness-document relationships when
-  available; direct project and codebase research grounds implementation with a
-  relevant architecture and execution-flow model. Derived output is not authority.
+- **Grounding Gate:** The built-in retrieval graph may accelerate
+  Harness-document relationship inspection when a valid artifact is available;
+  `graph check` is the freshness gate, and direct canonical inspection remains
+  authoritative. Direct project and codebase research grounds implementation
+  with a relevant architecture and execution-flow model. Derived output is
+  never authority.
 - **Design Ownership Gate:** When separate implementation design is needed, it
   is written as linked sibling `design.md`; reusable contracts remain in Specs
   or Decisions and no Change Design artifact is created.
@@ -60,9 +64,11 @@ Implementation Readiness artifact, a named readiness gate, or a Plan per Task.
 1. **Resolve authority:** Link all governing Features, active Specs, approved
    Decisions, and Rules. Reject Plan approval if any governing Feature is not
    approved or a blocking Decision is unresolved.
-2. **Ground documents:** Use Graphify within DEC-006 to inspect derived
-   Harness-document relationships. Warn and continue with direct canonical
-   inspection when Graphify is unavailable.
+2. **Ground documents:** Use the built-in retrieval graph only when a valid
+   artifact exists and `ckh graph check` confirms freshness. Use
+   `ckh graph related` for bounded explicit-link context and direct canonical
+   inspection for authority; warn and continue when the artifact is absent,
+   stale, or malformed.
 3. **Research project and codebase:** Apply the local `scout` behavior to establish
    project purpose, stack, entry points, architecture, primary control or data
    flows, build and test paths, and operational context before tracing affected
@@ -82,8 +88,7 @@ Implementation Readiness artifact, a named readiness gate, or a Plan per Task.
 7. **Setup directory:** Invoke and consume
    `ckh plan create --title TITLE --work-item TITLE [--work-item TITLE ...] [--created ISO-8601]`
    to scaffold the `YYMMDD-HHmm-slug` directory with `plan.md`, optional
-   `design.md`, and ordered `work-item-XX-*.md` files. Read every returned Plan
-   and Work Item path before manually replacing generated content.
+   `design.md`, and ordered `work-item-XX-*.md` files. Read every generated Plan and Work Item file returned by the command before manually replacing generated content.
 8. **Draft Plan root:** Use the current Plan template and write execution
    `status: pending`, approval metadata, relationships, priority, effort, branch,
    tags, dependencies, author metadata, the coverage map, and the verification ledger.
@@ -134,8 +139,9 @@ executable success criteria; or a non-executable Plan awaiting revision.
 ## Completion Criteria
 - Plan and every Work Item parse under the existing Harness schema.
 - Every governing Feature is approved; relationships and Decision dependencies resolve.
-- Graphify document grounding and direct project/codebase research evidence,
-  including relevant architecture and execution flows, are recorded as applicable.
+- Retrieval-graph grounding, when used, and direct project/codebase research
+  evidence, including relevant architecture and execution flows, are recorded
+  as applicable; canonical Markdown remains the authority.
 - Any separate implementation design is the linked sibling of its owning `plan.md`.
 - Every required requirement or technical objective has Work Item coverage.
 - Every required success criterion has exact evidence expectations.
@@ -157,7 +163,8 @@ executable success criteria; or a non-executable Plan awaiting revision.
   recommendation as Repository Maintainer approval.
 - Do not present a Plan as ready while execution-affecting claims are Failed or
   Unresolved or the consistency sweep contains a contradiction.
-- Do not treat Graphify output as source-code scouting or canonical authority.
+- Do not treat retrieval-graph output as source-code scouting or canonical
+  authority; use it only as explainable derived context.
 - Do not store Plan-specific design under Specs, a top-level design tree, or another Plan.
 - Do not add a Story layer or create a separate Plan for each Task.
 - Do not begin Cook before mechanical validation and human approval.
@@ -186,8 +193,7 @@ executable success criteria; or a non-executable Plan awaiting revision.
 - **Changes requested:** Revise and resubmit. If Repository Maintainer requests
   changes, invoke `ckh plan request-changes TARGET --decided YYYY-MM-DD`. This
   sets Plan approval to `changes_requested`, preserves the independent execution
-  status, prevents new execution until reapproval, and does not create a terminal
-  rejected state.
+  status, prevents new execution until reapproval, and does not produce a terminal rejected state.
 - **CLI failure and manual fallback:** If a CLI command is unsupported or fails, apply the named manual recovery path: manually edit the affected markdown or frontmatter files to repair the state, run `ckh validate` to verify mechanical validity, and never claim the failed command succeeded.
 - **Recovery boundary:** Preserve the strict recovery boundary: do not automatically
   start Cook, mutate Git, access the network, start a watcher or daemon, or create

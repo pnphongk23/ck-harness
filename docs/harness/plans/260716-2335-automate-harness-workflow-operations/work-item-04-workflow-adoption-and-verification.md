@@ -1,7 +1,7 @@
 ---
 work_item: 4
 title: Workflow adoption and delivery verification
-status: in_progress
+status: completed
 priority: P1
 effort: 1 day
 dependencies:
@@ -12,7 +12,7 @@ decision_dependencies:
   - "[[DEC-001-cli-command-parsing|DEC-001]]"
   - "[[DEC-002-minimal-file-mutations|DEC-002]]"
   - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
-  - "[[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]]"
+  - "[[DEC-012-build-markdown-retrieval-with-an-explicit-graph-and-lexical-index|DEC-012]]"
 ---
 
 # Work Item 4: Workflow adoption and delivery verification
@@ -23,18 +23,18 @@ Documentation and verification
 
 ## Tasks
 
-- [ ] Update Feature, Plan, and Cook workflows to name the exact CLI command at
+- [x] Update Feature, Plan, and Cook workflows to name the exact CLI command at
   every supported create/check/review/transition boundary and require agents to
   consume its result.
-- [ ] Update `harness-feature`, `harness-plan`, and `harness-cook` routers with
+- [x] Update `harness-feature`, `harness-plan`, and `harness-cook` routers with
   concise required-command guidance while preserving canonical workflow authority.
-- [ ] Document the command contract, targets, review semantics, stable JSON,
+- [x] Document the command contract, targets, review semantics, stable JSON,
   manual fallback, recovery boundary, and explicit prohibition on agent-granted approval.
-- [ ] Add workflow/skill tests that reject stale manual mutation guidance and
+- [x] Add workflow/skill tests that reject stale manual mutation guidance and
   assert the required command sequence before Plan/Cook transitions.
-- [ ] Run compatibility and package verification for default/configured layouts,
+- [x] Run compatibility and package verification for default/configured layouts,
   existing commands, templates, index, doctor, and packed CLI contents.
-- [ ] Create the Delivery Report through the CLI after all Work Items pass, link
+- [x] Create the Delivery Report through the CLI after all Work Items pass, link
   it to the Plan, rebuild the index, and complete the Plan only from evidence.
 
 ## Scope and affected files
@@ -51,18 +51,18 @@ Documentation and verification
 
 ## Success criteria
 
-- [ ] An agent following Feature, Plan, or Cook guidance invokes the supported
+- [x] An agent following Feature, Plan, or Cook guidance invokes the supported
   CLI before manually reasoning about or mutating the same mechanical state.
-- [ ] Guidance states that request-changes means Feature `proposed` or Plan
+- [x] Guidance states that request-changes means Feature `proposed` or Plan
   approval `changes_requested`, never a new terminal rejected state.
-- [ ] Unsupported or failed CLI operations use a named manual recovery/fallback
+- [x] Unsupported or failed CLI operations use a named manual recovery/fallback
   followed by validation; guidance never claims a nonexistent command succeeded.
-- [ ] Workflows remain canonical, skills remain thin/local, and no duplicate
+- [x] Workflows remain canonical, skills remain thin/local, and no duplicate
   transition contract or external/home-directory dependency is introduced.
-- [ ] `npm run verify`, `ckh validate --all`, `ckh index check`, `ckh doctor`,
+- [x] `npm run verify`, `ckh validate --all`, `ckh index check`, `ckh doctor`,
   package dry-run, packed CLI smoke tests, and `git diff --check` pass.
-- [ ] A completed Report records changed files, exact evidence, Plan variance,
-  Graphify non-use under DEC-010, and any repeated friction.
+- [x] A completed Report records changed files, exact evidence, Plan variance,
+  retrieval-graph non-overlap under DEC-012, and any repeated friction.
 
 ## Risks
 
@@ -82,3 +82,21 @@ Documentation and verification
 - Full verification outputs and package contents are recorded in the Report.
 - Whole-Plan consistency search reports zero unresolved TODO/TBD, stale command
   names, dependency conflicts, rejected assumptions, or contradictory criteria.
+
+## Execution evidence
+
+- `npm run verify` — TypeScript check/build and 113 tests passed, 0 failed.
+- `ckh validate --all` — passed.
+- `ckh index build` followed by `ckh index check` — passed; index is current.
+- `ckh doctor` — passed.
+- `npm pack --dry-run --json` — package boundary resolved 69 files with no
+  forbidden runtime contents.
+- Packed CLI smoke (`npm pack --json`, extract, then packed `validate --all` and
+  `index check`) — passed.
+- `git diff --check` — passed.
+- `ckh workflow status` and `ckh workflow check` for this Plan — approved,
+  in-progress, no blockers; consistency check passed.
+- Workflow and skill tests assert command ordering, review semantics, manual
+  fallback, recovery boundaries, and prohibition on agent-granted approval.
+- No retrieval-graph implementation was included; graph scope remains under
+  FEAT-009 and DEC-012.

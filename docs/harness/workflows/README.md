@@ -44,7 +44,7 @@ flowchart TD
 
     Authority --> Closure{All governing Features approved and blocking Decisions resolved?}
     Closure -->|No| Document
-    Closure -->|Yes| Ground[Graphify docs and directly scout code]
+    Closure -->|Yes| Ground[Optional retrieval artifact and directly scout code]
     Ground --> Design[Write optional design.md beside plan.md]
     Design --> Plan[Draft current Plan with Work Items, Tasks, and coverage]
     Plan --> PlanValidate{Mechanically valid?}
@@ -136,7 +136,7 @@ persist hidden state.
    - Trigger: approved behavior or explicit technical-only objectives are ready
      for implementation.
    - Preconditions: all governing Features approved; no blocking Decision;
-     Graphify document grounding plus direct code scout; optional linked sibling
+     optional fresh retrieval-artifact grounding plus direct code scout; optional linked sibling
      `design.md`; Work Item/Task decomposition; complete requirement or
      technical-objective coverage.
    - Gates: mechanical validation, then one Repository Maintainer Plan approval.

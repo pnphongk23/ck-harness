@@ -311,10 +311,17 @@ export async function cleanHarness(root: string, dryRun: boolean): Promise<{ pat
   const paths = await repositoryPaths(root);
   return withRepositoryLock(paths.root, paths.harness, async () => {
     const targets: string[] = [];
-    for (const candidate of paths.allowlist.slice(-3)) {
+    const disposable = [
+      join(paths.harness, "graph-out"),
+      join(paths.harness, "graphify-out"),
+      join(paths.harness, ".harness-tmp"),
+      join(paths.harness, ".cache"),
+    ];
+    for (const candidate of disposable) {
       if (await exists(candidate)) targets.push(candidate);
     }
-    await Promise.all(paths.allowlist.slice(1, -3).map((directory) => collectTemporarySiblings(directory, targets)));
+    const managedDirectories = [paths.features, paths.specs, paths.decisions, paths.plans, paths.reports, paths.rules, paths.templates, paths.workflows];
+    await Promise.all(managedDirectories.map((directory) => collectTemporarySiblings(directory, targets)));
     const unique = [...new Set(targets)].sort();
     if (!dryRun) await Promise.all(unique.map((target) => rm(target, { recursive: true, force: true })));
     return { paths: unique.map((target) => relative(paths.root, target)), removed: !dryRun };

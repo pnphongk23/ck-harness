@@ -3,7 +3,7 @@ schema_version: 1
 type: decision
 id: DEC-010
 title: Defer Graphify and select future graph technology
-status: approved
+status: superseded
 created: 2026-07-16
 approved: 2026-07-16
 approved_by: Repository Maintainer
@@ -12,6 +12,7 @@ relationships:
   specs: []
   decisions:
     - "[[DEC-006-graphify-directory-extraction-boundary|DEC-006]]"
+    - "[[DEC-011-build-the-markdown-graph-with-the-harness-resolver-and-cytoscape-js|DEC-011]]"
   plans:
     - "[[260716-1356-configure-harness-document-folders/plan|Plan]]"
   reports: []
@@ -77,4 +78,6 @@ model, output ownership, and verification contract.
 
 ## Supersession
 
-This decision supersedes [[DEC-006-graphify-directory-extraction-boundary|DEC-006]].
+This decision supersedes [[DEC-006-graphify-directory-extraction-boundary|DEC-006]]
+and is superseded by
+[[DEC-011-build-the-markdown-graph-with-the-harness-resolver-and-cytoscape-js|DEC-011]].

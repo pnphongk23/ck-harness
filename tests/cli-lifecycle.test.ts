@@ -143,21 +143,21 @@ test("deprecation preserves approval and clean removes only allowlisted disposab
   assert.equal("status" in after.frontmatter && after.frontmatter.status, "deprecated");
 
   const temporary = join(root, "docs", "harness", "features", ".stale.md.harness-tmp-99-0");
-  const graph = join(root, "docs", "harness", "graphify-out", "graph.json");
+  const graph = join(root, "docs", "harness", "graph-out", "retrieval-index.json");
   await writeFile(temporary, "temporary", "utf8");
-  await mkdir(join(root, "docs", "harness", "graphify-out"), { recursive: true });
+  await mkdir(join(root, "docs", "harness", "graph-out"), { recursive: true });
   await writeFile(graph, "{}", "utf8");
   const before = await snapshot(root);
   const preview = await invoke(["clean", "--dry-run", "--workspace", root, "--json"], root);
   assert.equal(preview.code, EXIT_CODES.success);
   assert.deepEqual(await snapshot(root), before);
-  assert.match(preview.stdout, /graphify-out/);
+  assert.match(preview.stdout, /graph-out/);
   assert.match(preview.stdout, /harness-tmp/);
 
   const cleaned = await invoke(["clean", "--workspace", root, "--json"], root);
   assert.equal(cleaned.code, EXIT_CODES.success);
   assert.equal(await fileExists(temporary), false);
-  assert.equal(await fileExists(join(root, "docs", "harness", "graphify-out")), false);
+  assert.equal(await fileExists(join(root, "docs", "harness", "graph-out")), false);
   assert.equal(await fileExists(featurePath), true);
 });
 

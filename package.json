@@ -26,10 +26,13 @@
   },
   "dependencies": {
     "chokidar": "^5.0.0",
+    "markdown-it": "14.3.0",
+    "minisearch": "7.2.0",
     "yaml": "^2.8.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@types/markdown-it": "14.1.2",
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0"
   },

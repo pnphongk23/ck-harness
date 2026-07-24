@@ -209,7 +209,7 @@ test("Plan-local design is plain supporting Markdown with an exact ownership tra
   assert.ok(external.findings.some((entry) => entry.checkId === "plan.design.location"));
 });
 
-test("doctor reports optional Graphify as a warning and preserves the workspace", async (t) => {
+test("doctor remains independent from optional graph output and preserves the workspace", async (t) => {
   const root = await harnessFixture();
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(join(root, "docs", "harness", "workflows"), { recursive: true });
@@ -220,7 +220,7 @@ test("doctor reports optional Graphify as a warning and preserves the workspace"
   const result = await diagnoseHarness(root, { path: "" });
   assert.equal(result.outcome, "success");
   assert.ok(result.findings.every((entry) => entry.severity === "warning"));
-  assert.ok(result.findings.some((entry) => entry.checkId === "doctor.graphify.unavailable"));
+  assert.equal(result.findings.some((entry) => entry.checkId.startsWith("doctor.graphify")), false);
   assert.deepEqual(await snapshot(root), before);
 });
 

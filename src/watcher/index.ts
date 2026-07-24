@@ -242,8 +242,10 @@ function ignoredPath(testPath: string, paths: RepositoryPaths): boolean {
   const absolute = resolve(testPath);
   const name = basename(absolute);
   if (absolute === resolve(paths.index)) return true;
-  const graphOutput = resolve(paths.harness, "graphify-out");
-  if (absolute === graphOutput || absolute.startsWith(`${graphOutput}${sep}`)) return true;
+  for (const outputName of ["graph-out", "graphify-out"]) {
+    const graphOutput = resolve(paths.harness, outputName);
+    if (absolute === graphOutput || absolute.startsWith(`${graphOutput}${sep}`)) return true;
+  }
   if (name === ".harness-tmp" || name === ".harness.lock") return true;
   if (/^.*\.harness-(?:tmp|rollback)-.*$/.test(name)) return true;
 

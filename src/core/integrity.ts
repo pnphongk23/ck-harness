@@ -253,9 +253,6 @@ export async function diagnoseHarness(root: string, options: DoctorOptions = {})
     }
   }
   findings.push(...(await checkIndex(paths.root)).findings);
-  if (!(await graphifyAvailable(options.path))) {
-    findings.push(warning("doctor.graphify.unavailable", "graphify", "optional Graphify executable is unavailable", "R-021", "install Graphify only when local visualization output is needed"));
-  }
   return result(findings);
 }
 
@@ -315,15 +312,6 @@ export function indexCounters(frontmatter: Record<string, unknown>): IndexCounte
 function indexResult(findings: readonly IntegrityFinding[], expected: string): IndexCheckResult {
   const base = result(findings);
   return { ...base, expected };
-}
-
-async function graphifyAvailable(pathValue = process.env.PATH ?? ""): Promise<boolean> {
-  const names = process.platform === "win32" ? ["graphify.exe", "graphify"] : ["graphify"];
-  const directories = pathValue.split(process.platform === "win32" ? ";" : ":").filter(Boolean);
-  for (const directory of directories) {
-    for (const name of names) if (await exists(join(directory, name))) return true;
-  }
-  return false;
 }
 
 async function selectScope(paths: RepositoryPaths, documents: readonly ScannedDocument[], scope: IntegrityScope): Promise<Set<string> | IntegrityFinding> {
@@ -603,12 +591,6 @@ function finding(checkId: string, path: string, message: string, contract: strin
   return remediation === undefined
     ? { severity: "error", checkId, path, message, contract }
     : { severity: "error", checkId, path, message, contract, remediation };
-}
-
-function warning(checkId: string, path: string, message: string, contract: string, remediation?: string): IntegrityFinding {
-  return remediation === undefined
-    ? { severity: "warning", checkId, path, message, contract }
-    : { severity: "warning", checkId, path, message, contract, remediation };
 }
 
 function result(findings: readonly IntegrityFinding[]): IntegrityResult {

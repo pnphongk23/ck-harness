@@ -114,8 +114,8 @@ test("workflows enforce key architectural boundaries and behaviors", async () =>
   assert.match(selfImproveContent, /two independent/i, "Rule promotion inside Self Improve must require two occurrences");
   assert.match(selfImproveContent, /human.*approval/i, "Self Improve must require human approval");
   assert.match(selfImproveContent, /never rewrite.*automatically/is, "Self Improve must prohibit automatic self-mutation");
-  assert.match(selfImproveContent, /graphify/i, "Self Improve must describe optional Graphify use");
-  assert.match(selfImproveContent, /warn and skip/i, "Self Improve must degrade gracefully if Graphify is missing");
+  assert.match(selfImproveContent, /retrieval artifact/i, "Self Improve must describe optional retrieval-artifact use");
+  assert.match(selfImproveContent, /warn and continue/i, "Self Improve must degrade gracefully if the retrieval artifact is missing");
 });
 
 test("cook.md contains the exact Vietnamese block disclosure", async () => {

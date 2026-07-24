@@ -194,6 +194,7 @@ export async function repositoryPaths(root: string): Promise<RepositoryPaths> {
     resolved.rules,
     resolved.templates,
     resolved.workflows,
+    join(harnessRootAbs, "graph-out"),
     join(harnessRootAbs, "graphify-out"),
     join(harnessRootAbs, ".harness-tmp"),
     join(harnessRootAbs, ".cache"),

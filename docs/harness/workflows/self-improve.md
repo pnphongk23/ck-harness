@@ -19,7 +19,7 @@ Spec, template, workflow, project policy, or promoted Rule.
   `recurrence_key` values.
 - Current Specs, templates, workflows, `RULES.md`, and promoted `RULE-XXX`
   artifacts.
-- Wikilinks and index relationships; optional derived Graphify output.
+- Wikilinks, index relationships, and the optional derived retrieval artifact.
 
 ## Hard Gates
 
@@ -77,10 +77,11 @@ Spec, template, workflow, project policy, or promoted Rule.
 9. **Close the Loop:** Record the accepted improvement and verification result
    in a Report or Decision. Rebuild the derived index through tooling when that
    capability exists.
-10. **Visualize Relationships (Optional):** Graphify may help inspect related
-    evidence. If missing, warn and skip. Obtain explicit permission before any
-    configuration that sends documents or images to an external provider, and
-    treat all Graphify output as removable derived state.
+10. **Inspect Relationships (Optional):** Use the built-in retrieval artifact
+    only after `ckh graph check` confirms freshness. If it is missing, stale, or
+    malformed, warn and continue with canonical Markdown and index checks. Query
+    output is derived evidence and removable state; it never replaces document
+    authority.
 
 ## Output
 
@@ -111,7 +112,7 @@ Exactly one of these evidence-backed outcomes:
   files, or unsupported opinion.
 - Do not use Self-Improve to bypass the Feature, Decision, Plan, or Cook gates.
 - Do not store learning in a database, hidden trace ledger, chat transcript, or
-  Graphify output.
+  retrieval artifact.
 - Do not make unrelated cleanup changes while applying an approved improvement.
 
 ## Failure and Recovery
@@ -122,8 +123,8 @@ Exactly one of these evidence-backed outcomes:
   contract should govern, then supersede the losing guidance explicitly.
 - **Verification Failure:** Leave the improvement unaccepted, fix or revert
   only the authorized edit without discarding user changes, and rerun checks.
-- **Graphify Unavailable:** Warn and continue using canonical wikilinks and
-  index checks.
+- **Retrieval artifact unavailable or stale:** Warn and continue using canonical
+  wikilinks and index checks; do not infer freshness from query results.
 - **Handoff Boundary:** The workflow ends after the improvement is approved,
   verified, and recorded. A resulting product behavior change starts Feature;
   maintenance inside existing authority starts Plan; a durable policy choice

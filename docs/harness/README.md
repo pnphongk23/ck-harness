@@ -11,7 +11,7 @@ artifact sequences.
 The CLI initializes the Harness, scaffolds supported artifacts, safely changes
 Feature lifecycle state, validates canonical knowledge, builds and checks the
 derived index, optionally reconciles it while explicitly watching, and offers
-an explicit local Graphify adapter. Repository tooling never invokes Claude,
+an explicit built-in offline Markdown retrieval graph. Repository tooling never invokes Claude,
 Codex, Cursor, Antigravity, or another AI agent.
 
 The MVP has one CLI writer. Writes stay under repository-contained allowlists,
@@ -64,8 +64,10 @@ ckh validate PATH | --kind KIND | --all
 ckh index build
 ckh index check
 ckh index watch [--poll] [--debounce MS] [--rebind-attempts N]
+ckh graph build
 ckh graph check
-ckh graph build --allow-external
+ckh graph search QUERY [--limit N]
+ckh graph related TARGET [--direction in|out|both] [--depth N]
 ckh doctor
 ckh new spec --title TITLE
 ckh new decision --title TITLE [--created YYYY-MM-DD]
@@ -114,12 +116,11 @@ If a command is unsupported or fails, agents must use the named manual fallback 
 `index build` publishes one complete deterministic Markdown snapshot. `index
 check` is the independent read-only CI gate. `index watch` is an explicit local
 convenience that performs full debounced reconciliation and preserves the last
-valid index during invalid edits or degraded coverage. `graph check` treats a
-missing optional executable as a warning; only explicit `graph build` starts
-the local process, with a validated relationship view sent on stdin and output
-contained in the disposable resolved graph output directory (default: `docs/harness/graphify-out/`). Because Graphify may use
-a configured semantic backend for Markdown, build requires the informed
-`--allow-external` permission flag.
+valid index during invalid edits or degraded coverage. `graph build` publishes
+one local versioned retrieval artifact under `graph-out/`; `graph check` is the
+explicit freshness gate. `graph search` and `graph related` load only that
+artifact and never scan Markdown implicitly. The graph is explicit-link and
+lexical-only, offline, deterministic, and disposable.
 
 `feature create` and `new decision` create non-approved drafts/proposals.
 Reports require an explicit delivery date. Rules require an explicit approval
@@ -164,7 +165,7 @@ command. Do not introduce a database or hidden trace store as recovery state.
 ## Cleanup ownership
 
 `harness clean --dry-run` is the required preview. Confirmed cleanup can remove
-only the resolved `graphify-out/`, `.harness-tmp/`, and `.cache/` directories under the
+only the resolved `graph-out/`, historical `graphify-out/`, `.harness-tmp/`, and `.cache/` directories under the
 resolved Harness root, and stale temporary sibling or rollback files carrying
 the Harness-owned marker. It never removes canonical authored Markdown,
 Features, Specs, Decisions, Plans, Reports, Rules, templates, or workflows.
@@ -186,8 +187,7 @@ Features, Specs, Decisions, Plans, Reports, Rules, templates, or workflows.
 
 There is no SQLite database, legacy database importer, MCP server, dashboard,
 hosted service, event or trace ledger, multi-writer transaction guarantee,
-agent orchestration, automatic recovery, commit, push, deployment, or required
-Graphify runtime. `validate`, `index check`, and `doctor` are read-only: index
-checks never build or watch the index, while doctor reports a missing optional
-Graphify executable as a warning. Watch mode is not a CI correctness gate, and
-Graphify remains optional local tooling invoked only by explicit graph commands.
+agent orchestration, automatic recovery, commit, push, deployment, or external
+graph runtime. `validate`, `index check`, and `doctor` are read-only. Watch mode
+is not a CI correctness gate, and graph queries never imply freshness without
+an explicit `graph check`.

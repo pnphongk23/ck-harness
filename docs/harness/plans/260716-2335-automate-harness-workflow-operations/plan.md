@@ -1,15 +1,20 @@
 ---
-title: "Automate Harness workflow operations"
-description: "Add deterministic CLI scaffolding, review recording, workflow-state checks, and guarded execution transitions, then require Harness workflows and skills to use them."
-status: in_progress
+title: Automate Harness workflow operations
+description: Add deterministic CLI scaffolding, review recording, workflow-state checks, and guarded execution transitions, then require Harness workflows and skills to use them.
+status: completed
 approval:
   status: approved
   required_by: Repository Maintainer
   decided: 2026-07-16
 priority: P1
-effort: "5-7 days"
-branch: "codex/automate-harness-workflow-operations"
-tags: [harness, cli, workflow, lifecycle, automation]
+effort: 5-7 days
+branch: codex/automate-harness-workflow-operations
+tags:
+  - harness
+  - cli
+  - workflow
+  - lifecycle
+  - automation
 blockedBy: []
 blocks: []
 relationships:
@@ -20,11 +25,12 @@ relationships:
     - "[[DEC-002-minimal-file-mutations|DEC-002]]"
     - "[[DEC-005-separate-approval-and-execution-state|DEC-005]]"
     - "[[DEC-008-use-work-item-as-the-only-plan-execution-unit|DEC-008]]"
-    - "[[DEC-010-defer-graphify-and-select-future-graph-technology|DEC-010]]"
+    - "[[DEC-012-build-markdown-retrieval-with-an-explicit-graph-and-lexical-index|DEC-012]]"
   plans:
     - "[[260714-0033-file-based-agent-harness/plan|Plan]]"
     - "[[260715-2324-verified-skill-workflows/plan|Plan]]"
-  reports: []
+  reports:
+    - "[[REP-010-deliver-automated-harness-workflow-operations|REP-010]]"
   rules: []
   features:
     - "[[FEAT-001-harness-cli|FEAT-001]]"
@@ -59,9 +65,9 @@ relationships:
     - tests/templates.test.ts
     - tests/workflows.test.ts
     - tests/skills.test.ts
-created: "2026-07-16T23:35:55+07:00"
-createdBy: "Codex"
-source: "Approved FEAT-008 and current repository lifecycle contracts"
+created: 2026-07-16T23:35:55+07:00
+createdBy: Codex
+source: Approved FEAT-008 and current repository lifecycle contracts
 ---
 
 # Automate Harness workflow operations
@@ -109,10 +115,10 @@ envelopes remain compatible.
 
 | Work Item | Name | Status |
 | --- | --- | --- |
-| 1 | [Canonical Plan scaffolding](./work-item-01-canonical-plan-scaffolding.md) | Pending |
-| 2 | [Workflow state and human review commands](./work-item-02-workflow-state-and-review.md) | Pending |
-| 3 | [Guarded execution transitions](./work-item-03-guarded-execution-transitions.md) | Pending |
-| 4 | [Workflow adoption and delivery verification](./work-item-04-workflow-adoption-and-verification.md) | Pending |
+| 1 | [Canonical Plan scaffolding](./work-item-01-canonical-plan-scaffolding.md) | Completed |
+| 2 | [Workflow state and human review commands](./work-item-02-workflow-state-and-review.md) | Completed |
+| 3 | [Guarded execution transitions](./work-item-03-guarded-execution-transitions.md) | Completed |
+| 4 | [Workflow adoption and delivery verification](./work-item-04-workflow-adoption-and-verification.md) | In progress |
 
 ## Requirement coverage
 
@@ -149,7 +155,7 @@ envelopes remain compatible.
 | Initialization will publish added Markdown templates without a new copy mechanism | Verified | `initializeHarness()` enumerates every Markdown file in the source templates directory. |
 | Existing lifecycle and custom-layout tests provide command, JSON, strict grammar, nested path, non-ASCII, and configured-path seams | Verified | `tests/cli-lifecycle.test.ts`, `tests/repository-paths.test.ts`, and `tests/integrity.test.ts`. |
 | The only unfinished overlapping Plan has no active Work Item and is blocked solely on external Linux/Windows evidence for FEAT-001 | Verified | `260714-0033-file-based-agent-harness/plan.md` and its Work Item 5. |
-| Graphify must not be extended or used as authority for this delivery | Verified | DEC-010 supersedes DEC-006; `ckh graph check` found version 0.8.39, but no external build permission was granted. |
+| Graph behavior remains outside this delivery | Verified | DEC-012 assigns the retrieval graph to FEAT-009 and its separate Plan; this Plan does not invoke or extend Graphify. |
 | Current repository baseline is valid | Verified | `ckh validate`, `ckh index check`, `ckh doctor`, `npm test` (99/99), and `git diff --check` passed before Plan creation. |
 
 Verification totals: 12 Verified, 0 Failed, 0 Unresolved.
@@ -160,7 +166,7 @@ Verification totals: 12 Verified, 0 Failed, 0 Unresolved.
   the governing behavior boundary.
 - DEC-001 fixes strict Node parsing; DEC-002 fixes safe file mutation; DEC-005
   requires approval/execution separation; DEC-008 fixes Work Item terminology;
-  DEC-010 prevents Graphify scope expansion.
+  DEC-012 keeps the retrieval graph in FEAT-009 and its separate Plan.
 - The blocked `260714-0033-file-based-agent-harness` Plan retains external
   cross-platform verification for the old FEAT-001 command surface. This Plan
   does not change that success criterion, claim it complete, or depend on its

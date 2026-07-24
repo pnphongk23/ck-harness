@@ -22,9 +22,11 @@ import {
   type TransitionResult,
 } from "../core/lifecycle.js";
 import { checkIndex, diagnoseHarness, scanHarness, type IntegrityArtifactScope, type IntegrityResult } from "../core/integrity.js";
-import { findRepositoryRoot, HarnessError } from "../fs/repository.js";
+import { findRepositoryRoot, HarnessError, repositoryPaths } from "../fs/repository.js";
 import { buildIndex } from "../index/index.js";
-import { checkGraphify, buildGraph, type GraphProcessDependencies } from "../adapters/index.js";
+import { buildGraphArtifact } from "../graph/build.js";
+import { checkGraphArtifact, loadGraphArtifact } from "../graph/artifact.js";
+import { relatedGraph, searchGraph } from "../graph/query.js";
 
 export const EXIT_CODES = {
   success: 0,
@@ -38,7 +40,6 @@ export interface CliIo {
   cwd: string;
   stdout: (value: string) => void;
   stderr: (value: string) => void;
-  graph?: GraphProcessDependencies;
 }
 
 type OptionValue = string | boolean | string[] | undefined;
@@ -86,22 +87,52 @@ const commands: readonly CommandSpec[] = [
     const result = data as Awaited<ReturnType<typeof buildIndex>>;
     return result.unchanged ? "Harness index unchanged" : "Harness index built";
   }),
-  command(["graph", "check"], "harness graph check [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ io, positionals }) => {
+  command(["graph", "check"], "harness graph check [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
     exactPositionals(positionals, 0);
-    return checkGraphify(io.graph);
+    return checkGraphArtifact(await rootFor(values, io));
   }, (data) => {
-    const result = data as Awaited<ReturnType<typeof checkGraphify>>;
-    if (result.available) return `Graphify version: ${result.version}`;
-    return `Warning: ${result.warning}\nRemediation: ${result.remediation}`;
+    const result = data as Awaited<ReturnType<typeof checkGraphArtifact>>;
+    if (result.outcome === "success") return `Harness graph is current (${result.source_digest})`;
+    return `Graph warning: ${result.message}`;
   }),
-  command(["graph", "build"], "harness graph build --allow-external [--workspace PATH] [--json]", {
-    ...COMMON_OPTIONS,
-    "allow-external": { type: "boolean" },
-  }, async ({ values, io, positionals }) => {
+  command(["graph", "build"], "harness graph build [--workspace PATH] [--json]", COMMON_OPTIONS, async ({ values, io, positionals }) => {
     exactPositionals(positionals, 0);
-    const root = await rootFor(values, io);
-    return buildGraph(root, { ...io.graph, allowExternal: values["allow-external"] === true });
-  }, () => "Harness graph built"),
+    return buildGraphArtifact(await rootFor(values, io));
+  }, (data) => {
+    const result = data as Awaited<ReturnType<typeof buildGraphArtifact>>;
+    return result.unchanged ? "Harness graph unchanged" : `Harness graph built (${result.source_digest})`;
+  }),
+  command(["graph", "search"], "harness graph search QUERY [--limit N] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS, limit: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const limit = optionalInteger(values, "limit");
+    try {
+      const paths = await repositoryPaths(await rootFor(values, io));
+      const artifact = await loadGraphArtifact(`${paths.harness}/graph-out/retrieval-index.json`);
+      return searchGraph(artifact, positionals[0]!, limit === undefined ? {} : { limit });
+    } catch (error) {
+      if (error instanceof HarnessError) throw error;
+      throw new HarnessError(error instanceof Error ? error.message : String(error), "usage");
+    }
+  }, (data) => JSON.stringify(data)),
+  command(["graph", "related"], "harness graph related TARGET [--direction in|out|both] [--depth N] [--workspace PATH] [--json]", {
+    ...COMMON_OPTIONS, direction: { type: "string" }, depth: { type: "string" },
+  }, async ({ values, io, positionals }) => {
+    exactPositionals(positionals, 1);
+    const direction = optionalString(values, "direction") as "in" | "out" | "both" | undefined;
+    const depth = optionalInteger(values, "depth");
+    try {
+      const root = await rootFor(values, io);
+      const paths = await repositoryPaths(root);
+      return relatedGraph(await loadGraphArtifact(`${paths.harness}/graph-out/retrieval-index.json`), positionals[0]!, {
+        ...(direction === undefined ? {} : { direction }), ...(depth === undefined ? {} : { depth }),
+      });
+    } catch (error) {
+      if (error instanceof HarnessError) throw error;
+      throw new HarnessError(error instanceof Error ? error.message : String(error), "usage");
+    }
+  }, (data) => JSON.stringify(data)),
   command(["index", "watch"], "harness index watch [--poll] [--debounce MS] [--rebind-attempts N] [--workspace PATH] [--json]", {
     ...COMMON_OPTIONS,
     poll: { type: "boolean" },
@@ -321,7 +352,6 @@ export async function runCli(argv: readonly string[], partialIo: Partial<CliIo> 
     cwd: partialIo.cwd ?? process.cwd(),
     stdout: partialIo.stdout ?? ((value) => process.stdout.write(value)),
     stderr: partialIo.stderr ?? ((value) => process.stderr.write(value)),
-    ...(partialIo.graph === undefined ? {} : { graph: partialIo.graph }),
   };
   const args = [...argv];
   const jsonRequested = args.includes("--json");
@@ -393,6 +423,13 @@ function optionalString(values: OptionValues, name: string): string | undefined 
   if (value === undefined) return undefined;
   if (typeof value !== "string") throw new HarnessError(`--${name} must be a string`, "usage");
   return value;
+}
+
+function optionalInteger(values: OptionValues, name: string): number | undefined {
+  const value = optionalString(values, name);
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : Number.NaN;
 }
 
 function stringList(values: OptionValues, name: string): string[] | undefined {

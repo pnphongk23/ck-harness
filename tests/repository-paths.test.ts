@@ -45,6 +45,7 @@ test("no config: defaults to docs/harness byte-for-byte equivalent layout", asyn
   assert.ok(paths.allowlist.includes(paths.index));
   assert.ok(paths.allowlist.includes(paths.features));
   assert.ok(paths.allowlist.includes(join(paths.harness, "graphify-out")));
+  assert.ok(paths.allowlist.includes(join(paths.harness, "graph-out")));
 });
 
 test("root-only override resolves canonical collection names below custom root", async () => {

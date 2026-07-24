@@ -12,7 +12,7 @@ behavior without becoming a second artifact authority.
 | scout | project baseline, architecture and flow research, targeted code tracing, evidence labels, risks, and unknowns | delegated or external discovery with read-only local inspection | focused utility skill | task orchestration and external AI tools |
 | ck-plan 4.4.0 | Work Item files, statuses, `YYMMDD-HHmm-slug` naming | global plan root with the resolved plans folder (default: `docs/harness/plans/`) | external CK validation when installed | unrelated task hydration |
 | cook | approved-plan gate, Work Item order, tests, review | global reports with the resolved reports folder (default: `docs/harness/reports/`) | unavailable-check disclosure | automated source-control and delivery actions |
-| ck-graphify | relationship visualization | trace roots with canonical Markdown roots | `graphify` executable | trace ledger and required executable |
+| built-in retrieval graph | explicit relationship and lexical retrieval | trace roots with canonical Markdown roots | versioned local artifact | visualization, semantic extraction, and external runtime |
 
 All local references used by a skill are listed in its `SKILL.md`. No entrypoint
 depends on files outside this repository. Focused `ask`, `brainstorm`, and
@@ -43,7 +43,7 @@ all files in the six source skill directories that inform this port:
 | Task hydration and delegated research/testing/review/finalization | Removed; direct work with recorded evidence is sufficient |
 | Automatic journal, archive, commit, push, PR, release, deploy | Removed from canonical skills |
 | Gemini/OpenCode scouting, MCP server, semantic LLM graph extraction | Removed from MVP |
-| `graphify` executable and `graphify-out/` | Optional visualization with warning-only absence and derived cleanup |
+| `graph-out/retrieval-index.json` and historical `graphify-out/` | Disposable built-in retrieval artifact plus cleanup compatibility |
 | Upstream report/trace directories and active workflow artifact pointer | Replaced by canonical reports; hidden trace storage removed |
 
 The source directories also reference unrelated ClaudeKit skills such as scout,
